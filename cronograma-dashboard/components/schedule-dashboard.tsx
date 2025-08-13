@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, Users } from "lucide-react"
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, Users, Play, Check } from "lucide-react"
 
 const subjectCategories = {
   // Administración de empresas - Morado
@@ -19,7 +19,7 @@ const subjectCategories = {
     glowColor: "shadow-lg shadow-emerald-700/40",
     textColor: "text-emerald-100",
     subjects: [
-      "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
+      "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS",
       "PENSAMIENTO ALGORÍTMICO",
       "SISTEMAS OPERATIVOS",
       "SEGURIDAD INFORMÁTICA",
@@ -31,6 +31,17 @@ const subjectCategories = {
       "ARQUITECTURA DE HARDWARE Y SOFTWARE",
       "VIRTUALIZACIÓN",
       "REQUERIMIENTOS DE SOFTWARE",
+      "ESTRUCTURA DE DATOS",
+      "FUNDAMENTOS DE ELECTRÓNICA",
+      "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)",
+      "INTERFAZ HOMBRE MAQUINA - INGSOFT502",
+      "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503",
+      "PROGRAMACION WEB - INGSOFT403",
+      "INTERFAZ HOMBRE MAQUINA - INGSOFT501",
+      "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701",
+      "FUNDAMENTOS DE ELECTRONICA - INGSOFT102",
+      
+      
     ],
   },
   // Ingeniería industrial - Amarillo
@@ -38,13 +49,29 @@ const subjectCategories = {
     color: "bg-yellow-500/20 border-yellow-400/50 shadow-yellow-400/20",
     glowColor: "shadow-lg shadow-yellow-500/30",
     textColor: "text-yellow-100",
-    subjects: ["AUTOMATIZACIÓN DE PROCESOS", "ESTRUCTURA DE DATOS", "FUNDAMENTOS DE ELECTRÓNICA"],
+    subjects: ["AUTOMATIZACIÓN DE PROCESOS", 
+      "IND_PROGRAMACION II", 
+      "PROGRAMACION I - PROGI C", 
+      "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)",
+      "PROGRAMACION II - PROGII A",
+      "MODELACION DE OPERACIONES - MODO B",
+      "MODELACION DE OPERACIONES - MODO A",
+      "FUNDAMENTOS DE INGENIERIA - 101 FUNI A",
+      "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A",
+      "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?",
+      "SIMULACION EN INGENIERIA",
+      "PROGRAMACION I - PROGI A",
+      "AUTOMATIZACION DE PROCESOS - AUTP A"
+    ],
   },
   sports: {
     color: "bg-blue-500/20 border-blue-400/50 shadow-blue-400/20",
     glowColor: "shadow-lg shadow-blue-500/30",
     textColor: "text-blue-100",
-    subjects: ["FUNDAMENTOS DE ESTADÍSTICA", "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA"],
+    subjects: ["FUNDAMENTOS DE ESTADÍSTICA", 
+      "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
+      "ANALISIS CUANTITATIVO EN EL DEPORTE"  
+    ],
   },
 }
 
@@ -68,7 +95,7 @@ const scheduleData = {
       C111: null,
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
+      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS" },
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
       A205: null,
       A206: null,
@@ -77,7 +104,7 @@ const scheduleData = {
       C111: null,
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
+      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS" },
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
       A205: { subject: "SISTEMAS OPERATIVOS" },
       A206: null,
@@ -134,7 +161,7 @@ const scheduleData = {
       C114: { subject: "PROGRAMACIÓN I" },
       C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
       A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      A206: { subject: "PROGRAMACIÓN II" },
+      A206: { subject: "IND_PROGRAMACION II" },
     },
     "15:00-16:00": {
       C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
@@ -143,7 +170,7 @@ const scheduleData = {
       C114: { subject: "PROGRAMACIÓN I" },
       C115: null,
       A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      A206: { subject: "PROGRAMACIÓN II" },
+      A206: { subject: "IND_PROGRAMACION II" },
     },
     "16:00-17:00": {
       C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
@@ -216,25 +243,25 @@ const scheduleData = {
       C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
       C114: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT501" },
       C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
-      A205: null,
+      A205: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" },
       A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
     },
     "10:00-11:00": {
       C111: { subject: "PROGRAMACION I - PROGI C" },
       C112: { subject: "PROGRAMACION II - PROGII A" },
       C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
-      C114: null,
+      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
       C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
-      A205: null,
+      A205: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" },
       A206: { subject: "SIMULACION EN INGENIERIA - SIMI A" }
     },
     "11:00-12:00": {
       C111: { subject: "PROGRAMACION I - PROGI C" },
       C112: null,
       C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
-      C114: null,
+      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
       C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      A205: null,
+      A205: { subject: "SIMULACION EN INGENIERIA" },
       A206: null
     },
     "12:00-13:00": {
@@ -243,39 +270,39 @@ const scheduleData = {
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
       C114: null,
       C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      A205: null,
-      A206: null
+      A205: { subject: "SIMULACION EN INGENIERIA" },
+      A206: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" }
     },
     "13:00-14:00": {
       C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
       C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
-      C114: null,
+      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
       C115: null,
       A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: null
+      A206: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" }
     },
     "14:00-15:00": {
       C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
       C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
       C113: null,
-      C114: null,
+      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
       C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
       A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: null
+      A206: { subject: "PROGRAMACIÓN II" }
     },
     "15:00-16:00": {
       C111: null,
-      C112: { subject: "PROGRAMACION II - PROGII B" },
+      C112: null,
       C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
       C114: null,
       C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
       A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: null
+      A206: { subject: "PROGRAMACIÓN II" }
     },
     "16:00-17:00": {
       C111: null,
-      C112: { subject: "PROGRAMACION II - PROGII B" },
+      C112: null,
       C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
       C114: null,
       C115: null,
@@ -320,9 +347,9 @@ const scheduleData = {
     }
   },
 
-  miercoles: {
+  miércoles: {
     "07:00-08:00": {
-      C111: null,
+      C111: { subject: "FUNDAMENTOS DE ELECTRONICA" },
       C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
       C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
       C114: { subject: "VIRTUALIZACION - INGSOFT702" },
@@ -331,7 +358,7 @@ const scheduleData = {
       A206: null
     },
     "08:00-09:00": {
-      C111: null,
+      C111: { subject: "FUNDAMENTOS DE ELECTRONICA" },
       C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
       C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
       C114: { subject: "VIRTUALIZACION - INGSOFT702" },
@@ -342,7 +369,7 @@ const scheduleData = {
     "09:00-10:00": {
       C111: { subject: "VIRTUALIZACION - INGSOFT701" },
       C112: null,
-      C113: null,
+      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
       C114: null,
       C115: null,
       A205: { subject: "PROGRAMACION I - PROGI C" },
@@ -353,7 +380,7 @@ const scheduleData = {
       C112: null,
       C113: null,
       C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      C115: null,
+      C115: { subject: "FUNDAMENTOS DE ESTADISTICA" },
       A205: { subject: "PROGRAMACION I - PROGI C" },
       A206: null
     },
@@ -362,9 +389,9 @@ const scheduleData = {
       C112: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 701" },
       C113: null,
       C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      C115: null,
+      C115: { subject: "FUNDAMENTOS DE ESTADISTICA" },
       A205: { subject: "PROGRAMACION I - PROGI C" },
-      A206: null
+      A206: { subject: "FUNDAMENTOS DE ESTADISTICA" }
     },
     "12:00-13:00": {
       C111: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT403" },
@@ -372,23 +399,23 @@ const scheduleData = {
       C113: null,
       C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
       C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: null,
+      A205: { subject: "FUNDAMENTOS DE ESTADISTICA" },
       A206: null
     },
     "13:00-14:00": {
       C111: { subject: "PROGRAMACION I - INGSOFT203" },
       C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
       C113: null,
-      C114: null,
+      C114: { subject: "PROGRAMACION I" },
       C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: null,
+      A205: { subject: "FUNDAMENTOS DE ESTADISTICA" },
       A206: null
     },
     "14:00-15:00": {
       C111: { subject: "PROGRAMACION I - INGSOFT203" },
       C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
       C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
-      C114: null,
+      C114: { subject: "PROGRAMACION I" },
       C115: { subject: "PROGRAMACION I - PROGI B" },
       A205: null,
       A206: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 702" }
@@ -407,7 +434,7 @@ const scheduleData = {
       C112: null,
       C113: null,
       C114: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT103" },
-      C115: null,
+      C115: { subject: "PROGRAMACIÓN II" },
       A205: null,
       A206: null
     },
@@ -415,8 +442,8 @@ const scheduleData = {
       C111: null,
       C112: null,
       C113: null,
-      C114: null,
-      C115: null,
+      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT103" },
+      C115: { subject: "PROGRAMACIÓN II" },
       A205: null,
       A206: null
     },
@@ -451,7 +478,7 @@ const scheduleData = {
   jueves: {
     "07:00-08:00": {
       C111: null,
-      C112: { subject: "FUNDAMENTOS DE ELECTRONICA"},
+      C112: { subject: "FUNDAMENTOS DE ELECTRONICA" },
       C113: null,
       C114: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT401" },
       C115: null,
@@ -495,7 +522,7 @@ const scheduleData = {
       A206: { subject: "FUNDAMENTOS DE ESTADISTICA - 601" }
     },
     "12:00-13:00": {
-      C111:{ subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
+      C111: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
       C112: null,
       C113: { subject: "PROFUNDIZACION" },
       C114: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT503" },
@@ -518,7 +545,7 @@ const scheduleData = {
       C113: { subject: "PROGRAMACION - 101M" },
       C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
       C115: { subject: "FUNDAMENTOS DE ESTADISTICA - 602" },
-      A205: null,
+      A205: { subject: "PROGRAMACION II" },
       A206: { subject: "PROGRAMACION I - PROGI A" }
     },
     "15:00-16:00": {
@@ -527,7 +554,7 @@ const scheduleData = {
       C113: { subject: "PROGRAMACION - 101M" },
       C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
       C115: null,
-      A205: null,
+      A205: { subject: "PROGRAMACION II" },
       A206: { subject: "PROGRAMACION I - PROGI A" }
     },
     "16:00-17:00": {
@@ -535,7 +562,7 @@ const scheduleData = {
       C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
       C113: { subject: "PROGRAMACION - 102M" },
       C114: null,
-      C115: {subject: "PROGRAMACION II"},
+      C115: { subject: "PROGRAMACION II" },
       A205: null,
       A206: null
     },
@@ -544,7 +571,7 @@ const scheduleData = {
       C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
       C113: { subject: "PROGRAMACION - 102M" },
       C114: null,
-      C115: {subject: "PROGRAMACION II"},
+      C115: { subject: "PROGRAMACION II" },
       A205: null,
       A206: null
     },
@@ -577,143 +604,143 @@ const scheduleData = {
     }
   },
 
-viernes: {
-  "07:00-08:00": {
-    C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
-    C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
-    C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
-    C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
-    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-    A205: null,
-    A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
-  },
-  "08:00-09:00": {
-    C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
-    C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
-    C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
-    C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
-    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-    A205: null,
-    A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
-  },
-  "09:00-10:00": {
-    C111: null,
-    C112: null,
-    C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-    A205: { subject: "PROGRAMACION II - INGSOFT303" },
-    A206: null
-  },
-  "10:00-11:00": {
-    C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
-    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-    C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-    C115: null,
-    A205: { subject: "PROGRAMACION II - INGSOFT303" },
-    A206: null
-  },
-  "11:00-12:00": {
-    C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
-    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-    C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
-    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-    C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
-    A205: null,
-    A206: null
-  },
-  "12:00-13:00": {
-    C111: null,
-    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-    C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
-    C114: null,
-    C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
-    A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
-    A206: null
-  },
-  "13:00-14:00": {
-    C111: null,
-    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-    C113: { subject: "PLANIMETRIA - 101M" },
-    C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
-    C115: { subject: "PROGRAMACION I - PROGI B" },
-    A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
-    A206: null
-  },
-  "14:00-15:00": {
-    C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
-    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-    C113: { subject: "PLANIMETRIA - 101M" },
-    C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
-    C115: { subject: "PROGRAMACION I - PROGI B" },
-    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-    A206: { subject: "PROGRAMACION II" }
-  },
-  "15:00-16:00": {
-    C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
-    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-    C113: { subject: "PLANIMETRIA - 101M" },
-    C114: null,
-    C115: { subject: "PROGRAMACION I - PROGI B" },
-    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-    A206: { subject: "PROGRAMACION II" }
-  },
-  "16:00-17:00": {
-    C111: null,
-    C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
-    C113: { subject: "PLANIMETRIA - 102M" },
-    C114: null,
-    C115: { subject: "PROGRAMACION II" },
-    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-    A206: null
-  },
-  "17:00-18:00": {
-    C111: null,
-    C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
-    C113: { subject: "PLANIMETRIA - 102M" },
-    C114: null,
-    C115:{ subject: "PROGRAMACION II" },
-    A205: null,
-    A206: null
-  },
-  "18:00-19:00": {
-    C111: null,
-    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-    C113: null,
-    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-    C115: null,
-    A205: null,
-    A206: null
-  },
-  "19:00-20:00": {
-    C111: null,
-    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-    C113: null,
-    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-    C115: null,
-    A205: null,
-    A206: null
-  },
-  "20:00-21:00": {
-    C111: null,
-    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-    C113: null,
-    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-    C115: null,
-    A205: null,
-    A206: null
-  },
-  "21:00-22:00": {
-    C111: null,
-    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-    C113: null,
-    C114: null,
-    C115: null,
-    A205: null,
-    A206: null
+  viernes: {
+    "07:00-08:00": {
+      C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
+      C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
+      C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
+      C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
+      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      A205: null,
+      A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
+    },
+    "08:00-09:00": {
+      C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
+      C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
+      C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
+      C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
+      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      A205: null,
+      A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
+    },
+    "09:00-10:00": {
+      C111: null,
+      C112: null,
+      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      A205: { subject: "PROGRAMACION II - INGSOFT303" },
+      A206: null
+    },
+    "10:00-11:00": {
+      C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
+      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+      C115: null,
+      A205: { subject: "PROGRAMACION II - INGSOFT303" },
+      A206: null
+    },
+    "11:00-12:00": {
+      C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
+      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
+      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+      C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
+      A205: null,
+      A206: null
+    },
+    "12:00-13:00": {
+      C111: null,
+      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
+      C114: null,
+      C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
+      A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
+      A206: null
+    },
+    "13:00-14:00": {
+      C111: null,
+      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+      C113: { subject: "PLANIMETRIA - 101M" },
+      C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
+      A206: null
+    },
+    "14:00-15:00": {
+      C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
+      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+      C113: { subject: "PLANIMETRIA - 101M" },
+      C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+      A206: { subject: "PROGRAMACION II" }
+    },
+    "15:00-16:00": {
+      C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
+      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+      C113: { subject: "PLANIMETRIA - 101M" },
+      C114: null,
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+      A206: { subject: "PROGRAMACION II" }
+    },
+    "16:00-17:00": {
+      C111: null,
+      C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
+      C113: { subject: "PLANIMETRIA - 102M" },
+      C114: null,
+      C115: { subject: "PROGRAMACION II" },
+      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+      A206: null
+    },
+    "17:00-18:00": {
+      C111: null,
+      C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
+      C113: { subject: "PLANIMETRIA - 102M" },
+      C114: null,
+      C115: { subject: "PROGRAMACION II" },
+      A205: null,
+      A206: null
+    },
+    "18:00-19:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+      C113: null,
+      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "19:00-20:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+      C113: null,
+      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "20:00-21:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+      C113: null,
+      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "21:00-22:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    }
   }
-}
 
 }
 
@@ -814,9 +841,77 @@ const attendanceData = [
 export function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState("lunes")
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<"schedule" | "attendance">("schedule")
+  const [activeView, setActiveView] = useState<"schedule" | "attendance" | "realtime">("schedule")
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 60000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const getCurrentDay = () => {
+    const days = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+    return days[currentTime.getDay()]
+  }
+
+  const getCurrentTimeSlot = () => {
+    const hour = currentTime.getHours()
+    const minute = currentTime.getMinutes()
+
+    for (const slot of timeSlots) {
+      const [startTime, endTime] = slot.split("-")
+      const [startHour] = startTime.split(":").map(Number)
+      const [endHour] = endTime.split(":").map(Number)
+
+      if (hour >= startHour && hour < endHour) {
+        return slot
+      }
+    }
+    return null
+  }
+
+  const getCurrentActiveClasses = () => {
+    const currentDay = getCurrentDay()
+    const currentSlot = getCurrentTimeSlot()
+
+    if (!currentSlot || !scheduleData[currentDay as keyof typeof scheduleData]) {
+      return []
+    }
+
+    const daySchedule = scheduleData[currentDay as keyof typeof scheduleData]
+    const slotData = daySchedule[currentSlot]
+
+    if (!slotData) return []
+
+    return rooms
+      .map((room) => ({
+        room,
+        subject: slotData[room]?.subject || null,
+        isOpened: openedRooms.has(`${room}-${currentSlot}`),
+      }))
+      .filter((item) => item.subject !== null)
+  }
+
+  const toggleRoomOpened = (room: string, timeSlot: string) => {
+    const key = `${room}-${timeSlot}`
+    const newOpenedRooms = new Set(openedRooms)
+
+    if (newOpenedRooms.has(key)) {
+      newOpenedRooms.delete(key)
+    } else {
+      newOpenedRooms.add(key)
+    }
+
+    setOpenedRooms(newOpenedRooms)
+  }
 
   const currentSchedule = scheduleData[selectedDay as keyof typeof scheduleData] || scheduleData.lunes
+  const activeClasses = getCurrentActiveClasses()
+  const currentSlot = getCurrentTimeSlot()
 
   return (
     <div className="container mx-auto p-6 space-y-6 relative z-10">
@@ -839,10 +934,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${activeView === "schedule"
-                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "schedule"
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -850,19 +946,207 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${activeView === "attendance"
-                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "attendance"
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
+            </Button>
+            <Button
+              variant={activeView === "realtime" ? "default" : "outline"}
+              onClick={() => setActiveView("realtime")}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "realtime"
+                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+              }`}
+            >
+              <Play className="w-4 h-4 mr-2" />
+              CONTROL TIEMPO REAL
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {activeView === "schedule" ? (
+      {activeView === "realtime" ? (
+        <>
+          <Card className="bg-gray-900/20 backdrop-blur-md border-green-400/30 shadow-2xl shadow-green-500/10">
+            <CardHeader>
+              <CardTitle className="text-green-300 font-mono text-xl flex items-center gap-2">
+                <Play className="w-6 h-6" />
+                CONTROL EN TIEMPO REAL
+              </CardTitle>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2 text-green-400 bg-gray-900/50 px-3 py-1 rounded border border-green-500/30">
+                  <Clock className="w-4 h-4" />
+                  <span className="font-mono">
+                    {currentTime.toLocaleTimeString("es-CO", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-cyan-400 bg-gray-900/50 px-3 py-1 rounded border border-cyan-500/30">
+                  <Calendar className="w-4 h-4" />
+                  <span className="font-mono capitalize">
+                    {getCurrentDay()}, {currentTime.toLocaleDateString("es-CO")}
+                  </span>
+                </div>
+                {currentSlot && (
+                  <div className="flex items-center gap-2 text-yellow-400 bg-gray-900/50 px-3 py-1 rounded border border-yellow-500/30">
+                    <MapPin className="w-4 h-4" />
+                    <span className="font-mono">BLOQUE: {currentSlot}</span>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {activeClasses.length > 0 ? (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-green-300 font-mono mb-4">
+                    SALAS QUE DEBEN ESTAR ABIERTAS AHORA:
+                  </h3>
+                  <div className="grid gap-3">
+                    {activeClasses.map(({ room, subject, isOpened }) => {
+                      const subjectStyle = getSubjectStyle(subject!)
+
+                      return (
+                        <div
+                          key={room}
+                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                            isOpened
+                              ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
+                              : "bg-gray-900/40 border-gray-600/50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-cyan-300 font-mono">{room}</div>
+                                <div className="text-xs text-cyan-400 font-mono">SALA</div>
+                              </div>
+                              <div className="flex-1">
+                                <div className={`font-bold text-sm font-mono ${subjectStyle.textColor} mb-1`}>
+                                  {subject}
+                                </div>
+                                <div className="text-xs text-gray-400 font-mono">Horario: {currentSlot}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
+                                  isOpened
+                                    ? "bg-green-500/30 text-green-300 border border-green-400/50"
+                                    : "bg-red-500/30 text-red-300 border border-red-400/50"
+                                }`}
+                              >
+                                {isOpened ? "ABIERTA" : "CERRADA"}
+                              </div>
+                              <Button
+                                onClick={() => toggleRoomOpened(room, currentSlot!)}
+                                variant="outline"
+                                size="sm"
+                                className={`font-mono transition-all duration-300 ${
+                                  isOpened
+                                    ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                                    : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                                }`}
+                              >
+                                {isOpened ? (
+                                  <>
+                                    <Check className="w-4 h-4 mr-1" />
+                                    ABIERTA
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-4 h-4 mr-1" />
+                                    MARCAR ABIERTA
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-400 font-mono mb-2">NO HAY CLASES PROGRAMADAS</h3>
+                  <p className="text-gray-500 font-mono">
+                    En este momento no hay clases programadas para {getCurrentDay()}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="bg-gray-900/30 backdrop-blur-sm border-green-500/30 shadow-lg shadow-green-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-mono text-green-300">SALAS ABIERTAS</p>
+                    <p className="text-3xl font-bold text-green-400 font-mono">
+                      {activeClasses.filter((c) => c.isOpened).length}
+                    </p>
+                  </div>
+                  <CheckCircle className="w-8 h-8 text-green-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900/30 backdrop-blur-sm border-red-500/30 shadow-lg shadow-red-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-mono text-red-300">SALAS CERRADAS</p>
+                    <p className="text-3xl font-bold text-red-400 font-mono">
+                      {activeClasses.filter((c) => !c.isOpened).length}
+                    </p>
+                  </div>
+                  <XCircle className="w-8 h-8 text-red-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-mono text-cyan-300">TOTAL ACTIVAS</p>
+                    <p className="text-3xl font-bold text-cyan-400 font-mono">{activeClasses.length}</p>
+                  </div>
+                  <Play className="w-8 h-8 text-cyan-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900/30 backdrop-blur-sm border-purple-500/30 shadow-lg shadow-purple-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-mono text-purple-300">% APERTURA</p>
+                    <p className="text-3xl font-bold text-purple-400 font-mono">
+                      {activeClasses.length > 0
+                        ? Math.round((activeClasses.filter((c) => c.isOpened).length / activeClasses.length) * 100)
+                        : 0}
+                      %
+                    </p>
+                  </div>
+                  <MapPin className="w-8 h-8 text-purple-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : activeView === "schedule" ? (
         <>
           <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
             <CardHeader>
@@ -878,10 +1162,11 @@ export function ScheduleDashboard() {
                     key={day}
                     variant={selectedDay === day ? "default" : "outline"}
                     onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
-                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                      }`}
+                    className={`capitalize font-mono transition-all duration-300 ${
+                      selectedDay === day
+                        ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                        : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                    }`}
                   >
                     {day}
                   </Button>
@@ -902,10 +1187,11 @@ export function ScheduleDashboard() {
                 <Button
                   variant={selectedRoom === null ? "default" : "outline"}
                   onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${selectedRoom === null
-                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
+                  className={`font-mono transition-all duration-300 ${
+                    selectedRoom === null
+                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                  }`}
                 >
                   TODAS LAS SALAS
                 </Button>
@@ -914,10 +1200,11 @@ export function ScheduleDashboard() {
                     key={room}
                     variant={selectedRoom === room ? "default" : "outline"}
                     onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${selectedRoom === room
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                      }`}
+                    className={`font-mono transition-all duration-300 ${
+                      selectedRoom === room
+                        ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                        : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                    }`}
                   >
                     {room}
                   </Button>
@@ -966,10 +1253,11 @@ export function ScheduleDashboard() {
                           return (
                             <div
                               key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
-                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                                }`}
+                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${
+                                classInfo
+                                  ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
+                                  : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
+                              }`}
                             >
                               {classInfo && (
                                 <div className="w-full">
@@ -1032,7 +1320,7 @@ export function ScheduleDashboard() {
                           0,
                         ) /
                           (timeSlots.length * rooms.length)) *
-                        100,
+                          100,
                       )}
                       %
                     </p>
@@ -1126,10 +1414,11 @@ export function ScheduleDashboard() {
                           {record.profeAsignado}
                         </div>
                         <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
-                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                            }`}
+                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${
+                            isPresent
+                              ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
+                              : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
                             {isPresent ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
@@ -1194,7 +1483,7 @@ export function ScheduleDashboard() {
                       {Math.round(
                         (attendanceData.filter((record) => record.estadoAsistencia === "ASISTIÓ").length /
                           attendanceData.length) *
-                        100,
+                          100,
                       )}
                       %
                     </p>
