@@ -64,7 +64,7 @@ const getSubjectStyle = (subject: string) => {
 
 const scheduleData = {
   lunes: {
-    "7-8": {
+    "07:00-08:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -73,7 +73,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "8-9": {
+    "08:00-09:00": {
       C111: null,
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "SISTEMAS OPERATIVOS" },
@@ -82,7 +82,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "9-10": {
+    "09:00-10:00": {
       C111: null,
       C112: null,
       C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
@@ -91,7 +91,7 @@ const scheduleData = {
       A205: { subject: "SISTEMAS OPERATIVOS" },
       A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
     },
-    "10-11": {
+    "10:00-11:00": {
       C111: { subject: "SEGURIDAD INFORMÁTICA" },
       C112: null,
       C113: null,
@@ -100,7 +100,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "11-12": {
+    "11:00-12:00": {
       C111: null,
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
@@ -109,7 +109,7 @@ const scheduleData = {
       A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       A206: null,
     },
-    "12-1": {
+    "12:00-13:00": {
       C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
@@ -118,7 +118,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "1-2": {
+    "13:00-14:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -127,7 +127,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "2-3": {
+    "14:00-15:00": {
       C111: null,
       C112: { subject: "PROGRAMACIÓN II" },
       C113: { subject: "PROGRAMACIÓN II" },
@@ -136,7 +136,7 @@ const scheduleData = {
       A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       A206: { subject: "PROGRAMACIÓN II" },
     },
-    "3-4": {
+    "15:00-16:00": {
       C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       C112: null,
       C113: null,
@@ -145,7 +145,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "4-5": {
+    "16:00-17:00": {
       C111: null,
       C112: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE" },
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
@@ -154,7 +154,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "5-6": {
+    "17:00-18:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -163,7 +163,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "6-7": {
+    "18:00-19:00": {
       C111: null,
       C112: { subject: "COSTOS Y PRESUPUESTO" },
       C113: { subject: "MICROECONOMÍA" },
@@ -172,7 +172,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "7-8": {
+    "19:00-20:00": {
       C111: null,
       C112: { subject: "COSTOS Y PRESUPUESTO" },
       C113: { subject: "MICROECONOMÍA" },
@@ -181,7 +181,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "8-9": {
+    "20:00-21:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -192,7 +192,7 @@ const scheduleData = {
     },
   },
   miércoles: {
-    "7-8": {
+    "07:00-08:00": {
       C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       C113: null,
@@ -201,7 +201,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "8-9": {
+    "08:00-09:00": {
       C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
@@ -210,7 +210,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "9-10": {
+    "09:00-10:00": {
       C111: { subject: "VIRTUALIZACIÓN" },
       C112: null,
       C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
@@ -219,7 +219,7 @@ const scheduleData = {
       A205: { subject: "PROGRAMACIÓN I" },
       A206: null,
     },
-    "10-11": {
+    "10:00-11:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -228,7 +228,7 @@ const scheduleData = {
       A205: { subject: "PROGRAMACIÓN I" },
       A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
-    "11-12": {
+    "11:00-12:00": {
       C111: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
       C112: { subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA" },
       C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
@@ -237,7 +237,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "12-1": {
+    "12:00-13:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -246,7 +246,7 @@ const scheduleData = {
       A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
       A206: null,
     },
-    "1-2": {
+    "13:00-14:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -255,7 +255,7 @@ const scheduleData = {
       A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
       A206: null,
     },
-    "2-3": {
+    "14:00-15:00": {
       C111: { subject: "PROGRAMACIÓN I" },
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
@@ -264,7 +264,7 @@ const scheduleData = {
       A205: null,
       A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
-    "3-4": {
+    "15:00-16:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -273,7 +273,7 @@ const scheduleData = {
       A205: null,
       A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
-    "4-5": {
+    "16:00-17:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -282,7 +282,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "5-6": {
+    "17:00-18:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -291,7 +291,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "6-7": {
+    "18:00-19:00": {
       C111: null,
       C112: { subject: "CONTABILIDAD GENERAL" },
       C113: { subject: "MICROECONOMÍA" },
@@ -300,7 +300,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "7-8": {
+    "19:00-20:00": {
       C111: null,
       C112: { subject: "CONTABILIDAD GENERAL" },
       C113: { subject: "MICROECONOMÍA" },
@@ -309,7 +309,7 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "8-9": {
+    "20:00-21:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -323,20 +323,20 @@ const scheduleData = {
 
 const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"]
 const timeSlots = [
-  "7-8",
-  "8-9",
-  "9-10",
-  "10-11",
-  "11-12",
-  "12-1",
-  "1-2",
-  "2-3",
-  "3-4",
-  "4-5",
-  "5-6",
-  "6-7",
-  "7-8",
-  "8-9",
+  "07:00-08:00",
+  "08:00-09:00",
+  "09:00-10:00",
+  "10:00-11:00",
+  "11:00-12:00",
+  "12:00-13:00",
+  "13:00-14:00",
+  "14:00-15:00",
+  "15:00-16:00",
+  "16:00-17:00",
+  "17:00-18:00",
+  "18:00-19:00",
+  "19:00-20:00",
+  "20:00-21:00",
 ]
 const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
 
@@ -344,8 +344,8 @@ const attendanceData = [
   {
     id: 1,
     fecha: "8/11/2024",
-    horaIngreso: "7:00 A 8:00",
-    horaSalida: "8:00 A 9:00",
+    horaIngreso: "07:00-08:00",
+    horaSalida: "08:00-09:00",
     materia: "PENSAMIENTO ALGORÍTMICO",
     profeAsignado: "Prof. García",
     estadoAsistencia: "ASISTIÓ",
@@ -354,8 +354,8 @@ const attendanceData = [
   {
     id: 2,
     fecha: "8/11/2024",
-    horaIngreso: "7:00 A 8:00",
-    horaSalida: "8:00 A 9:00",
+    horaIngreso: "07:00-08:00",
+    horaSalida: "08:00-09:00",
     materia: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
     profeAsignado: "Prof. Martínez",
     estadoAsistencia: "ASISTIÓ",
@@ -364,8 +364,8 @@ const attendanceData = [
   {
     id: 3,
     fecha: "8/11/2024",
-    horaIngreso: "7:00 A 8:00",
-    horaSalida: "8:00 A 9:00",
+    horaIngreso: "07:00-08:00",
+    horaSalida: "08:00-09:00",
     materia: "SEGURIDAD INFORMÁTICA",
     profeAsignado: "Prof. López",
     estadoAsistencia: "ASISTIÓ",
@@ -374,8 +374,8 @@ const attendanceData = [
   {
     id: 4,
     fecha: "8/11/2024",
-    horaIngreso: "8:00 A 9:00",
-    horaSalida: "9:00 A 10:00",
+    horaIngreso: "08:00-09:00",
+    horaSalida: "09:00-10:00",
     materia: "SISTEMAS OPERATIVOS",
     profeAsignado: "Prof. Rodríguez",
     estadoAsistencia: "NO ASISTIÓ",
@@ -384,8 +384,8 @@ const attendanceData = [
   {
     id: 5,
     fecha: "8/11/2024",
-    horaIngreso: "9:00 A 10:00",
-    horaSalida: "10:00 A 11:00",
+    horaIngreso: "09:00-10:00",
+    horaSalida: "10:00-11:00",
     materia: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE CALIDAD)",
     profeAsignado: "Prof. Hernández",
     estadoAsistencia: "ASISTIÓ",
@@ -394,8 +394,8 @@ const attendanceData = [
   {
     id: 6,
     fecha: "8/11/2024",
-    horaIngreso: "10:00 A 11:00",
-    horaSalida: "11:00 A 12:00",
+    horaIngreso: "10:00-11:00",
+    horaSalida: "11:00-12:00",
     materia: "SEGURIDAD INFORMÁTICA",
     profeAsignado: "Prof. López",
     estadoAsistencia: "ASISTIÓ",
@@ -404,8 +404,8 @@ const attendanceData = [
   {
     id: 7,
     fecha: "8/11/2024",
-    horaIngreso: "11:00 A 12:00",
-    horaSalida: "12:00 A 1:00",
+    horaIngreso: "11:00-12:00",
+    horaSalida: "12:00-13:00",
     materia: "PENSAMIENTO ALGORÍTMICO",
     profeAsignado: "Prof. García",
     estadoAsistencia: "NO ASISTIÓ",
