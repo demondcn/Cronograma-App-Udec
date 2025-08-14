@@ -69,7 +69,7 @@ const scheduleData = {
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "SISTEMAS OPERATIVOS" },
       C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
-      C115: null,
+      C115: { subject: "SEGURIDAD INFORMÁTICA" },
       A205: null,
       A206: null,
     },
@@ -79,14 +79,14 @@ const scheduleData = {
       C113: { subject: "SISTEMAS OPERATIVOS" },
       C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
-      A205: null,
+      A205: { subject: "SISTEMAS OPERATIVOS" },
       A206: null,
     },
     "09:00-10:00": {
       C111: { subject: "SEGURIDAD INFORMÁTICA" },
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
-      C114: null,
+      C114: { subject: "ESTRUCTURA DE DATOS" },
       C115: null,
       A205: { subject: "SISTEMAS OPERATIVOS" },
       A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
@@ -96,15 +96,15 @@ const scheduleData = {
       C112: null,
       C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
       C114: { subject: "ESTRUCTURA DE DATOS" },
-      C115: null,
-      A205: null,
-      A206: null,
+      C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      A205: { subject: "SISTEMAS OPERATIVOS" },
+      A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
     },
     "11:00-12:00": {
       C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: null,
+      C114: { subject: "ESTRUCTURA DE DATOS" },
       C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
       A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       A206: null,
@@ -114,25 +114,25 @@ const scheduleData = {
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
       C114: null,
-      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
-      A205: null,
+      C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       A206: null,
     },
     "13:00-14:00": {
-      C111:  { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+      C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
       C112: { subject: "PROGRAMACIÓN II" },
       C113: { subject: "PROGRAMACIÓN II" },
-      C114: null,
-      C115: null,
-      A205: null,
+      C114: { subject: "PROGRAMACIÓN I" },
+      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       A206: null,
     },
     "14:00-15:00": {
       C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       C112: { subject: "PROGRAMACIÓN II" },
       C113: { subject: "PROGRAMACIÓN II" },
-      C114: null,
-      C115: null,
+      C114: { subject: "PROGRAMACIÓN I" },
+      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
       A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       A206: { subject: "PROGRAMACIÓN II" },
     },
@@ -142,27 +142,27 @@ const scheduleData = {
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
       C114: { subject: "PROGRAMACIÓN I" },
       C115: null,
-      A205: null,
-      A206: null,
+      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      A206: { subject: "PROGRAMACIÓN II" },
     },
     "16:00-17:00": {
-      C111:{ subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       C112: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE" },
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      C114: { subject: "PROGRAMACIÓN I" },
+      C115: { subject: "SEGURIDAD INFORMÁTICA" },
+      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      A206: null,
+    },
+    "17:00-18:00": {
+      C111: null,
+      C112: null,
+      C113: null,
       C114: null,
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
       A205: null,
       A206: null,
     },
-    "17:00-18:00": {
-      C111: null,
-      C112: null,
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null,
-    },
     "18:00-19:00": {
       C111: null,
       C112: { subject: "COSTOS Y PRESUPUESTO" },
@@ -191,96 +191,225 @@ const scheduleData = {
       A206: null,
     },
   },
-  miércoles: {
+  martes: {
     "07:00-08:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C113: null,
+      C111: null,
+      C112: null,
+      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
       C114: null,
-      C115: null,
+      C115: { subject: "FUNDAMENTOS DE INGENIERIA - 101 FUNI A" },
       A205: null,
-      A206: null,
+      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
     },
     "08:00-09:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C114: { subject: "VIRTUALIZACIÓN" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE" },
+      C111: null,
+      C112: null,
+      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
+      C114: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT501" },
+      C115: { subject: "FUNDAMENTOS DE INGENIERIA - 101 FUNI A" },
       A205: null,
-      A206: null,
+      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
     },
     "09:00-10:00": {
-      C111: { subject: "VIRTUALIZACIÓN" },
-      C112: null,
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C114: null,
-      C115: null,
-      A205: { subject: "PROGRAMACIÓN I" },
-      A206: null,
+      C111: { subject: "PROGRAMACION I - PROGI C" },
+      C112: { subject: "PROGRAMACION II - PROGII A" },
+      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
+      C114: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT501" },
+      C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
+      A205: null,
+      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
     },
     "10:00-11:00": {
-      C111: null,
-      C112: null,
-      C113: null,
+      C111: { subject: "PROGRAMACION I - PROGI C" },
+      C112: { subject: "PROGRAMACION II - PROGII A" },
+      C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
       C114: null,
-      C115: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-      A205: { subject: "PROGRAMACIÓN I" },
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
+      A205: null,
+      A206: { subject: "SIMULACION EN INGENIERIA - SIMI A" }
     },
     "11:00-12:00": {
-      C111: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
-      C112: { subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA" },
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C111: { subject: "PROGRAMACION I - PROGI C" },
+      C112: null,
+      C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
       C114: null,
-      C115: null,
+      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
       A205: null,
-      A206: null,
+      A206: null
     },
     "12:00-13:00": {
-      C111: null,
-      C112: null,
-      C113: null,
+      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
+      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
+      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
       C114: null,
-      C115: null,
-      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-      A206: null,
+      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
+      A205: null,
+      A206: null
     },
     "13:00-14:00": {
-      C111: null,
-      C112: null,
-      C113: null,
+      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
+      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
+      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
       C114: null,
-      C115: { subject: "PROGRAMACIÓN I" },
-      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-      A206: null,
+      C115: null,
+      A205: { subject: "PROGRAMACION I - PROGI A" },
+      A206: null
     },
     "14:00-15:00": {
-      C111: { subject: "PROGRAMACIÓN I" },
-      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C113: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C114: { subject: "PROGRAMACIÓN I" },
-      C115: null,
-      A205: null,
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
+      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
+      C113: null,
+      C114: null,
+      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
+      A205: { subject: "PROGRAMACION I - PROGI A" },
+      A206: null
     },
     "15:00-16:00": {
       C111: null,
+      C112: { subject: "PROGRAMACION II - PROGII B" },
+      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
+      C114: null,
+      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
+      A205: { subject: "PROGRAMACION I - PROGI A" },
+      A206: null
+    },
+    "16:00-17:00": {
+      C111: null,
+      C112: { subject: "PROGRAMACION II - PROGII B" },
+      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "17:00-18:00": {
+      C111: null,
       C112: null,
+      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "18:00-19:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
       C113: null,
       C114: null,
       C115: null,
       A205: null,
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      A206: null
+    },
+    "19:00-20:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "20:00-21:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    }
+  },
+
+  miercoles: {
+    "07:00-08:00": {
+      C111: null,
+      C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C114: { subject: "VIRTUALIZACION - INGSOFT702" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT401" },
+      A205: null,
+      A206: null
+    },
+    "08:00-09:00": {
+      C111: null,
+      C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C114: { subject: "VIRTUALIZACION - INGSOFT702" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT401" },
+      A205: null,
+      A206: null
+    },
+    "09:00-10:00": {
+      C111: { subject: "VIRTUALIZACION - INGSOFT701" },
+      C112: null,
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: { subject: "PROGRAMACION I - PROGI C" },
+      A206: null
+    },
+    "10:00-11:00": {
+      C111: { subject: "VIRTUALIZACION - INGSOFT701" },
+      C112: null,
+      C113: null,
+      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      C115: null,
+      A205: { subject: "PROGRAMACION I - PROGI C" },
+      A206: null
+    },
+    "11:00-12:00": {
+      C111: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT403" },
+      C112: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 701" },
+      C113: null,
+      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      C115: null,
+      A205: { subject: "PROGRAMACION I - PROGI C" },
+      A206: null
+    },
+    "12:00-13:00": {
+      C111: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT403" },
+      C112: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 701" },
+      C113: null,
+      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: null,
+      A206: null
+    },
+    "13:00-14:00": {
+      C111: { subject: "PROGRAMACION I - INGSOFT203" },
+      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
+      C113: null,
+      C114: null,
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: null,
+      A206: null
+    },
+    "14:00-15:00": {
+      C111: { subject: "PROGRAMACION I - INGSOFT203" },
+      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
+      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
+      C114: null,
+      C115: { subject: "PROGRAMACION I - PROGI B" },
+      A205: null,
+      A206: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 702" }
+    },
+    "15:00-16:00": {
+      C111: { subject: "PROGRAMACION I - INGSOFT203" },
+      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 702" }
     },
     "16:00-17:00": {
       C111: null,
       C112: null,
       C113: null,
-      C114: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C115: { subject: "PROGRAMACIÓN II" },
+      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT103" },
+      C115: null,
       A205: null,
-      A206: null,
+      A206: null
     },
     "17:00-18:00": {
       C111: null,
@@ -289,37 +418,306 @@ const scheduleData = {
       C114: null,
       C115: null,
       A205: null,
-      A206: null,
+      A206: null
     },
     "18:00-19:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
+      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
+      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
       C115: null,
       A205: null,
-      A206: null,
+      A206: null
     },
     "19:00-20:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
+      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
+      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
       C115: null,
       A205: null,
-      A206: null,
+      A206: null
+    },
+    "20:00-21:00": {
+      C111: null,
+      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
+      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
+      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
+      C115: null,
+      A205: null,
+      A206: null
+    }
+  },
+  jueves: {
+    "07:00-08:00": {
+      C111: null,
+      C112: { subject: "FUNDAMENTOS DE ELECTRONICA"},
+      C113: null,
+      C114: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT401" },
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "08:00-09:00": {
+      C111: null,
+      C112: { subject: "FUNDAMENTOS DE ELECTRONICA" },
+      C113: { subject: "SIMULACION EN INGENIERIA" },
+      C114: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT401" },
+      C115: { subject: "PROGRAMACION I - INGSOFT202" },
+      A205: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 102 PENSS B" },
+      A206: null
+    },
+    "09:00-10:00": {
+      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
+      C112: null,
+      C113: { subject: "SIMULACION EN INGENIERIA" },
+      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - 102 FELEC B" },
+      C115: { subject: "PROGRAMACION I - INGSOFT202" },
+      A205: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 102 PENSS B" },
+      A206: null
+    },
+    "10:00-11:00": {
+      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
+      C112: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 101 PENSS A" },
+      C113: null,
+      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - 102 FELEC B" },
+      C115: { subject: "PROGRAMACION I - INGSOFT202" },
+      A205: null,
+      A206: { subject: "FUNDAMENTOS DE ESTADISTICA - 601" }
+    },
+    "11:00-12:00": {
+      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
+      C112: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 101 PENSS A" },
+      C113: null,
+      C114: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT503" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT403" },
+      A205: { subject: "SIMULACION EN INGENIERIA - SIMI B" },
+      A206: { subject: "FUNDAMENTOS DE ESTADISTICA - 601" }
+    },
+    "12:00-13:00": {
+      C111:{ subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
+      C112: null,
+      C113: { subject: "PROFUNDIZACION" },
+      C114: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT503" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT403" },
+      A205: { subject: "SIMULACION EN INGENIERIA - SIMI B" },
+      A206: null
+    },
+    "13:00-14:00": {
+      C111: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
+      C112: null,
+      C113: { subject: "PROFUNDIZACION" },
+      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
+      C115: { subject: "FUNDAMENTOS DE ESTADISTICA - 602" },
+      A205: null,
+      A206: { subject: "PROGRAMACION I - PROGI A" }
+    },
+    "14:00-15:00": {
+      C111: { subject: "PROGRAMACION II - PROGII A" },
+      C112: null,
+      C113: { subject: "PROGRAMACION - 101M" },
+      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
+      C115: { subject: "FUNDAMENTOS DE ESTADISTICA - 602" },
+      A205: null,
+      A206: { subject: "PROGRAMACION I - PROGI A" }
+    },
+    "15:00-16:00": {
+      C111: { subject: "PROGRAMACION II - PROGII A" },
+      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
+      C113: { subject: "PROGRAMACION - 101M" },
+      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
+      C115: null,
+      A205: null,
+      A206: { subject: "PROGRAMACION I - PROGI A" }
+    },
+    "16:00-17:00": {
+      C111: null,
+      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
+      C113: { subject: "PROGRAMACION - 102M" },
+      C114: null,
+      C115: {subject: "PROGRAMACION II"},
+      A205: null,
+      A206: null
+    },
+    "17:00-18:00": {
+      C111: null,
+      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
+      C113: { subject: "PROGRAMACION - 102M" },
+      C114: null,
+      C115: {subject: "PROGRAMACION II"},
+      A205: null,
+      A206: null
+    },
+    "18:00-19:00": {
+      C111: null,
+      C112: null,
+      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
+    },
+    "19:00-20:00": {
+      C111: null,
+      C112: null,
+      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null
     },
     "20:00-21:00": {
       C111: null,
       C112: null,
-      C113: null,
+      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
       C114: null,
       C115: null,
       A205: null,
-      A206: null,
-    },
+      A206: null
+    }
   },
+
+viernes: {
+  "07:00-08:00": {
+    C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
+    C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
+    C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
+    C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
+    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+    A205: null,
+    A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
+  },
+  "08:00-09:00": {
+    C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
+    C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
+    C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
+    C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
+    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+    A205: null,
+    A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
+  },
+  "09:00-10:00": {
+    C111: null,
+    C112: null,
+    C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+    C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
+    A205: { subject: "PROGRAMACION II - INGSOFT303" },
+    A206: null
+  },
+  "10:00-11:00": {
+    C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
+    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+    C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
+    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+    C115: null,
+    A205: { subject: "PROGRAMACION II - INGSOFT303" },
+    A206: null
+  },
+  "11:00-12:00": {
+    C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
+    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+    C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
+    C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+    C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
+    A205: null,
+    A206: null
+  },
+  "12:00-13:00": {
+    C111: null,
+    C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+    C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
+    C114: null,
+    C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
+    A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
+    A206: null
+  },
+  "13:00-14:00": {
+    C111: null,
+    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+    C113: { subject: "PLANIMETRIA - 101M" },
+    C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
+    C115: { subject: "PROGRAMACION I - PROGI B" },
+    A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
+    A206: null
+  },
+  "14:00-15:00": {
+    C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
+    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+    C113: { subject: "PLANIMETRIA - 101M" },
+    C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
+    C115: { subject: "PROGRAMACION I - PROGI B" },
+    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+    A206: { subject: "PROGRAMACION II" }
+  },
+  "15:00-16:00": {
+    C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
+    C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
+    C113: { subject: "PLANIMETRIA - 101M" },
+    C114: null,
+    C115: { subject: "PROGRAMACION I - PROGI B" },
+    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+    A206: { subject: "PROGRAMACION II" }
+  },
+  "16:00-17:00": {
+    C111: null,
+    C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
+    C113: { subject: "PLANIMETRIA - 102M" },
+    C114: null,
+    C115: { subject: "PROGRAMACION II" },
+    A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
+    A206: null
+  },
+  "17:00-18:00": {
+    C111: null,
+    C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
+    C113: { subject: "PLANIMETRIA - 102M" },
+    C114: null,
+    C115:{ subject: "PROGRAMACION II" },
+    A205: null,
+    A206: null
+  },
+  "18:00-19:00": {
+    C111: null,
+    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+    C113: null,
+    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+    C115: null,
+    A205: null,
+    A206: null
+  },
+  "19:00-20:00": {
+    C111: null,
+    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+    C113: null,
+    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+    C115: null,
+    A205: null,
+    A206: null
+  },
+  "20:00-21:00": {
+    C111: null,
+    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+    C113: null,
+    C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
+    C115: null,
+    A205: null,
+    A206: null
+  },
+  "21:00-22:00": {
+    C111: null,
+    C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
+    C113: null,
+    C114: null,
+    C115: null,
+    A205: null,
+    A206: null
+  }
 }
+
+}
+
+
 
 const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"]
 const timeSlots = [
@@ -441,11 +839,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "schedule"
-                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "schedule"
+                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -453,11 +850,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "attendance"
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "attendance"
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -482,11 +878,10 @@ export function ScheduleDashboard() {
                     key={day}
                     variant={selectedDay === day ? "default" : "outline"}
                     onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${
-                      selectedDay === day
-                        ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                        : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                    }`}
+                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
+                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                      }`}
                   >
                     {day}
                   </Button>
@@ -507,11 +902,10 @@ export function ScheduleDashboard() {
                 <Button
                   variant={selectedRoom === null ? "default" : "outline"}
                   onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${
-                    selectedRoom === null
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                  }`}
+                  className={`font-mono transition-all duration-300 ${selectedRoom === null
+                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                    }`}
                 >
                   TODAS LAS SALAS
                 </Button>
@@ -520,11 +914,10 @@ export function ScheduleDashboard() {
                     key={room}
                     variant={selectedRoom === room ? "default" : "outline"}
                     onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${
-                      selectedRoom === room
-                        ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                        : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
+                    className={`font-mono transition-all duration-300 ${selectedRoom === room
+                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                      }`}
                   >
                     {room}
                   </Button>
@@ -573,11 +966,10 @@ export function ScheduleDashboard() {
                           return (
                             <div
                               key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${
-                                classInfo
-                                  ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                  : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                              }`}
+                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
+                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
+                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
+                                }`}
                             >
                               {classInfo && (
                                 <div className="w-full">
@@ -640,7 +1032,7 @@ export function ScheduleDashboard() {
                           0,
                         ) /
                           (timeSlots.length * rooms.length)) *
-                          100,
+                        100,
                       )}
                       %
                     </p>
@@ -734,11 +1126,10 @@ export function ScheduleDashboard() {
                           {record.profeAsignado}
                         </div>
                         <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${
-                            isPresent
-                              ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                              : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                          }`}
+                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
+                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
+                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             {isPresent ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
@@ -803,7 +1194,7 @@ export function ScheduleDashboard() {
                       {Math.round(
                         (attendanceData.filter((record) => record.estadoAsistencia === "ASISTIÓ").length /
                           attendanceData.length) *
-                          100,
+                        100,
                       )}
                       %
                     </p>
