@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+}
+
+model Program {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique
+  color     String
+  glowColor String
+  textColor String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  subjects  Subject[]
+  
+  @@map("programs")
+  @@index([code])
+}
+
+model Subject {
+  id          String  @id @default(cuid())
+  name        String
+  code        String  @unique
+  programId   String
+  semester    Int?
+  credits     Int?
+  isActive    Boolean @default(true)
+  
+  program     Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  schedules   Schedule[]
+  attendance  Attendance[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("subjects")
+  @@index([programId])
+  @@index([code])
+  @@index([isActive])
+}
+
+model Room {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  capacity    Int?
+  building    String?
+  floor       String?
+  equipment   Json?   
+  isActive    Boolean @default(true)
+  
+  schedules   Schedule[]
+  attendance  Attendance[]
+  roomStatus  RoomStatus[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("rooms")
+  @@index([name])
+  @@index([isActive])
+}
+
+model Professor {
+  id        String @id @default(cuid())
+  name      String
+  email     String @unique
+  phone     String?
+  isActive  Boolean @default(true)
+  
+  schedules Schedule[]
+  attendance Attendance[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("professors")
+  @@index([email])
+  @@index([isActive])
+}
+
+model Schedule {
+  id          String    @id @default(cuid())
+  dayOfWeek   Int       // 1=Lunes, 2=Martes, etc.
+  startTime   String    // "07:00"
+  endTime     String    // "08:00"
+  semester    String    // "2024-1"
+  group       String?   // "A", "B", "101", etc.
+  isActive    Boolean   @default(true)
+  
+  subjectId   String
+  roomId      String
+  professorId String?
+  
+  subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  room        Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  professor   Professor? @relation(fields: [professorId], references: [id], onDelete: SetNull)
+  
+  attendance  Attendance[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([dayOfWeek, startTime, endTime, roomId, semester])
+  @@map("schedules")
+  @@index([dayOfWeek, semester])
+  @@index([roomId, dayOfWeek])
+  @@index([subjectId])
+  @@index([isActive])
+}
+
+model Attendance {
+  id            String           @id @default(cuid())
+  date          DateTime
+  startTime     String
+  endTime       String
+  status        AttendanceStatus
+  observations  String?
+  checkedBy     String?          // Usuario que marcó la asistencia
+  
+  scheduleId    String
+  subjectId     String
+  roomId        String
+  professorId   String?
+  
+  schedule      Schedule   @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  subject       Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  room          Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  professor     Professor? @relation(fields: [professorId], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([scheduleId, date])
+  @@map("attendance")
+  @@index([date])
+  @@index([status])
+  @@index([roomId, date])
+}
+
+model RoomStatus {
+  id          String    @id @default(cuid())
+  roomId      String
+  date        DateTime
+  timeSlot    String    // "07:00-08:00"
+  isOpen      Boolean   @default(false)
+  openedAt    DateTime?
+  closedAt    DateTime?
+  openedBy    String?   
+  closedBy    String?
+  notes       String?
+  
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([roomId, date, timeSlot])
+  @@map("room_status")
+  @@index([date])
+  @@index([roomId, date])
+  @@index([isOpen])
+}
+
+// Modelo para auditoría y logs
+model SystemLog {
+  id          String    @id @default(cuid())
+  action      String    // "OPEN_ROOM", "MARK_ATTENDANCE", etc.
+  entityType  String    // "ROOM", "ATTENDANCE", etc.
+  entityId    String
+  userId      String?
+  details     Json?
+  timestamp   DateTime  @default(now())
+  
+  @@map("system_logs")
+  @@index([timestamp])
+  @@index([action])
+  @@index([entityType, entityId])
+}
+
+enum AttendanceStatus {
+  ASISTIO
+  NO_ASISTIO
+  TARDANZA
+  JUSTIFICADA
+  CANCELADA
+}
