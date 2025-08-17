@@ -38,14 +38,11 @@ model Subject {
   semester    Int?
   credits     Int?
   isActive    Boolean @default(true)
-  
   program     Program @relation(fields: [programId], references: [id], onDelete: Cascade)
   schedules   Schedule[]
   attendance  Attendance[]
-  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
   @@map("subjects")
   @@index([programId])
   @@index([code])

@@ -3,7 +3,21 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, Users, Play, Check } from "lucide-react"
+import {
+  Calendar,
+  Clock,
+  Users,
+  Play,
+  MapPin,
+  CheckCircle,
+  XCircle,
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  BookOpen,
+  Check,
+} from "lucide-react"
 
 const subjectCategories = {
   // Administración de empresas - Morado
@@ -19,7 +33,7 @@ const subjectCategories = {
     glowColor: "shadow-lg shadow-emerald-700/40",
     textColor: "text-emerald-100",
     subjects: [
-      "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS",
+      "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
       "PENSAMIENTO ALGORÍTMICO",
       "SISTEMAS OPERATIVOS",
       "SEGURIDAD INFORMÁTICA",
@@ -31,17 +45,6 @@ const subjectCategories = {
       "ARQUITECTURA DE HARDWARE Y SOFTWARE",
       "VIRTUALIZACIÓN",
       "REQUERIMIENTOS DE SOFTWARE",
-      "ESTRUCTURA DE DATOS",
-      "FUNDAMENTOS DE ELECTRÓNICA",
-      "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)",
-      "INTERFAZ HOMBRE MAQUINA - INGSOFT502",
-      "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503",
-      "PROGRAMACION WEB - INGSOFT403",
-      "INTERFAZ HOMBRE MAQUINA - INGSOFT501",
-      "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701",
-      "FUNDAMENTOS DE ELECTRONICA - INGSOFT102",
-      
-      
     ],
   },
   // Ingeniería industrial - Amarillo
@@ -49,29 +52,13 @@ const subjectCategories = {
     color: "bg-yellow-500/20 border-yellow-400/50 shadow-yellow-400/20",
     glowColor: "shadow-lg shadow-yellow-500/30",
     textColor: "text-yellow-100",
-    subjects: ["AUTOMATIZACIÓN DE PROCESOS", 
-      "IND_PROGRAMACION II", 
-      "PROGRAMACION I - PROGI C", 
-      "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)",
-      "PROGRAMACION II - PROGII A",
-      "MODELACION DE OPERACIONES - MODO B",
-      "MODELACION DE OPERACIONES - MODO A",
-      "FUNDAMENTOS DE INGENIERIA - 101 FUNI A",
-      "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A",
-      "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?",
-      "SIMULACION EN INGENIERIA",
-      "PROGRAMACION I - PROGI A",
-      "AUTOMATIZACION DE PROCESOS - AUTP A"
-    ],
+    subjects: ["AUTOMATIZACIÓN DE PROCESOS", "ESTRUCTURA DE DATOS", "FUNDAMENTOS DE ELECTRÓNICA"],
   },
   sports: {
     color: "bg-blue-500/20 border-blue-400/50 shadow-blue-400/20",
     glowColor: "shadow-lg shadow-blue-500/30",
     textColor: "text-blue-100",
-    subjects: ["FUNDAMENTOS DE ESTADÍSTICA", 
-      "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
-      "ANALISIS CUANTITATIVO EN EL DEPORTE"  
-    ],
+    subjects: ["FUNDAMENTOS DE ESTADÍSTICA", "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA"],
   },
 }
 
@@ -93,10 +80,10 @@ const scheduleData = {
   lunes: {
     "07:00-08:00": {
       C111: null,
-      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS" },
-      C115: { subject: "SEGURIDAD INFORMÁTICA" },
+      C112: null,
+      C113: null,
+      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
+      C115: null,
       A205: null,
       A206: null,
     },
@@ -104,16 +91,16 @@ const scheduleData = {
       C111: null,
       C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACION EN BASE DE DATOS" },
+      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
-      A205: { subject: "SISTEMAS OPERATIVOS" },
+      A205: null,
       A206: null,
     },
     "09:00-10:00": {
-      C111: { subject: "SEGURIDAD INFORMÁTICA" },
-      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C111: null,
+      C112: null,
       C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
-      C114: { subject: "ESTRUCTURA DE DATOS" },
+      C114: null,
       C115: null,
       A205: { subject: "SISTEMAS OPERATIVOS" },
       A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
@@ -121,17 +108,17 @@ const scheduleData = {
     "10:00-11:00": {
       C111: { subject: "SEGURIDAD INFORMÁTICA" },
       C112: null,
-      C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
+      C113: null,
       C114: { subject: "ESTRUCTURA DE DATOS" },
-      C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      A205: { subject: "SISTEMAS OPERATIVOS" },
-      A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
+      C115: null,
+      A205: null,
+      A206: null,
     },
     "11:00-12:00": {
-      C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+      C111: null,
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "ESTRUCTURA DE DATOS" },
+      C114: null,
       C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
       A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
       A206: null,
@@ -141,44 +128,44 @@ const scheduleData = {
       C112: null,
       C113: { subject: "SISTEMAS OPERATIVOS" },
       C114: null,
-      C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      A205: null,
       A206: null,
     },
     "13:00-14:00": {
-      C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-      C112: { subject: "PROGRAMACIÓN II" },
-      C113: { subject: "PROGRAMACIÓN II" },
-      C114: { subject: "PROGRAMACIÓN I" },
-      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
-      A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C111: null,
+      C112: null,
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
       A206: null,
     },
     "14:00-15:00": {
-      C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C111: null,
       C112: { subject: "PROGRAMACIÓN II" },
       C113: { subject: "PROGRAMACIÓN II" },
-      C114: { subject: "PROGRAMACIÓN I" },
-      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      C114: null,
+      C115: null,
       A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      A206: { subject: "IND_PROGRAMACION II" },
+      A206: { subject: "PROGRAMACIÓN II" },
     },
     "15:00-16:00": {
       C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
-      C112: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE" },
-      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      C112: null,
+      C113: null,
       C114: { subject: "PROGRAMACIÓN I" },
       C115: null,
-      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      A206: { subject: "IND_PROGRAMACION II" },
+      A205: null,
+      A206: null,
     },
     "16:00-17:00": {
-      C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C111: null,
       C112: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE" },
       C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
-      C114: { subject: "PROGRAMACIÓN I" },
+      C114: null,
       C115: { subject: "SEGURIDAD INFORMÁTICA" },
-      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      A205: null,
       A206: null,
     },
     "17:00-18:00": {
@@ -186,15 +173,15 @@ const scheduleData = {
       C112: null,
       C113: null,
       C114: null,
-      C115: { subject: "SEGURIDAD INFORMÁTICA" },
+      C115: null,
       A205: null,
       A206: null,
     },
     "18:00-19:00": {
       C111: null,
       C112: { subject: "COSTOS Y PRESUPUESTO" },
-      C113: null,
-      C114: null,
+      C113: { subject: "MICROECONOMÍA" },
+      C114: { subject: "MICROECONOMÍA" },
       C115: null,
       A205: null,
       A206: null,
@@ -202,15 +189,15 @@ const scheduleData = {
     "19:00-20:00": {
       C111: null,
       C112: { subject: "COSTOS Y PRESUPUESTO" },
-      C113: null,
-      C114: null,
+      C113: { subject: "MICROECONOMÍA" },
+      C114: { subject: "MICROECONOMÍA" },
       C115: null,
       A205: null,
       A206: null,
     },
     "20:00-21:00": {
       C111: null,
-      C112: { subject: "COSTOS Y PRESUPUESTO" },
+      C112: null,
       C113: null,
       C114: null,
       C115: null,
@@ -218,533 +205,135 @@ const scheduleData = {
       A206: null,
     },
   },
-  martes: {
-    "07:00-08:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
-      C114: null,
-      C115: { subject: "FUNDAMENTOS DE INGENIERIA - 101 FUNI A" },
-      A205: null,
-      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
-    },
-    "08:00-09:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
-      C114: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT501" },
-      C115: { subject: "FUNDAMENTOS DE INGENIERIA - 101 FUNI A" },
-      A205: null,
-      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
-    },
-    "09:00-10:00": {
-      C111: { subject: "PROGRAMACION I - PROGI C" },
-      C112: { subject: "PROGRAMACION II - PROGII A" },
-      C113: { subject: "MODELACION DE OPERACIONES - MODO A" },
-      C114: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT501" },
-      C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
-      A205: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" },
-      A206: { subject: "AUTOMATIZACION DE PROCESOS - AUTP A" }
-    },
-    "10:00-11:00": {
-      C111: { subject: "PROGRAMACION I - PROGI C" },
-      C112: { subject: "PROGRAMACION II - PROGII A" },
-      C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
-      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
-      C115: { subject: "PROFUNDIZACION DISCIPLINAR (CIENCIA DE DATOS) - INGSOFT701" },
-      A205: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" },
-      A206: { subject: "SIMULACION EN INGENIERIA - SIMI A" }
-    },
-    "11:00-12:00": {
-      C111: { subject: "PROGRAMACION I - PROGI C" },
-      C112: null,
-      C113: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT502" },
-      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
-      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      A205: { subject: "SIMULACION EN INGENIERIA" },
-      A206: null
-    },
-    "12:00-13:00": {
-      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
-      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
-      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
-      C114: null,
-      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      A205: { subject: "SIMULACION EN INGENIERIA" },
-      A206: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" }
-    },
-    "13:00-14:00": {
-      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
-      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
-      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MOVILES - INGSOFT503" },
-      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
-      C115: null,
-      A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: { subject: "FUNDAMENTOS DE ELECTRONICA - INDUSTRIAL?" }
-    },
-    "14:00-15:00": {
-      C111: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA)" },
-      C112: { subject: "MODELACION DE OPERACIONES - MODO B" },
-      C113: null,
-      C114: { subject: "ANALISIS CUANTITATIVO EN EL DEPORTE" },
-      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
-      A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: { subject: "PROGRAMACIÓN II" }
-    },
-    "15:00-16:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
-      C114: null,
-      C115: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
-      A205: { subject: "PROGRAMACION I - PROGI A" },
-      A206: { subject: "PROGRAMACIÓN II" }
-    },
-    "16:00-17:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "17:00-18:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "PROGRAMACION WEB - INGSOFT403" },
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "18:00-19:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "19:00-20:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "20:00-21:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 101N ADMON SOACHA" },
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    }
-  },
-
   miércoles: {
     "07:00-08:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRONICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-      C114: { subject: "VIRTUALIZACION - INGSOFT702" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT401" },
+      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      C113: null,
+      C114: null,
+      C115: null,
       A205: null,
-      A206: null
+      A206: null,
     },
     "08:00-09:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRONICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-      C114: { subject: "VIRTUALIZACION - INGSOFT702" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT401" },
+      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C114: { subject: "VIRTUALIZACIÓN" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE" },
       A205: null,
-      A206: null
+      A206: null,
     },
     "09:00-10:00": {
-      C111: { subject: "VIRTUALIZACION - INGSOFT701" },
+      C111: { subject: "VIRTUALIZACIÓN" },
       C112: null,
-      C113: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C114: null,
       C115: null,
-      A205: { subject: "PROGRAMACION I - PROGI C" },
-      A206: null
+      A205: { subject: "PROGRAMACIÓN I" },
+      A206: null,
     },
     "10:00-11:00": {
-      C111: { subject: "VIRTUALIZACION - INGSOFT701" },
+      C111: null,
       C112: null,
       C113: null,
-      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      C115: { subject: "FUNDAMENTOS DE ESTADISTICA" },
-      A205: { subject: "PROGRAMACION I - PROGI C" },
-      A206: null
+      C114: null,
+      C115: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      A205: { subject: "PROGRAMACIÓN I" },
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
     "11:00-12:00": {
-      C111: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT403" },
-      C112: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 701" },
-      C113: null,
-      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      C115: { subject: "FUNDAMENTOS DE ESTADISTICA" },
-      A205: { subject: "PROGRAMACION I - PROGI C" },
-      A206: { subject: "FUNDAMENTOS DE ESTADISTICA" }
+      C111: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
+      C112: { subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null,
     },
     "12:00-13:00": {
-      C111: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT403" },
-      C112: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 701" },
+      C111: null,
+      C112: null,
       C113: null,
-      C114: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: { subject: "FUNDAMENTOS DE ESTADISTICA" },
-      A206: null
+      C114: null,
+      C115: null,
+      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      A206: null,
     },
     "13:00-14:00": {
-      C111: { subject: "PROGRAMACION I - INGSOFT203" },
-      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
+      C111: null,
+      C112: null,
       C113: null,
-      C114: { subject: "PROGRAMACION I" },
-      C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: { subject: "FUNDAMENTOS DE ESTADISTICA" },
-      A206: null
+      C114: null,
+      C115: { subject: "PROGRAMACIÓN I" },
+      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      A206: null,
     },
     "14:00-15:00": {
-      C111: { subject: "PROGRAMACION I - INGSOFT203" },
-      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
-      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT102" },
-      C114: { subject: "PROGRAMACION I" },
-      C115: { subject: "PROGRAMACION I - PROGI B" },
+      C111: { subject: "PROGRAMACIÓN I" },
+      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C113: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
+      C114: { subject: "PROGRAMACIÓN I" },
+      C115: null,
       A205: null,
-      A206: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 702" }
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
     "15:00-16:00": {
-      C111: { subject: "PROGRAMACION I - INGSOFT203" },
-      C112: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT103" },
+      C111: null,
+      C112: null,
       C113: null,
       C114: null,
       C115: null,
       A205: null,
-      A206: { subject: "BIOESTADISTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FISICA - 702" }
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
     },
     "16:00-17:00": {
       C111: null,
       C112: null,
       C113: null,
-      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT103" },
+      C114: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
       C115: { subject: "PROGRAMACIÓN II" },
       A205: null,
-      A206: null
+      A206: null,
     },
     "17:00-18:00": {
       C111: null,
       C112: null,
       C113: null,
-      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT103" },
-      C115: { subject: "PROGRAMACIÓN II" },
+      C114: null,
+      C115: null,
       A205: null,
-      A206: null
+      A206: null,
     },
     "18:00-19:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
-      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
-      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
+      C112: { subject: "CONTABILIDAD GENERAL" },
+      C113: { subject: "MICROECONOMÍA" },
+      C114: { subject: "MICROECONOMÍA" },
       C115: null,
       A205: null,
-      A206: null
+      A206: null,
     },
     "19:00-20:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
-      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
-      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
+      C112: { subject: "CONTABILIDAD GENERAL" },
+      C113: { subject: "MICROECONOMÍA" },
+      C114: { subject: "MICROECONOMÍA" },
       C115: null,
       A205: null,
-      A206: null
+      A206: null,
     },
     "20:00-21:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 103N ADMON SOACHA" },
-      C113: { subject: "MICROECONOMIA - 101N ADMON SOACHA" },
-      C114: { subject: "MICROECONOMIA - 102N ADMON SOACHA" },
+      C112: null,
+      C113: null,
+      C114: null,
       C115: null,
       A205: null,
-      A206: null
-    }
+      A206: null,
+    },
   },
-  jueves: {
-    "07:00-08:00": {
-      C111: null,
-      C112: { subject: "FUNDAMENTOS DE ELECTRONICA" },
-      C113: null,
-      C114: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT401" },
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "08:00-09:00": {
-      C111: null,
-      C112: { subject: "FUNDAMENTOS DE ELECTRONICA" },
-      C113: { subject: "SIMULACION EN INGENIERIA" },
-      C114: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT401" },
-      C115: { subject: "PROGRAMACION I - INGSOFT202" },
-      A205: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 102 PENSS B" },
-      A206: null
-    },
-    "09:00-10:00": {
-      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
-      C112: null,
-      C113: { subject: "SIMULACION EN INGENIERIA" },
-      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - 102 FELEC B" },
-      C115: { subject: "PROGRAMACION I - INGSOFT202" },
-      A205: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 102 PENSS B" },
-      A206: null
-    },
-    "10:00-11:00": {
-      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
-      C112: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 101 PENSS A" },
-      C113: null,
-      C114: { subject: "FUNDAMENTOS DE ELECTRONICA - 102 FELEC B" },
-      C115: { subject: "PROGRAMACION I - INGSOFT202" },
-      A205: null,
-      A206: { subject: "FUNDAMENTOS DE ESTADISTICA - 601" }
-    },
-    "11:00-12:00": {
-      C111: { subject: "ESTRUCTURA DE DATOS - INGSOFT402" },
-      C112: { subject: "PENSAMIENTO SISTEMICO Y AUTOMATIZACION - 101 PENSS A" },
-      C113: null,
-      C114: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT503" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT403" },
-      A205: { subject: "SIMULACION EN INGENIERIA - SIMI B" },
-      A206: { subject: "FUNDAMENTOS DE ESTADISTICA - 601" }
-    },
-    "12:00-13:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      C112: null,
-      C113: { subject: "PROFUNDIZACION" },
-      C114: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT503" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE - INGSOFT403" },
-      A205: { subject: "SIMULACION EN INGENIERIA - SIMI B" },
-      A206: null
-    },
-    "13:00-14:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRONICA - 101 FELEC A" },
-      C112: null,
-      C113: { subject: "PROFUNDIZACION" },
-      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
-      C115: { subject: "FUNDAMENTOS DE ESTADISTICA - 602" },
-      A205: null,
-      A206: { subject: "PROGRAMACION I - PROGI A" }
-    },
-    "14:00-15:00": {
-      C111: { subject: "PROGRAMACION II - PROGII A" },
-      C112: null,
-      C113: { subject: "PROGRAMACION - 101M" },
-      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
-      C115: { subject: "FUNDAMENTOS DE ESTADISTICA - 602" },
-      A205: { subject: "PROGRAMACION II" },
-      A206: { subject: "PROGRAMACION I - PROGI A" }
-    },
-    "15:00-16:00": {
-      C111: { subject: "PROGRAMACION II - PROGII A" },
-      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
-      C113: { subject: "PROGRAMACION - 101M" },
-      C114: { subject: "ANALISIS DE DATOS (CUANTITATIVA Y CUALITATIVA) - ANCC B" },
-      C115: null,
-      A205: { subject: "PROGRAMACION II" },
-      A206: { subject: "PROGRAMACION I - PROGI A" }
-    },
-    "16:00-17:00": {
-      C111: null,
-      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
-      C113: { subject: "PROGRAMACION - 102M" },
-      C114: null,
-      C115: { subject: "PROGRAMACION II" },
-      A205: null,
-      A206: null
-    },
-    "17:00-18:00": {
-      C111: null,
-      C112: { subject: "ESTRUCTURA DE DATOS - INGSOFT401" },
-      C113: { subject: "PROGRAMACION - 102M" },
-      C114: null,
-      C115: { subject: "PROGRAMACION II" },
-      A205: null,
-      A206: null
-    },
-    "18:00-19:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "19:00-20:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "20:00-21:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "COSTOS Y PRESUPUESTO - 203N ADMON SOACHA" },
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    }
-  },
-
-  viernes: {
-    "07:00-08:00": {
-      C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
-      C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
-      C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
-      C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
-      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      A205: null,
-      A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
-    },
-    "08:00-09:00": {
-      C111: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT101" },
-      C112: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE A" },
-      C113: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE - INGSOFT402" },
-      C114: { subject: "DISENO Y MODELAMIENTO DE BASE DE DATOS - INGSOFT401" },
-      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      A205: null,
-      A206: { subject: "COSTOS Y PRESUPUESTOS - 702" }
-    },
-    "09:00-10:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-      C115: { subject: "PENSAMIENTO ALGORITMICO - 102 PENSA B" },
-      A205: { subject: "PROGRAMACION II - INGSOFT303" },
-      A206: null
-    },
-    "10:00-11:00": {
-      C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
-      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-      C113: { subject: "FUNDAMENTOS DE ELECTRONICA - INGSOFT101" },
-      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-      C115: null,
-      A205: { subject: "PROGRAMACION II - INGSOFT303" },
-      A206: null
-    },
-    "11:00-12:00": {
-      C111: { subject: "INTERFAZ HOMBRE MAQUINA - INGSOFT503" },
-      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-      C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
-      C114: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
-      C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
-      A205: null,
-      A206: null
-    },
-    "12:00-13:00": {
-      C111: null,
-      C112: { subject: "PENSAMIENTO ALGORITMICO - 101 PENSA A" },
-      C113: { subject: "ARQUITECTURA DE DATOS - INGSOFT701" },
-      C114: null,
-      C115: { subject: "FUNDAMENTOS DE INGENIERIA - INGSOFT103" },
-      A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
-      A206: null
-    },
-    "13:00-14:00": {
-      C111: null,
-      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-      C113: { subject: "PLANIMETRIA - 101M" },
-      C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
-      C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: { subject: "FORMULACION Y EVALUACION DE PROYECTOS - FORE B" },
-      A206: null
-    },
-    "14:00-15:00": {
-      C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
-      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-      C113: { subject: "PLANIMETRIA - 101M" },
-      C114: { subject: "ARQUITECTURA DE DATOS - INGSOFT702" },
-      C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-      A206: { subject: "PROGRAMACION II" }
-    },
-    "15:00-16:00": {
-      C111: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT501" },
-      C112: { subject: "PROGRAMACION WEB - INGSOFT401" },
-      C113: { subject: "PLANIMETRIA - 101M" },
-      C114: null,
-      C115: { subject: "PROGRAMACION I - PROGI B" },
-      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-      A206: { subject: "PROGRAMACION II" }
-    },
-    "16:00-17:00": {
-      C111: null,
-      C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
-      C113: { subject: "PLANIMETRIA - 102M" },
-      C114: null,
-      C115: { subject: "PROGRAMACION II" },
-      A205: { subject: "PENSAMIENTO ALGORITMICO - INGSOFT102" },
-      A206: null
-    },
-    "17:00-18:00": {
-      C111: null,
-      C112: { subject: "MOTORES Y GESTORES EN BASE DE DATOS - INGSOFT502" },
-      C113: { subject: "PLANIMETRIA - 102M" },
-      C114: null,
-      C115: { subject: "PROGRAMACION II" },
-      A205: null,
-      A206: null
-    },
-    "18:00-19:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-      C113: null,
-      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "19:00-20:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-      C113: null,
-      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "20:00-21:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-      C113: null,
-      C114: { subject: "MICROECONOMIA - 103N ADMON SOACHA" },
-      C115: null,
-      A205: null,
-      A206: null
-    },
-    "21:00-22:00": {
-      C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL - 102N ADMON SOACHA" },
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null
-    }
-  }
-
 }
-
-
 
 const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"]
 const timeSlots = [
@@ -841,9 +430,22 @@ const attendanceData = [
 export function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState("lunes")
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<"schedule" | "attendance" | "realtime">("schedule")
+  const [activeView, setActiveView] = useState<"schedule" | "attendance" | "realtime" | "subjects">("schedule")
   const [currentTime, setCurrentTime] = useState(new Date())
   const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set())
+
+  const [subjects, setSubjects] = useState<any[]>([])
+  const [programs, setPrograms] = useState<any[]>([])
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false)
+  const [editingSubject, setEditingSubject] = useState<any>(null)
+  const [subjectForm, setSubjectForm] = useState({
+    name: "",
+    code: "",
+    programId: "",
+    semester: "",
+    credits: "",
+    isActive: true,
+  })
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -913,6 +515,134 @@ export function ScheduleDashboard() {
   const activeClasses = getCurrentActiveClasses()
   const currentSlot = getCurrentTimeSlot()
 
+  const loadSubjects = async () => {
+    try {
+      // Simulando carga de materias - aquí iría la llamada real a la BD
+      const mockSubjects = [
+        {
+          id: "1",
+          name: "Pensamiento Algorítmico",
+          code: "PA001",
+          programId: "1",
+          semester: 1,
+          credits: 3,
+          isActive: true,
+          program: { name: "Ingeniería de Software", color: "bg-green-500" },
+        },
+        {
+          id: "2",
+          name: "Fundamentos de Electrónica",
+          code: "FE001",
+          programId: "2",
+          semester: 2,
+          credits: 4,
+          isActive: true,
+          program: { name: "Ingeniería Industrial", color: "bg-yellow-500" },
+        },
+        {
+          id: "3",
+          name: "Contabilidad General",
+          code: "CG001",
+          programId: "3",
+          semester: 1,
+          credits: 3,
+          isActive: true,
+          program: { name: "Administración de Empresas", color: "bg-purple-500" },
+        },
+        {
+          id: "4",
+          name: "Fundamentos de Estadística",
+          code: "EST001",
+          programId: "4",
+          semester: 3,
+          credits: 3,
+          isActive: true,
+          program: { name: "Ciencias del Deporte", color: "bg-blue-500" },
+        },
+      ]
+      setSubjects(mockSubjects)
+    } catch (error) {
+      console.error("Error loading subjects:", error)
+    }
+  }
+
+  const loadPrograms = async () => {
+    try {
+      // Simulando carga de programas - aquí iría la llamada real a la BD
+      const mockPrograms = [
+        { id: "1", name: "Ingeniería de Software", code: "IS", color: "bg-green-500" },
+        { id: "2", name: "Ingeniería Industrial", code: "II", color: "bg-yellow-500" },
+        { id: "3", name: "Administración de Empresas", code: "AE", color: "bg-purple-500" },
+        { id: "4", name: "Ciencias del Deporte", code: "CD", color: "bg-blue-500" },
+      ]
+      setPrograms(mockPrograms)
+    } catch (error) {
+      console.error("Error loading programs:", error)
+    }
+  }
+
+  const handleSaveSubject = async () => {
+    try {
+      if (editingSubject) {
+        // Actualizar materia existente
+        const updatedSubjects = subjects.map((subject) =>
+          subject.id === editingSubject.id
+            ? { ...subject, ...subjectForm, program: programs.find((p) => p.id === subjectForm.programId) }
+            : subject,
+        )
+        setSubjects(updatedSubjects)
+      } else {
+        // Crear nueva materia
+        const newSubject = {
+          id: Date.now().toString(),
+          ...subjectForm,
+          semester: Number.parseInt(subjectForm.semester) || null,
+          credits: Number.parseInt(subjectForm.credits) || null,
+          program: programs.find((p) => p.id === subjectForm.programId),
+        }
+        setSubjects([...subjects, newSubject])
+      }
+
+      setIsSubjectModalOpen(false)
+      setEditingSubject(null)
+      setSubjectForm({ name: "", code: "", programId: "", semester: "", credits: "", isActive: true })
+    } catch (error) {
+      console.error("Error saving subject:", error)
+    }
+  }
+
+  const handleEditSubject = (subject: any) => {
+    setEditingSubject(subject)
+    setSubjectForm({
+      name: subject.name,
+      code: subject.code,
+      programId: subject.programId,
+      semester: subject.semester?.toString() || "",
+      credits: subject.credits?.toString() || "",
+      isActive: subject.isActive,
+    })
+    setIsSubjectModalOpen(true)
+  }
+
+  const handleDeleteSubject = async (subjectId: string) => {
+    try {
+      setSubjects(subjects.filter((subject) => subject.id !== subjectId))
+    } catch (error) {
+      console.error("Error deleting subject:", error)
+    }
+  }
+
+  const openCreateModal = () => {
+    setEditingSubject(null)
+    setSubjectForm({ name: "", code: "", programId: "", semester: "", credits: "", isActive: true })
+    setIsSubjectModalOpen(true)
+  }
+
+  useEffect(() => {
+    loadSubjects()
+    loadPrograms()
+  }, [])
+
   return (
     <div className="container mx-auto p-6 space-y-6 relative z-10">
       <div className="flex items-center justify-between">
@@ -930,7 +660,7 @@ export function ScheduleDashboard() {
 
       <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
         <CardContent className="p-4">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
@@ -967,11 +697,257 @@ export function ScheduleDashboard() {
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
             </Button>
+            <Button
+              variant={activeView === "subjects" ? "default" : "outline"}
+              onClick={() => setActiveView("subjects")}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "subjects"
+                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+              }`}
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              GESTIÓN DE MATERIAS
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {activeView === "realtime" ? (
+      {activeView === "subjects" ? (
+        <>
+          <Card className="bg-gray-900/20 backdrop-blur-md border-orange-400/30 shadow-2xl shadow-orange-500/10">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-orange-300 font-mono text-xl flex items-center gap-2">
+                  <BookOpen className="w-6 h-6" />
+                  GESTIÓN DE MATERIAS
+                </CardTitle>
+                <Button
+                  onClick={openCreateModal}
+                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  NUEVA MATERIA
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {/* Estadísticas por programa */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  {programs.map((program) => {
+                    const programSubjects = subjects.filter((s) => s.programId === program.id && s.isActive)
+                    return (
+                      <div key={program.id} className="bg-gray-900/40 p-4 rounded-lg border border-gray-600/50">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={`w-3 h-3 rounded-full ${program.color} shadow-lg`}></div>
+                          <span className="text-sm font-mono text-gray-300">{program.name}</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{programSubjects.length}</div>
+                        <div className="text-xs text-gray-400">materias activas</div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Tabla de materias */}
+                <div className="bg-gray-900/30 rounded-lg border border-gray-600/50 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-800/50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Código
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Nombre
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Programa
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Semestre
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Créditos
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Estado
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
+                            Acciones
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-700/50">
+                        {subjects.map((subject) => (
+                          <tr key={subject.id} className="hover:bg-gray-800/30 transition-colors">
+                            <td className="px-4 py-3 text-sm font-mono text-white">{subject.code}</td>
+                            <td className="px-4 py-3 text-sm text-gray-300">{subject.name}</td>
+                            <td className="px-4 py-3 text-sm">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${subject.program?.color} shadow-lg`}></div>
+                                <span className="text-gray-300">{subject.program?.name}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm font-mono text-gray-300">{subject.semester || "-"}</td>
+                            <td className="px-4 py-3 text-sm font-mono text-gray-300">{subject.credits || "-"}</td>
+                            <td className="px-4 py-3 text-sm">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-mono ${
+                                  subject.isActive
+                                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                                }`}
+                              >
+                                {subject.isActive ? "ACTIVA" : "INACTIVA"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditSubject(subject)}
+                                  className="border-blue-500/50 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteSubject(subject.id)}
+                                  className="border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Modal para crear/editar materia */}
+          {isSubjectModalOpen && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-gray-900 border border-orange-500/30 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl shadow-orange-500/20">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-mono text-orange-300">
+                    {editingSubject ? "EDITAR MATERIA" : "NUEVA MATERIA"}
+                  </h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsSubjectModalOpen(false)}
+                    className="border-gray-600 text-gray-400 hover:bg-gray-800"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-mono text-gray-300 mb-1">Código</label>
+                    <input
+                      type="text"
+                      value={subjectForm.code}
+                      onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
+                      placeholder="Ej: PA001"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-mono text-gray-300 mb-1">Nombre</label>
+                    <input
+                      type="text"
+                      value={subjectForm.name}
+                      onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Ej: Pensamiento Algorítmico"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-mono text-gray-300 mb-1">Programa</label>
+                    <select
+                      value={subjectForm.programId}
+                      onChange={(e) => setSubjectForm({ ...subjectForm, programId: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 focus:outline-none"
+                    >
+                      <option value="">Seleccionar programa</option>
+                      {programs.map((program) => (
+                        <option key={program.id} value={program.id}>
+                          {program.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-mono text-gray-300 mb-1">Semestre</label>
+                      <input
+                        type="number"
+                        value={subjectForm.semester}
+                        onChange={(e) => setSubjectForm({ ...subjectForm, semester: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
+                        placeholder="1-10"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-mono text-gray-300 mb-1">Créditos</label>
+                      <input
+                        type="number"
+                        value={subjectForm.credits}
+                        onChange={(e) => setSubjectForm({ ...subjectForm, credits: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
+                        placeholder="1-6"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      checked={subjectForm.isActive}
+                      onChange={(e) => setSubjectForm({ ...subjectForm, isActive: e.target.checked })}
+                      className="w-4 h-4 text-orange-500 bg-gray-800 border-gray-600 rounded focus:ring-orange-500"
+                    />
+                    <label htmlFor="isActive" className="text-sm font-mono text-gray-300">
+                      Materia activa
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button
+                    onClick={() => setIsSubjectModalOpen(false)}
+                    variant="outline"
+                    className="flex-1 border-gray-600 text-gray-400 hover:bg-gray-800"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleSaveSubject}
+                    className="flex-1 bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                  >
+                    {editingSubject ? "Actualizar" : "Crear"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      ) : activeView === "realtime" ? (
         <>
           <Card className="bg-gray-900/20 backdrop-blur-md border-green-400/30 shadow-2xl shadow-green-500/10">
             <CardHeader>
