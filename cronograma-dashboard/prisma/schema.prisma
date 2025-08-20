@@ -1,193 +1,177 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Program {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  code      String   @unique
-  color     String
-  glowColor String
-  textColor String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  subjects  Subject[]
-  
-  @@map("programs")
-  @@index([code])
+// ==================== MODELOS PRINCIPALES ====================
+
+model Programa {
+  id         String       @id @default(cuid())
+  nombre     String       @unique
+  codigo     String       @unique
+  color      String
+  colorBrillo String
+  colorTexto String
+  creadoEn   DateTime     @default(now())
+  actualizadoEn DateTime
+  asignaturas Asignatura[]
+
+  @@index([codigo])
+  @@map("programas") // Nombre real de la tabla en la base de datos
 }
 
-model Subject {
-  id          String  @id @default(cuid())
-  name        String
-  code        String  @unique
-  programId   String
-  semester    Int?
-  credits     Int?
-  isActive    Boolean @default(true)
-  program     Program @relation(fields: [programId], references: [id], onDelete: Cascade)
-  schedules   Schedule[]
-  attendance  Attendance[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  @@map("subjects")
-  @@index([programId])
-  @@index([code])
-  @@index([isActive])
+model Asignatura {
+  id          String       @id @default(cuid())
+  nombre      String
+  codigo      String       @unique
+  programaId  String
+  semestre    Int?
+  creditos    Int?
+  activa      Boolean      @default(true)
+  creadoEn    DateTime     @default(now())
+  actualizadoEn DateTime
+  asistencias Asistencia[]
+  horarios    Horario[]
+  programa    Programa     @relation(fields: [programaId], references: [id], onDelete: Cascade)
+
+  @@index([codigo])
+  @@index([activa])
+  @@index([programaId])
+  @@map("asignaturas")
 }
 
-model Room {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  capacity    Int?
-  building    String?
-  floor       String?
-  equipment   Json?   
-  isActive    Boolean @default(true)
-  
-  schedules   Schedule[]
-  attendance  Attendance[]
-  roomStatus  RoomStatus[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("rooms")
-  @@index([name])
-  @@index([isActive])
+model Aula {
+  id          String       @id @default(cuid())
+  nombre      String       @unique
+  capacidad   Int?
+  edificio    String?
+  piso        String?
+  equipos     Json?
+  activa      Boolean      @default(true)
+  creadoEn    DateTime     @default(now())
+  actualizadoEn DateTime
+  asistencias Asistencia[]
+  estados     EstadoAula[]
+  horarios    Horario[]
+
+  @@index([activa])
+  @@index([nombre])
+  @@map("aulas")
 }
 
-model Professor {
-  id        String @id @default(cuid())
-  name      String
-  email     String @unique
-  phone     String?
-  isActive  Boolean @default(true)
-  
-  schedules Schedule[]
-  attendance Attendance[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("professors")
-  @@index([email])
-  @@index([isActive])
+model Profesor {
+  id          String       @id @default(cuid())
+  nombre      String
+  correo      String       @unique
+  telefono    String?
+  activo      Boolean      @default(true)
+  creadoEn    DateTime     @default(now())
+  actualizadoEn DateTime
+  asistencias Asistencia[]
+  horarios    Horario[]
+
+  @@index([correo])
+  @@index([activo])
+  @@map("profesores")
 }
 
-model Schedule {
+model Horario {
+  id          String       @id @default(cuid())
+  diaSemana   Int
+  horaInicio  String
+  horaFin     String
+  semestre    String
+  grupo       String?
+  activo      Boolean      @default(true)
+  asignaturaId String
+  aulaId      String
+  profesorId  String?
+  creadoEn    DateTime     @default(now())
+  actualizadoEn DateTime
+  asistencias Asistencia[]
+  profesor    Profesor?    @relation(fields: [profesorId], references: [id])
+  aula        Aula         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  asignatura  Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+
+  @@unique([diaSemana, horaInicio, horaFin, aulaId, semestre])
+  @@index([diaSemana, semestre])
+  @@index([activo])
+  @@index([aulaId, diaSemana])
+  @@index([asignaturaId])
+  @@map("horarios")
+}
+
+model Asistencia {
+  id           String           @id @default(cuid())
+  fecha        DateTime
+  horaInicio   String
+  horaFin      String
+  estado       EstadoAsistencia
+  observaciones String?
+  verificadoPor String?
+  horarioId    String
+  asignaturaId String
+  aulaId       String
+  profesorId   String?
+  creadoEn     DateTime         @default(now())
+  actualizadoEn DateTime
+  profesor     Profesor?        @relation(fields: [profesorId], references: [id])
+  aula         Aula             @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  horario      Horario          @relation(fields: [horarioId], references: [id], onDelete: Cascade)
+  asignatura   Asignatura       @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+
+  @@unique([horarioId, fecha])
+  @@index([fecha])
+  @@index([aulaId, fecha])
+  @@index([estado])
+  @@map("asistencias")
+}
+
+model EstadoAula {
   id          String    @id @default(cuid())
-  dayOfWeek   Int       // 1=Lunes, 2=Martes, etc.
-  startTime   String    // "07:00"
-  endTime     String    // "08:00"
-  semester    String    // "2024-1"
-  group       String?   // "A", "B", "101", etc.
-  isActive    Boolean   @default(true)
-  
-  subjectId   String
-  roomId      String
-  professorId String?
-  
-  subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  room        Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  professor   Professor? @relation(fields: [professorId], references: [id], onDelete: SetNull)
-  
-  attendance  Attendance[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@unique([dayOfWeek, startTime, endTime, roomId, semester])
-  @@map("schedules")
-  @@index([dayOfWeek, semester])
-  @@index([roomId, dayOfWeek])
-  @@index([subjectId])
-  @@index([isActive])
+  aulaId      String
+  fecha       DateTime
+  franja      String
+  abierta     Boolean   @default(false)
+  horaApertura DateTime?
+  horaCierre   DateTime?
+  abiertoPor   String?
+  cerradoPor   String?
+  notas        String?
+  creadoEn     DateTime  @default(now())
+  actualizadoEn DateTime
+  aula         Aula      @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+
+  @@unique([aulaId, fecha, franja])
+  @@index([fecha])
+  @@index([abierta])
+  @@index([aulaId, fecha])
+  @@map("estado_aula")
 }
 
-model Attendance {
-  id            String           @id @default(cuid())
-  date          DateTime
-  startTime     String
-  endTime       String
-  status        AttendanceStatus
-  observations  String?
-  checkedBy     String?          // Usuario que marcó la asistencia
-  
-  scheduleId    String
-  subjectId     String
-  roomId        String
-  professorId   String?
-  
-  schedule      Schedule   @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  subject       Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  room          Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  professor     Professor? @relation(fields: [professorId], references: [id], onDelete: SetNull)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@unique([scheduleId, date])
-  @@map("attendance")
-  @@index([date])
-  @@index([status])
-  @@index([roomId, date])
+model RegistroSistema {
+  id           String   @id @default(cuid())
+  accion       String
+  tipoEntidad  String
+  entidadId    String
+  usuarioId    String?
+  detalles     Json?
+  fechaHora    DateTime @default(now())
+
+  @@index([accion])
+  @@index([tipoEntidad, entidadId])
+  @@index([fechaHora])
+  @@map("registros_sistema")
 }
 
-model RoomStatus {
-  id          String    @id @default(cuid())
-  roomId      String
-  date        DateTime
-  timeSlot    String    // "07:00-08:00"
-  isOpen      Boolean   @default(false)
-  openedAt    DateTime?
-  closedAt    DateTime?
-  openedBy    String?   
-  closedBy    String?
-  notes       String?
-  
-  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  @@unique([roomId, date, timeSlot])
-  @@map("room_status")
-  @@index([date])
-  @@index([roomId, date])
-  @@index([isOpen])
-}
+// ==================== ENUMERACIONES ====================
 
-// Modelo para auditoría y logs
-model SystemLog {
-  id          String    @id @default(cuid())
-  action      String    // "OPEN_ROOM", "MARK_ATTENDANCE", etc.
-  entityType  String    // "ROOM", "ATTENDANCE", etc.
-  entityId    String
-  userId      String?
-  details     Json?
-  timestamp   DateTime  @default(now())
-  
-  @@map("system_logs")
-  @@index([timestamp])
-  @@index([action])
-  @@index([entityType, entityId])
-}
-
-enum AttendanceStatus {
+enum EstadoAsistencia {
   ASISTIO
   NO_ASISTIO
   TARDANZA
