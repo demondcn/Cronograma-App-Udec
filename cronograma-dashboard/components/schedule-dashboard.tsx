@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+//Componentes Crud
+import AgregarMateriaForm from "./AgregarMaterias/agregarmaterias"
 import {
   Calendar,
   Clock,
@@ -18,7 +20,7 @@ import {
   BookOpen,
   Check,
 } from "lucide-react"
-
+import { Navegador } from "./NavegadorInicio"
 const subjectCategories = {
   // Administración de empresas - Morado
   admin: {
@@ -436,7 +438,7 @@ export function ScheduleDashboard() {
 
   const [subjects, setSubjects] = useState<any[]>([])
   const [programs, setPrograms] = useState<any[]>([])
-  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingSubject, setEditingSubject] = useState<any>(null)
   const [subjectForm, setSubjectForm] = useState({
     name: "",
@@ -645,18 +647,7 @@ export function ScheduleDashboard() {
 
   return (
     <div className="container mx-auto p-6 space-y-6 relative z-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            CRONOGRAMA DASHBOARD
-          </h1>
-          <p className="text-cyan-300 mt-1 font-mono">Control y gestión de salas académicas</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-cyan-400 bg-gray-900/50 px-4 py-2 rounded-lg border border-cyan-500/30">
-          <Calendar className="w-4 h-4" />
-          <span className="font-mono">SEMESTRE 2024-1</span>
-        </div>
-      </div>
+      <Navegador />
 
       <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
         <CardContent className="p-4">
@@ -664,11 +655,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "schedule"
-                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "schedule"
+                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -676,11 +666,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "attendance"
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "attendance"
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -688,11 +677,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "realtime"
-                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "realtime"
+                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -700,11 +688,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "subjects"
-                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "subjects"
+                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+                }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -723,12 +710,13 @@ export function ScheduleDashboard() {
                   GESTIÓN DE MATERIAS
                 </CardTitle>
                 <Button
-                  onClick={openCreateModal}
+                  onClick={() => setIsModalOpen(true)}
                   className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVA MATERIA
                 </Button>
+
               </div>
             </CardHeader>
             <CardContent>
@@ -794,11 +782,10 @@ export function ScheduleDashboard() {
                             <td className="px-4 py-3 text-sm font-mono text-gray-300">{subject.credits || "-"}</td>
                             <td className="px-4 py-3 text-sm">
                               <span
-                                className={`px-2 py-1 rounded-full text-xs font-mono ${
-                                  subject.isActive
-                                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                                    : "bg-red-500/20 text-red-300 border border-red-500/30"
-                                }`}
+                                className={`px-2 py-1 rounded-full text-xs font-mono ${subject.isActive
+                                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                                  : "bg-red-500/20 text-red-300 border border-red-500/30"
+                                  }`}
                               >
                                 {subject.isActive ? "ACTIVA" : "INACTIVA"}
                               </span>
@@ -833,119 +820,15 @@ export function ScheduleDashboard() {
             </CardContent>
           </Card>
 
-          {/* Modal para crear/editar materia */}
-          {isSubjectModalOpen && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-gray-900 border border-orange-500/30 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl shadow-orange-500/20">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-mono text-orange-300">
-                    {editingSubject ? "EDITAR MATERIA" : "NUEVA MATERIA"}
-                  </h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsSubjectModalOpen(false)}
-                    className="border-gray-600 text-gray-400 hover:bg-gray-800"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-mono text-gray-300 mb-1">Código</label>
-                    <input
-                      type="text"
-                      value={subjectForm.code}
-                      onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
-                      placeholder="Ej: PA001"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-mono text-gray-300 mb-1">Nombre</label>
-                    <input
-                      type="text"
-                      value={subjectForm.name}
-                      onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 focus:outline-none"
-                      placeholder="Ej: Pensamiento Algorítmico"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-mono text-gray-300 mb-1">Programa</label>
-                    <select
-                      value={subjectForm.programId}
-                      onChange={(e) => setSubjectForm({ ...subjectForm, programId: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 focus:outline-none"
-                    >
-                      <option value="">Seleccionar programa</option>
-                      {programs.map((program) => (
-                        <option key={program.id} value={program.id}>
-                          {program.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-mono text-gray-300 mb-1">Semestre</label>
-                      <input
-                        type="number"
-                        value={subjectForm.semester}
-                        onChange={(e) => setSubjectForm({ ...subjectForm, semester: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
-                        placeholder="1-10"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-mono text-gray-300 mb-1">Créditos</label>
-                      <input
-                        type="number"
-                        value={subjectForm.credits}
-                        onChange={(e) => setSubjectForm({ ...subjectForm, credits: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono focus:border-orange-500 focus:outline-none"
-                        placeholder="1-6"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="isActive"
-                      checked={subjectForm.isActive}
-                      onChange={(e) => setSubjectForm({ ...subjectForm, isActive: e.target.checked })}
-                      className="w-4 h-4 text-orange-500 bg-gray-800 border-gray-600 rounded focus:ring-orange-500"
-                    />
-                    <label htmlFor="isActive" className="text-sm font-mono text-gray-300">
-                      Materia activa
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-6">
-                  <Button
-                    onClick={() => setIsSubjectModalOpen(false)}
-                    variant="outline"
-                    className="flex-1 border-gray-600 text-gray-400 hover:bg-gray-800"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    onClick={handleSaveSubject}
-                    className="flex-1 bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
-                  >
-                    {editingSubject ? "Actualizar" : "Crear"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Agregar Materias */}
+          <AgregarMateriaForm
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={(data) => {
+              console.log("Materia agregada:", data)
+              setIsModalOpen(false)
+            }}
+          />
         </>
       ) : activeView === "realtime" ? (
         <>
@@ -993,11 +876,10 @@ export function ScheduleDashboard() {
                       return (
                         <div
                           key={room}
-                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                            isOpened
-                              ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
-                              : "bg-gray-900/40 border-gray-600/50"
-                          }`}
+                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${isOpened
+                            ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
+                            : "bg-gray-900/40 border-gray-600/50"
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -1014,11 +896,10 @@ export function ScheduleDashboard() {
                             </div>
                             <div className="flex items-center gap-3">
                               <div
-                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
-                                  isOpened
-                                    ? "bg-green-500/30 text-green-300 border border-green-400/50"
-                                    : "bg-red-500/30 text-red-300 border border-red-400/50"
-                                }`}
+                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${isOpened
+                                  ? "bg-green-500/30 text-green-300 border border-green-400/50"
+                                  : "bg-red-500/30 text-red-300 border border-red-400/50"
+                                  }`}
                               >
                                 {isOpened ? "ABIERTA" : "CERRADA"}
                               </div>
@@ -1026,11 +907,10 @@ export function ScheduleDashboard() {
                                 onClick={() => toggleRoomOpened(room, currentSlot!)}
                                 variant="outline"
                                 size="sm"
-                                className={`font-mono transition-all duration-300 ${
-                                  isOpened
-                                    ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                                    : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                                }`}
+                                className={`font-mono transition-all duration-300 ${isOpened
+                                  ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                                  }`}
                               >
                                 {isOpened ? (
                                   <>
@@ -1138,11 +1018,10 @@ export function ScheduleDashboard() {
                     key={day}
                     variant={selectedDay === day ? "default" : "outline"}
                     onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${
-                      selectedDay === day
-                        ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                        : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                    }`}
+                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
+                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                      }`}
                   >
                     {day}
                   </Button>
@@ -1163,11 +1042,10 @@ export function ScheduleDashboard() {
                 <Button
                   variant={selectedRoom === null ? "default" : "outline"}
                   onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${
-                    selectedRoom === null
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                  }`}
+                  className={`font-mono transition-all duration-300 ${selectedRoom === null
+                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                    }`}
                 >
                   TODAS LAS SALAS
                 </Button>
@@ -1176,11 +1054,10 @@ export function ScheduleDashboard() {
                     key={room}
                     variant={selectedRoom === room ? "default" : "outline"}
                     onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${
-                      selectedRoom === room
-                        ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                        : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
+                    className={`font-mono transition-all duration-300 ${selectedRoom === room
+                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                      }`}
                   >
                     {room}
                   </Button>
@@ -1229,11 +1106,10 @@ export function ScheduleDashboard() {
                           return (
                             <div
                               key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${
-                                classInfo
-                                  ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                  : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                              }`}
+                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
+                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
+                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
+                                }`}
                             >
                               {classInfo && (
                                 <div className="w-full">
@@ -1296,7 +1172,7 @@ export function ScheduleDashboard() {
                           0,
                         ) /
                           (timeSlots.length * rooms.length)) *
-                          100,
+                        100,
                       )}
                       %
                     </p>
@@ -1390,11 +1266,10 @@ export function ScheduleDashboard() {
                           {record.profeAsignado}
                         </div>
                         <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${
-                            isPresent
-                              ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                              : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                          }`}
+                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
+                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
+                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             {isPresent ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
@@ -1459,7 +1334,7 @@ export function ScheduleDashboard() {
                       {Math.round(
                         (attendanceData.filter((record) => record.estadoAsistencia === "ASISTIÓ").length /
                           attendanceData.length) *
-                          100,
+                        100,
                       )}
                       %
                     </p>
