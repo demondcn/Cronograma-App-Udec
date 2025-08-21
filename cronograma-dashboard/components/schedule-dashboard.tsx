@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 //Componentes Crud
 import AgregarMateriaForm from "./AgregarMaterias/agregarmaterias"
+import AgregarProgramas from "./Agregadores/AgregarPrograma/agregarprogramas"
+import AgregarAulaForm from "./Agregadores/AgregarAula/agregaraula"
+import AgregarProfeForm from "./Agregadores/AgregarProfe/agregarprofe"
+
 import {
   Calendar,
   Clock,
@@ -439,6 +443,10 @@ export function ScheduleDashboard() {
   const [subjects, setSubjects] = useState<any[]>([])
   const [programs, setPrograms] = useState<any[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  //boton de programas agregar
+  const [isModalOpenAula, setIsModalOpenAula] = useState(false)
+  const [isModalOpenProgram, setIsModalOpenProgram] = useState(false)
+  const [isModalOpenProfe, setIsModalOpenProfe] = useState(false)
   const [editingSubject, setEditingSubject] = useState<any>(null)
   const [subjectForm, setSubjectForm] = useState({
     name: "",
@@ -709,6 +717,7 @@ export function ScheduleDashboard() {
                   <BookOpen className="w-6 h-6" />
                   GESTIÓN DE MATERIAS
                 </CardTitle>
+
                 <Button
                   onClick={() => setIsModalOpen(true)}
                   className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
@@ -716,7 +725,28 @@ export function ScheduleDashboard() {
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVA MATERIA
                 </Button>
+                <Button
+                  onClick={() => setIsModalOpenProgram(true)}
+                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  NUEVO PROGRAMA
+                </Button>
+                <Button
+                  onClick={() => setIsModalOpenAula(true)}
+                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  NUEVA AULA
+                </Button>
 
+                <Button
+                  onClick={() => setIsModalOpenProfe(true)}
+                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  NUEVO PROFE
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -820,13 +850,37 @@ export function ScheduleDashboard() {
             </CardContent>
           </Card>
 
-          {/* Agregar Materias */}
+          {/* Agregadore */}
           <AgregarMateriaForm
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onSubmit={(data) => {
               console.log("Materia agregada:", data)
               setIsModalOpen(false)
+            }}
+          />
+          <AgregarProgramas
+            isOpen={isModalOpenProgram}
+            onClose={() => setIsModalOpenProgram(false)}
+            onSubmit={(data) => {
+              console.log("Programa agregada:", data)
+              setIsModalOpenProgram(false)
+            }}
+          />
+          <AgregarAulaForm
+            isOpen={isModalOpenAula}
+            onClose={() => setIsModalOpenAula(false)}
+            onSubmit={(data) => {
+              console.log("Programa agregada:", data)
+              setIsModalOpenAula(false)
+            }}
+          />
+          <AgregarProfeForm
+            isOpen={isModalOpenProfe}
+            onClose={() => setIsModalOpenProfe(false)}
+            onSubmit={(data) => {
+              console.log("Programa agregada:", data)
+              setIsModalOpenProfe(false)
             }}
           />
         </>
