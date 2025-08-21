@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 //Componentes Crud
-import AgregarMateriaForm from "./AgregarMaterias/agregarmaterias"
-import AgregarProgramas from "./Agregadores/AgregarPrograma/agregarprogramas"
-import AgregarAulaForm from "./Agregadores/AgregarAula/agregaraula"
-import AgregarProfeForm from "./Agregadores/AgregarProfe/agregarprofe"
+import AgregarMateriaForm from "./AgregarMaterias/agregarmaterias";
+import AgregarProgramas from "./Agregadores/AgregarPrograma/agregarprogramas";
+import AgregarAulaForm from "./Agregadores/AgregarAula/agregaraula";
+import AgregarProfeForm from "./Agregadores/AgregarProfe/agregarprofe";
+import AgregarHorarioForm from "./Agregadores/AgregarHorario/agregarhorario";
 
 import {
   Calendar,
@@ -23,15 +24,20 @@ import {
   X,
   BookOpen,
   Check,
-} from "lucide-react"
-import { Navegador } from "./NavegadorInicio"
+} from "lucide-react";
+import { Navegador } from "./NavegadorInicio";
 const subjectCategories = {
   // Administración de empresas - Morado
   admin: {
     color: "bg-purple-500/20 border-purple-400/50 shadow-purple-400/20",
     glowColor: "shadow-lg shadow-purple-500/30",
     textColor: "text-purple-100",
-    subjects: ["COSTOS Y PRESUPUESTO", "ADMINISTRACIÓN", "CONTABILIDAD GENERAL", "MICROECONOMÍA"],
+    subjects: [
+      "COSTOS Y PRESUPUESTO",
+      "ADMINISTRACIÓN",
+      "CONTABILIDAD GENERAL",
+      "MICROECONOMÍA",
+    ],
   },
   // Ingeniería de software - Verde institucional UDEC
   software: {
@@ -58,20 +64,27 @@ const subjectCategories = {
     color: "bg-yellow-500/20 border-yellow-400/50 shadow-yellow-400/20",
     glowColor: "shadow-lg shadow-yellow-500/30",
     textColor: "text-yellow-100",
-    subjects: ["AUTOMATIZACIÓN DE PROCESOS", "ESTRUCTURA DE DATOS", "FUNDAMENTOS DE ELECTRÓNICA"],
+    subjects: [
+      "AUTOMATIZACIÓN DE PROCESOS",
+      "ESTRUCTURA DE DATOS",
+      "FUNDAMENTOS DE ELECTRÓNICA",
+    ],
   },
   sports: {
     color: "bg-blue-500/20 border-blue-400/50 shadow-blue-400/20",
     glowColor: "shadow-lg shadow-blue-500/30",
     textColor: "text-blue-100",
-    subjects: ["FUNDAMENTOS DE ESTADÍSTICA", "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA"],
+    subjects: [
+      "FUNDAMENTOS DE ESTADÍSTICA",
+      "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
+    ],
   },
-}
+};
 
 const getSubjectStyle = (subject: string) => {
   for (const [key, category] of Object.entries(subjectCategories)) {
     if (category.subjects.some((s) => subject.includes(s))) {
-      return category
+      return category;
     }
   }
   // Default para materias no clasificadas
@@ -79,8 +92,8 @@ const getSubjectStyle = (subject: string) => {
     color: "bg-gray-500/20 border-gray-400/50",
     glowColor: "shadow-lg shadow-gray-500/30",
     textColor: "text-gray-100",
-  }
-}
+  };
+};
 
 const scheduleData = {
   lunes: {
@@ -109,7 +122,9 @@ const scheduleData = {
       C114: null,
       C115: null,
       A205: { subject: "SISTEMAS OPERATIVOS" },
-      A206: { subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)" },
+      A206: {
+        subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)",
+      },
     },
     "10:00-11:00": {
       C111: { subject: "SEGURIDAD INFORMÁTICA" },
@@ -250,7 +265,9 @@ const scheduleData = {
     },
     "11:00-12:00": {
       C111: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
-      C112: { subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA" },
+      C112: {
+        subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
+      },
       C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
       C114: null,
       C115: null,
@@ -339,9 +356,9 @@ const scheduleData = {
       A206: null,
     },
   },
-}
+};
 
-const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"]
+const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"];
 const timeSlots = [
   "07:00-08:00",
   "08:00-09:00",
@@ -357,8 +374,8 @@ const timeSlots = [
   "18:00-19:00",
   "19:00-20:00",
   "20:00-21:00",
-]
-const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+];
+const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 const attendanceData = [
   {
@@ -431,23 +448,26 @@ const attendanceData = [
     estadoAsistencia: "NO ASISTIÓ",
     sala: "C115",
   },
-]
+];
 
 export function ScheduleDashboard() {
-  const [selectedDay, setSelectedDay] = useState("lunes")
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<"schedule" | "attendance" | "realtime" | "subjects">("schedule")
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set())
+  const [selectedDay, setSelectedDay] = useState("lunes");
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<
+    "schedule" | "attendance" | "realtime" | "subjects"
+  >("schedule");
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set());
 
-  const [subjects, setSubjects] = useState<any[]>([])
-  const [programs, setPrograms] = useState<any[]>([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   //boton de programas agregar
-  const [isModalOpenAula, setIsModalOpenAula] = useState(false)
-  const [isModalOpenProgram, setIsModalOpenProgram] = useState(false)
-  const [isModalOpenProfe, setIsModalOpenProfe] = useState(false)
-  const [editingSubject, setEditingSubject] = useState<any>(null)
+  const [isModalOpenAula, setIsModalOpenAula] = useState(false);
+  const [isModalOpenProgram, setIsModalOpenProgram] = useState(false);
+  const [isModalOpenProfe, setIsModalOpenProfe] = useState(false);
+  const [isModalOpenHorario, setIsModalOpenHorario] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<any>(null);
   const [subjectForm, setSubjectForm] = useState({
     name: "",
     code: "",
@@ -455,49 +475,60 @@ export function ScheduleDashboard() {
     semester: "",
     credits: "",
     isActive: true,
-  })
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 60000)
+      setCurrentTime(new Date());
+    }, 60000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const getCurrentDay = () => {
-    const days = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
-    return days[currentTime.getDay()]
-  }
+    const days = [
+      "domingo",
+      "lunes",
+      "martes",
+      "miércoles",
+      "jueves",
+      "viernes",
+      "sábado",
+    ];
+    return days[currentTime.getDay()];
+  };
 
   const getCurrentTimeSlot = () => {
-    const hour = currentTime.getHours()
-    const minute = currentTime.getMinutes()
+    const hour = currentTime.getHours();
+    const minute = currentTime.getMinutes();
 
     for (const slot of timeSlots) {
-      const [startTime, endTime] = slot.split("-")
-      const [startHour] = startTime.split(":").map(Number)
-      const [endHour] = endTime.split(":").map(Number)
+      const [startTime, endTime] = slot.split("-");
+      const [startHour] = startTime.split(":").map(Number);
+      const [endHour] = endTime.split(":").map(Number);
 
       if (hour >= startHour && hour < endHour) {
-        return slot
+        return slot;
       }
     }
-    return null
-  }
+    return null;
+  };
 
   const getCurrentActiveClasses = () => {
-    const currentDay = getCurrentDay()
-    const currentSlot = getCurrentTimeSlot()
+    const currentDay = getCurrentDay();
+    const currentSlot = getCurrentTimeSlot();
 
-    if (!currentSlot || !scheduleData[currentDay as keyof typeof scheduleData]) {
-      return []
+    if (
+      !currentSlot ||
+      !scheduleData[currentDay as keyof typeof scheduleData]
+    ) {
+      return [];
     }
 
-    const daySchedule = scheduleData[currentDay as keyof typeof scheduleData]
-    const slotData = daySchedule[currentSlot]
+    const daySchedule = scheduleData[currentDay as keyof typeof scheduleData];
+    const slotData = daySchedule[currentSlot];
 
-    if (!slotData) return []
+    if (!slotData) return [];
 
     return rooms
       .map((room) => ({
@@ -505,25 +536,27 @@ export function ScheduleDashboard() {
         subject: slotData[room]?.subject || null,
         isOpened: openedRooms.has(`${room}-${currentSlot}`),
       }))
-      .filter((item) => item.subject !== null)
-  }
+      .filter((item) => item.subject !== null);
+  };
 
   const toggleRoomOpened = (room: string, timeSlot: string) => {
-    const key = `${room}-${timeSlot}`
-    const newOpenedRooms = new Set(openedRooms)
+    const key = `${room}-${timeSlot}`;
+    const newOpenedRooms = new Set(openedRooms);
 
     if (newOpenedRooms.has(key)) {
-      newOpenedRooms.delete(key)
+      newOpenedRooms.delete(key);
     } else {
-      newOpenedRooms.add(key)
+      newOpenedRooms.add(key);
     }
 
-    setOpenedRooms(newOpenedRooms)
-  }
+    setOpenedRooms(newOpenedRooms);
+  };
 
-  const currentSchedule = scheduleData[selectedDay as keyof typeof scheduleData] || scheduleData.lunes
-  const activeClasses = getCurrentActiveClasses()
-  const currentSlot = getCurrentTimeSlot()
+  const currentSchedule =
+    scheduleData[selectedDay as keyof typeof scheduleData] ||
+    scheduleData.lunes;
+  const activeClasses = getCurrentActiveClasses();
+  const currentSlot = getCurrentTimeSlot();
 
   const loadSubjects = async () => {
     try {
@@ -557,7 +590,10 @@ export function ScheduleDashboard() {
           semester: 1,
           credits: 3,
           isActive: true,
-          program: { name: "Administración de Empresas", color: "bg-purple-500" },
+          program: {
+            name: "Administración de Empresas",
+            color: "bg-purple-500",
+          },
         },
         {
           id: "4",
@@ -569,27 +605,47 @@ export function ScheduleDashboard() {
           isActive: true,
           program: { name: "Ciencias del Deporte", color: "bg-blue-500" },
         },
-      ]
-      setSubjects(mockSubjects)
+      ];
+      setSubjects(mockSubjects);
     } catch (error) {
-      console.error("Error loading subjects:", error)
+      console.error("Error loading subjects:", error);
     }
-  }
+  };
 
   const loadPrograms = async () => {
     try {
       // Simulando carga de programas - aquí iría la llamada real a la BD
       const mockPrograms = [
-        { id: "1", name: "Ingeniería de Software", code: "IS", color: "bg-green-500" },
-        { id: "2", name: "Ingeniería Industrial", code: "II", color: "bg-yellow-500" },
-        { id: "3", name: "Administración de Empresas", code: "AE", color: "bg-purple-500" },
-        { id: "4", name: "Ciencias del Deporte", code: "CD", color: "bg-blue-500" },
-      ]
-      setPrograms(mockPrograms)
+        {
+          id: "1",
+          name: "Ingeniería de Software",
+          code: "IS",
+          color: "bg-green-500",
+        },
+        {
+          id: "2",
+          name: "Ingeniería Industrial",
+          code: "II",
+          color: "bg-yellow-500",
+        },
+        {
+          id: "3",
+          name: "Administración de Empresas",
+          code: "AE",
+          color: "bg-purple-500",
+        },
+        {
+          id: "4",
+          name: "Ciencias del Deporte",
+          code: "CD",
+          color: "bg-blue-500",
+        },
+      ];
+      setPrograms(mockPrograms);
     } catch (error) {
-      console.error("Error loading programs:", error)
+      console.error("Error loading programs:", error);
     }
-  }
+  };
 
   const handleSaveSubject = async () => {
     try {
@@ -597,10 +653,14 @@ export function ScheduleDashboard() {
         // Actualizar materia existente
         const updatedSubjects = subjects.map((subject) =>
           subject.id === editingSubject.id
-            ? { ...subject, ...subjectForm, program: programs.find((p) => p.id === subjectForm.programId) }
-            : subject,
-        )
-        setSubjects(updatedSubjects)
+            ? {
+                ...subject,
+                ...subjectForm,
+                program: programs.find((p) => p.id === subjectForm.programId),
+              }
+            : subject
+        );
+        setSubjects(updatedSubjects);
       } else {
         // Crear nueva materia
         const newSubject = {
@@ -609,20 +669,27 @@ export function ScheduleDashboard() {
           semester: Number.parseInt(subjectForm.semester) || null,
           credits: Number.parseInt(subjectForm.credits) || null,
           program: programs.find((p) => p.id === subjectForm.programId),
-        }
-        setSubjects([...subjects, newSubject])
+        };
+        setSubjects([...subjects, newSubject]);
       }
 
-      setIsSubjectModalOpen(false)
-      setEditingSubject(null)
-      setSubjectForm({ name: "", code: "", programId: "", semester: "", credits: "", isActive: true })
+      setIsSubjectModalOpen(false);
+      setEditingSubject(null);
+      setSubjectForm({
+        name: "",
+        code: "",
+        programId: "",
+        semester: "",
+        credits: "",
+        isActive: true,
+      });
     } catch (error) {
-      console.error("Error saving subject:", error)
+      console.error("Error saving subject:", error);
     }
-  }
+  };
 
   const handleEditSubject = (subject: any) => {
-    setEditingSubject(subject)
+    setEditingSubject(subject);
     setSubjectForm({
       name: subject.name,
       code: subject.code,
@@ -630,28 +697,35 @@ export function ScheduleDashboard() {
       semester: subject.semester?.toString() || "",
       credits: subject.credits?.toString() || "",
       isActive: subject.isActive,
-    })
-    setIsSubjectModalOpen(true)
-  }
+    });
+    setIsSubjectModalOpen(true);
+  };
 
   const handleDeleteSubject = async (subjectId: string) => {
     try {
-      setSubjects(subjects.filter((subject) => subject.id !== subjectId))
+      setSubjects(subjects.filter((subject) => subject.id !== subjectId));
     } catch (error) {
-      console.error("Error deleting subject:", error)
+      console.error("Error deleting subject:", error);
     }
-  }
+  };
 
   const openCreateModal = () => {
-    setEditingSubject(null)
-    setSubjectForm({ name: "", code: "", programId: "", semester: "", credits: "", isActive: true })
-    setIsSubjectModalOpen(true)
-  }
+    setEditingSubject(null);
+    setSubjectForm({
+      name: "",
+      code: "",
+      programId: "",
+      semester: "",
+      credits: "",
+      isActive: true,
+    });
+    setIsSubjectModalOpen(true);
+  };
 
   useEffect(() => {
-    loadSubjects()
-    loadPrograms()
-  }, [])
+    loadSubjects();
+    loadPrograms();
+  }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-6 relative z-10">
@@ -663,10 +737,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${activeView === "schedule"
-                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "schedule"
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -674,10 +749,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${activeView === "attendance"
-                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "attendance"
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -685,10 +761,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${activeView === "realtime"
-                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "realtime"
+                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+              }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -696,10 +773,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${activeView === "subjects"
-                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "subjects"
+                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+              }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -720,21 +798,21 @@ export function ScheduleDashboard() {
 
                 <Button
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVA MATERIA
                 </Button>
                 <Button
                   onClick={() => setIsModalOpenProgram(true)}
-                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVO PROGRAMA
                 </Button>
                 <Button
                   onClick={() => setIsModalOpenAula(true)}
-                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVA AULA
@@ -742,10 +820,17 @@ export function ScheduleDashboard() {
 
                 <Button
                   onClick={() => setIsModalOpenProfe(true)}
-                  className="bg-orange-500 hover:bg-orange-400 text-black font-mono shadow-lg shadow-orange-500/50"
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   NUEVO PROFE
+                </Button>
+                <Button
+                  onClick={() => setIsModalOpenHorario(true)}
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  NUEVO HORARIOCLASS
                 </Button>
               </div>
             </CardHeader>
@@ -754,17 +839,30 @@ export function ScheduleDashboard() {
                 {/* Estadísticas por programa */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   {programs.map((program) => {
-                    const programSubjects = subjects.filter((s) => s.programId === program.id && s.isActive)
+                    const programSubjects = subjects.filter(
+                      (s) => s.programId === program.id && s.isActive
+                    );
                     return (
-                      <div key={program.id} className="bg-gray-900/40 p-4 rounded-lg border border-gray-600/50">
+                      <div
+                        key={program.id}
+                        className="bg-gray-900/40 p-4 rounded-lg border border-gray-600/50"
+                      >
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-3 h-3 rounded-full ${program.color} shadow-lg`}></div>
-                          <span className="text-sm font-mono text-gray-300">{program.name}</span>
+                          <div
+                            className={`w-3 h-3 rounded-full ${program.color} shadow-lg`}
+                          ></div>
+                          <span className="text-sm font-mono text-gray-300">
+                            {program.name}
+                          </span>
                         </div>
-                        <div className="text-2xl font-bold text-white">{programSubjects.length}</div>
-                        <div className="text-xs text-gray-400">materias activas</div>
+                        <div className="text-2xl font-bold text-white">
+                          {programSubjects.length}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          materias activas
+                        </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
 
@@ -799,23 +897,39 @@ export function ScheduleDashboard() {
                       </thead>
                       <tbody className="divide-y divide-gray-700/50">
                         {subjects.map((subject) => (
-                          <tr key={subject.id} className="hover:bg-gray-800/30 transition-colors">
-                            <td className="px-4 py-3 text-sm font-mono text-white">{subject.code}</td>
-                            <td className="px-4 py-3 text-sm text-gray-300">{subject.name}</td>
+                          <tr
+                            key={subject.id}
+                            className="hover:bg-gray-800/30 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm font-mono text-white">
+                              {subject.code}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-300">
+                              {subject.name}
+                            </td>
                             <td className="px-4 py-3 text-sm">
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${subject.program?.color} shadow-lg`}></div>
-                                <span className="text-gray-300">{subject.program?.name}</span>
+                                <div
+                                  className={`w-2 h-2 rounded-full ${subject.program?.color} shadow-lg`}
+                                ></div>
+                                <span className="text-gray-300">
+                                  {subject.program?.name}
+                                </span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-sm font-mono text-gray-300">{subject.semester || "-"}</td>
-                            <td className="px-4 py-3 text-sm font-mono text-gray-300">{subject.credits || "-"}</td>
+                            <td className="px-4 py-3 text-sm font-mono text-gray-300">
+                              {subject.semester || "-"}
+                            </td>
+                            <td className="px-4 py-3 text-sm font-mono text-gray-300">
+                              {subject.credits || "-"}
+                            </td>
                             <td className="px-4 py-3 text-sm">
                               <span
-                                className={`px-2 py-1 rounded-full text-xs font-mono ${subject.isActive
-                                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                                  : "bg-red-500/20 text-red-300 border border-red-500/30"
-                                  }`}
+                                className={`px-2 py-1 rounded-full text-xs font-mono ${
+                                  subject.isActive
+                                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                                }`}
                               >
                                 {subject.isActive ? "ACTIVA" : "INACTIVA"}
                               </span>
@@ -833,7 +947,9 @@ export function ScheduleDashboard() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => handleDeleteSubject(subject.id)}
+                                  onClick={() =>
+                                    handleDeleteSubject(subject.id)
+                                  }
                                   className="border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -855,32 +971,40 @@ export function ScheduleDashboard() {
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onSubmit={(data) => {
-              console.log("Materia agregada:", data)
-              setIsModalOpen(false)
+              console.log("Materia agregada:", data);
+              setIsModalOpen(false);
             }}
           />
           <AgregarProgramas
             isOpen={isModalOpenProgram}
             onClose={() => setIsModalOpenProgram(false)}
             onSubmit={(data) => {
-              console.log("Programa agregada:", data)
-              setIsModalOpenProgram(false)
+              console.log("Programa agregada:", data);
+              setIsModalOpenProgram(false);
             }}
           />
           <AgregarAulaForm
             isOpen={isModalOpenAula}
             onClose={() => setIsModalOpenAula(false)}
             onSubmit={(data) => {
-              console.log("Programa agregada:", data)
-              setIsModalOpenAula(false)
+              console.log("Programa agregada:", data);
+              setIsModalOpenAula(false);
             }}
           />
           <AgregarProfeForm
             isOpen={isModalOpenProfe}
             onClose={() => setIsModalOpenProfe(false)}
             onSubmit={(data) => {
-              console.log("Programa agregada:", data)
-              setIsModalOpenProfe(false)
+              console.log("Programa agregada:", data);
+              setIsModalOpenProfe(false);
+            }}
+          />
+          <AgregarHorarioForm
+            isOpen={isModalOpenHorario}
+            onClose={() => setIsModalOpenHorario(false)}
+            onSubmit={(data) => {
+              console.log("Programa agregada:", data);
+              setIsModalOpenHorario(false);
             }}
           />
         </>
@@ -925,46 +1049,59 @@ export function ScheduleDashboard() {
                   </h3>
                   <div className="grid gap-3">
                     {activeClasses.map(({ room, subject, isOpened }) => {
-                      const subjectStyle = getSubjectStyle(subject!)
+                      const subjectStyle = getSubjectStyle(subject!);
 
                       return (
                         <div
                           key={room}
-                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${isOpened
-                            ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
-                            : "bg-gray-900/40 border-gray-600/50"
-                            }`}
+                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                            isOpened
+                              ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
+                              : "bg-gray-900/40 border-gray-600/50"
+                          }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="text-center">
-                                <div className="text-2xl font-bold text-cyan-300 font-mono">{room}</div>
-                                <div className="text-xs text-cyan-400 font-mono">SALA</div>
+                                <div className="text-2xl font-bold text-cyan-300 font-mono">
+                                  {room}
+                                </div>
+                                <div className="text-xs text-cyan-400 font-mono">
+                                  SALA
+                                </div>
                               </div>
                               <div className="flex-1">
-                                <div className={`font-bold text-sm font-mono ${subjectStyle.textColor} mb-1`}>
+                                <div
+                                  className={`font-bold text-sm font-mono ${subjectStyle.textColor} mb-1`}
+                                >
                                   {subject}
                                 </div>
-                                <div className="text-xs text-gray-400 font-mono">Horario: {currentSlot}</div>
+                                <div className="text-xs text-gray-400 font-mono">
+                                  Horario: {currentSlot}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               <div
-                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${isOpened
-                                  ? "bg-green-500/30 text-green-300 border border-green-400/50"
-                                  : "bg-red-500/30 text-red-300 border border-red-400/50"
-                                  }`}
+                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
+                                  isOpened
+                                    ? "bg-green-500/30 text-green-300 border border-green-400/50"
+                                    : "bg-red-500/30 text-red-300 border border-red-400/50"
+                                }`}
                               >
                                 {isOpened ? "ABIERTA" : "CERRADA"}
                               </div>
                               <Button
-                                onClick={() => toggleRoomOpened(room, currentSlot!)}
+                                onClick={() =>
+                                  toggleRoomOpened(room, currentSlot!)
+                                }
                                 variant="outline"
                                 size="sm"
-                                className={`font-mono transition-all duration-300 ${isOpened
-                                  ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                                  }`}
+                                className={`font-mono transition-all duration-300 ${
+                                  isOpened
+                                    ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                                    : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                                }`}
                               >
                                 {isOpened ? (
                                   <>
@@ -981,16 +1118,19 @@ export function ScheduleDashboard() {
                             </div>
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
               ) : (
                 <div className="text-center py-12">
                   <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-400 font-mono mb-2">NO HAY CLASES PROGRAMADAS</h3>
+                  <h3 className="text-xl font-bold text-gray-400 font-mono mb-2">
+                    NO HAY CLASES PROGRAMADAS
+                  </h3>
                   <p className="text-gray-500 font-mono">
-                    En este momento no hay clases programadas para {getCurrentDay()}
+                    En este momento no hay clases programadas para{" "}
+                    {getCurrentDay()}
                   </p>
                 </div>
               )}
@@ -1002,7 +1142,9 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-green-300">SALAS ABIERTAS</p>
+                    <p className="text-sm font-mono text-green-300">
+                      SALAS ABIERTAS
+                    </p>
                     <p className="text-3xl font-bold text-green-400 font-mono">
                       {activeClasses.filter((c) => c.isOpened).length}
                     </p>
@@ -1016,7 +1158,9 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-red-300">SALAS CERRADAS</p>
+                    <p className="text-sm font-mono text-red-300">
+                      SALAS CERRADAS
+                    </p>
                     <p className="text-3xl font-bold text-red-400 font-mono">
                       {activeClasses.filter((c) => !c.isOpened).length}
                     </p>
@@ -1030,8 +1174,12 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-cyan-300">TOTAL ACTIVAS</p>
-                    <p className="text-3xl font-bold text-cyan-400 font-mono">{activeClasses.length}</p>
+                    <p className="text-sm font-mono text-cyan-300">
+                      TOTAL ACTIVAS
+                    </p>
+                    <p className="text-3xl font-bold text-cyan-400 font-mono">
+                      {activeClasses.length}
+                    </p>
                   </div>
                   <Play className="w-8 h-8 text-cyan-400" />
                 </div>
@@ -1042,10 +1190,16 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-purple-300">% APERTURA</p>
+                    <p className="text-sm font-mono text-purple-300">
+                      % APERTURA
+                    </p>
                     <p className="text-3xl font-bold text-purple-400 font-mono">
                       {activeClasses.length > 0
-                        ? Math.round((activeClasses.filter((c) => c.isOpened).length / activeClasses.length) * 100)
+                        ? Math.round(
+                            (activeClasses.filter((c) => c.isOpened).length /
+                              activeClasses.length) *
+                              100
+                          )
                         : 0}
                       %
                     </p>
@@ -1072,10 +1226,11 @@ export function ScheduleDashboard() {
                     key={day}
                     variant={selectedDay === day ? "default" : "outline"}
                     onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
-                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                      }`}
+                    className={`capitalize font-mono transition-all duration-300 ${
+                      selectedDay === day
+                        ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                        : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                    }`}
                   >
                     {day}
                   </Button>
@@ -1096,10 +1251,11 @@ export function ScheduleDashboard() {
                 <Button
                   variant={selectedRoom === null ? "default" : "outline"}
                   onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${selectedRoom === null
-                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
+                  className={`font-mono transition-all duration-300 ${
+                    selectedRoom === null
+                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                  }`}
                 >
                   TODAS LAS SALAS
                 </Button>
@@ -1108,10 +1264,11 @@ export function ScheduleDashboard() {
                     key={room}
                     variant={selectedRoom === room ? "default" : "outline"}
                     onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${selectedRoom === room
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                      }`}
+                    className={`font-mono transition-all duration-300 ${
+                      selectedRoom === room
+                        ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                        : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                    }`}
                   >
                     {room}
                   </Button>
@@ -1135,7 +1292,9 @@ export function ScheduleDashboard() {
                       HORA
                     </div>
                     {rooms
-                      .filter((room) => selectedRoom === null || room === selectedRoom)
+                      .filter(
+                        (room) => selectedRoom === null || room === selectedRoom
+                      )
                       .map((room) => (
                         <div
                           key={room}
@@ -1152,28 +1311,36 @@ export function ScheduleDashboard() {
                         {timeSlot}
                       </div>
                       {rooms
-                        .filter((room) => selectedRoom === null || room === selectedRoom)
+                        .filter(
+                          (room) =>
+                            selectedRoom === null || room === selectedRoom
+                        )
                         .map((room) => {
-                          const classInfo = currentSchedule[timeSlot]?.[room]
-                          const style = classInfo ? getSubjectStyle(classInfo.subject) : null
+                          const classInfo = currentSchedule[timeSlot]?.[room];
+                          const style = classInfo
+                            ? getSubjectStyle(classInfo.subject)
+                            : null;
 
                           return (
                             <div
                               key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
-                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                                }`}
+                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${
+                                classInfo
+                                  ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
+                                  : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
+                              }`}
                             >
                               {classInfo && (
                                 <div className="w-full">
-                                  <div className={`font-bold leading-tight font-mono ${style?.textColor}`}>
+                                  <div
+                                    className={`font-bold leading-tight font-mono ${style?.textColor}`}
+                                  >
                                     {classInfo.subject}
                                   </div>
                                 </div>
                               )}
                             </div>
-                          )
+                          );
                         })}
                     </div>
                   ))}
@@ -1187,9 +1354,17 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-emerald-200">SALAS ACTIVAS</p>
+                    <p className="text-sm font-mono text-emerald-200">
+                      SALAS ACTIVAS
+                    </p>
                     <p className="text-3xl font-bold text-emerald-300 font-mono">
-                      {rooms.filter((room) => timeSlots.some((slot) => currentSchedule[slot]?.[room])).length}
+                      {
+                        rooms.filter((room) =>
+                          timeSlots.some(
+                            (slot) => currentSchedule[slot]?.[room]
+                          )
+                        ).length
+                      }
                     </p>
                   </div>
                   <MapPin className="w-8 h-8 text-emerald-300" />
@@ -1201,11 +1376,16 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-cyan-300">CLASES PROGRAMADAS</p>
+                    <p className="text-sm font-mono text-cyan-300">
+                      CLASES PROGRAMADAS
+                    </p>
                     <p className="text-3xl font-bold text-cyan-400 font-mono">
                       {timeSlots.reduce(
-                        (count, slot) => count + rooms.filter((room) => currentSchedule[slot]?.[room]).length,
-                        0,
+                        (count, slot) =>
+                          count +
+                          rooms.filter((room) => currentSchedule[slot]?.[room])
+                            .length,
+                        0
                       )}
                     </p>
                   </div>
@@ -1218,15 +1398,21 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-purple-300">OCUPACIÓN</p>
+                    <p className="text-sm font-mono text-purple-300">
+                      OCUPACIÓN
+                    </p>
                     <p className="text-3xl font-bold text-purple-400 font-mono">
                       {Math.round(
                         (timeSlots.reduce(
-                          (count, slot) => count + rooms.filter((room) => currentSchedule[slot]?.[room]).length,
-                          0,
+                          (count, slot) =>
+                            count +
+                            rooms.filter(
+                              (room) => currentSchedule[slot]?.[room]
+                            ).length,
+                          0
                         ) /
                           (timeSlots.length * rooms.length)) *
-                        100,
+                          100
                       )}
                       %
                     </p>
@@ -1239,25 +1425,35 @@ export function ScheduleDashboard() {
 
           <Card className="bg-gray-900/20 backdrop-blur-md border-gray-500/30 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-gray-300 font-mono">LEYENDA DE CARRERAS</CardTitle>
+              <CardTitle className="text-gray-300 font-mono">
+                LEYENDA DE CARRERAS
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-purple-500/50 border border-purple-400/50 rounded shadow-purple-500/30 shadow-sm"></div>
-                  <span className="text-purple-300 font-mono text-sm">ADMINISTRACIÓN DE EMPRESAS</span>
+                  <span className="text-purple-300 font-mono text-sm">
+                    ADMINISTRACIÓN DE EMPRESAS
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-emerald-800/50 border border-emerald-600/60 rounded shadow-emerald-700/30 shadow-sm"></div>
-                  <span className="text-emerald-200 font-mono text-sm">INGENIERÍA DE SOFTWARE</span>
+                  <span className="text-emerald-200 font-mono text-sm">
+                    INGENIERÍA DE SOFTWARE
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-yellow-500/50 border border-yellow-400/50 rounded shadow-yellow-500/30 shadow-sm"></div>
-                  <span className="text-yellow-300 font-mono text-sm">INGENIERÍA INDUSTRIAL</span>
+                  <span className="text-yellow-300 font-mono text-sm">
+                    INGENIERÍA INDUSTRIAL
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-blue-500/50 border border-blue-400/50 rounded shadow-blue-500/30 shadow-sm"></div>
-                  <span className="text-blue-300 font-mono text-sm">CIENCIAS DEL DEPORTE</span>
+                  <span className="text-blue-300 font-mono text-sm">
+                    CIENCIAS DEL DEPORTE
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -1300,11 +1496,14 @@ export function ScheduleDashboard() {
                   </div>
 
                   {attendanceData.map((record) => {
-                    const subjectStyle = getSubjectStyle(record.materia)
-                    const isPresent = record.estadoAsistencia === "ASISTIÓ"
+                    const subjectStyle = getSubjectStyle(record.materia);
+                    const isPresent = record.estadoAsistencia === "ASISTIÓ";
 
                     return (
-                      <div key={record.id} className="grid grid-cols-7 gap-1 mb-1">
+                      <div
+                        key={record.id}
+                        className="grid grid-cols-7 gap-1 mb-1"
+                      >
                         <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm">
                           {record.fecha}
                         </div>
@@ -1314,19 +1513,26 @@ export function ScheduleDashboard() {
                         <div
                           className={`p-3 rounded flex items-center justify-center text-xs text-center border-2 ${subjectStyle.color} ${subjectStyle.textColor}`}
                         >
-                          <div className="font-bold leading-tight font-mono">{record.materia}</div>
+                          <div className="font-bold leading-tight font-mono">
+                            {record.materia}
+                          </div>
                         </div>
                         <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm">
                           {record.profeAsignado}
                         </div>
                         <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
-                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                            }`}
+                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${
+                            isPresent
+                              ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
+                              : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
-                            {isPresent ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                            {isPresent ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              <XCircle className="w-4 h-4" />
+                            )}
                             {record.estadoAsistencia}
                           </div>
                         </div>
@@ -1343,7 +1549,7 @@ export function ScheduleDashboard() {
                           </Button>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -1355,9 +1561,15 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-green-300">ASISTENCIAS</p>
+                    <p className="text-sm font-mono text-green-300">
+                      ASISTENCIAS
+                    </p>
                     <p className="text-3xl font-bold text-green-400 font-mono">
-                      {attendanceData.filter((record) => record.estadoAsistencia === "ASISTIÓ").length}
+                      {
+                        attendanceData.filter(
+                          (record) => record.estadoAsistencia === "ASISTIÓ"
+                        ).length
+                      }
                     </p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-green-400" />
@@ -1369,9 +1581,15 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-red-300">INASISTENCIAS</p>
+                    <p className="text-sm font-mono text-red-300">
+                      INASISTENCIAS
+                    </p>
                     <p className="text-3xl font-bold text-red-400 font-mono">
-                      {attendanceData.filter((record) => record.estadoAsistencia === "NO ASISTIÓ").length}
+                      {
+                        attendanceData.filter(
+                          (record) => record.estadoAsistencia === "NO ASISTIÓ"
+                        ).length
+                      }
                     </p>
                   </div>
                   <XCircle className="w-8 h-8 text-red-400" />
@@ -1383,12 +1601,16 @@ export function ScheduleDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-mono text-purple-300">% ASISTENCIA</p>
+                    <p className="text-sm font-mono text-purple-300">
+                      % ASISTENCIA
+                    </p>
                     <p className="text-3xl font-bold text-purple-400 font-mono">
                       {Math.round(
-                        (attendanceData.filter((record) => record.estadoAsistencia === "ASISTIÓ").length /
+                        (attendanceData.filter(
+                          (record) => record.estadoAsistencia === "ASISTIÓ"
+                        ).length /
                           attendanceData.length) *
-                        100,
+                          100
                       )}
                       %
                     </p>
@@ -1401,5 +1623,5 @@ export function ScheduleDashboard() {
         </>
       )}
     </div>
-  )
+  );
 }
