@@ -9,7 +9,8 @@ import AgregarProgramas from "./Agregadores/AgregarPrograma/agregarprogramas";
 import AgregarAulaForm from "./Agregadores/AgregarAula/agregaraula";
 import AgregarProfeForm from "./Agregadores/AgregarProfe/agregarprofe";
 import AgregarHorarioForm from "./Agregadores/AgregarHorario/agregarhorario";
-
+//Traedores de info
+import { obtenerAulas } from './Traedores/actions/aulasNombre'
 import {
   Calendar,
   Clock,
@@ -358,7 +359,7 @@ const scheduleData = {
   },
 };
 
-const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"];
+//const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"];
 const timeSlots = [
   "07:00-08:00",
   "08:00-09:00",
@@ -458,10 +459,11 @@ export function ScheduleDashboard() {
   >("schedule");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set());
-
   const [subjects, setSubjects] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  //Traedores de info
+  const [rooms, setRooms] = useState<string[]>([]);
   //boton de programas agregar
   const [isModalOpenAula, setIsModalOpenAula] = useState(false);
   const [isModalOpenProgram, setIsModalOpenProgram] = useState(false);
@@ -484,10 +486,9 @@ export function ScheduleDashboard() {
 
     return () => clearInterval(timer);
   }, []);
-
+//variables de inicio de dias
   const getCurrentDay = () => {
     const days = [
-      "domingo",
       "lunes",
       "martes",
       "miércoles",
@@ -500,20 +501,17 @@ export function ScheduleDashboard() {
 
   const getCurrentTimeSlot = () => {
     const hour = currentTime.getHours();
-    const minute = currentTime.getMinutes();
-
     for (const slot of timeSlots) {
       const [startTime, endTime] = slot.split("-");
       const [startHour] = startTime.split(":").map(Number);
       const [endHour] = endTime.split(":").map(Number);
-
       if (hour >= startHour && hour < endHour) {
         return slot;
       }
     }
     return null;
   };
-
+  //el encargado de que se muestren las materias
   const getCurrentActiveClasses = () => {
     const currentDay = getCurrentDay();
     const currentSlot = getCurrentTimeSlot();
@@ -611,6 +609,15 @@ export function ScheduleDashboard() {
       console.error("Error loading subjects:", error);
     }
   };
+  const cargarAulas = async () => {
+    try {
+      const aulas = await obtenerAulas();
+      setRooms(aulas);
+    } catch (error) {
+      console.error("Error cargando aulas:", error);
+      setRooms(["D06"]);
+    }
+  }
 
   const loadPrograms = async () => {
     try {
@@ -654,10 +661,10 @@ export function ScheduleDashboard() {
         const updatedSubjects = subjects.map((subject) =>
           subject.id === editingSubject.id
             ? {
-                ...subject,
-                ...subjectForm,
-                program: programs.find((p) => p.id === subjectForm.programId),
-              }
+              ...subject,
+              ...subjectForm,
+              program: programs.find((p) => p.id === subjectForm.programId),
+            }
             : subject
         );
         setSubjects(updatedSubjects);
@@ -725,6 +732,7 @@ export function ScheduleDashboard() {
   useEffect(() => {
     loadSubjects();
     loadPrograms();
+    cargarAulas();
   }, []);
 
   return (
@@ -737,11 +745,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "schedule"
-                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "schedule"
+                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -749,11 +756,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "attendance"
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "attendance"
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -761,11 +767,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "realtime"
-                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "realtime"
+                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -773,11 +778,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "subjects"
-                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "subjects"
+                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+                }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -925,11 +929,10 @@ export function ScheduleDashboard() {
                             </td>
                             <td className="px-4 py-3 text-sm">
                               <span
-                                className={`px-2 py-1 rounded-full text-xs font-mono ${
-                                  subject.isActive
-                                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                                    : "bg-red-500/20 text-red-300 border border-red-500/30"
-                                }`}
+                                className={`px-2 py-1 rounded-full text-xs font-mono ${subject.isActive
+                                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                                  : "bg-red-500/20 text-red-300 border border-red-500/30"
+                                  }`}
                               >
                                 {subject.isActive ? "ACTIVA" : "INACTIVA"}
                               </span>
@@ -1054,11 +1057,10 @@ export function ScheduleDashboard() {
                       return (
                         <div
                           key={room}
-                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                            isOpened
-                              ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
-                              : "bg-gray-900/40 border-gray-600/50"
-                          }`}
+                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${isOpened
+                            ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
+                            : "bg-gray-900/40 border-gray-600/50"
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -1083,11 +1085,10 @@ export function ScheduleDashboard() {
                             </div>
                             <div className="flex items-center gap-3">
                               <div
-                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
-                                  isOpened
-                                    ? "bg-green-500/30 text-green-300 border border-green-400/50"
-                                    : "bg-red-500/30 text-red-300 border border-red-400/50"
-                                }`}
+                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${isOpened
+                                  ? "bg-green-500/30 text-green-300 border border-green-400/50"
+                                  : "bg-red-500/30 text-red-300 border border-red-400/50"
+                                  }`}
                               >
                                 {isOpened ? "ABIERTA" : "CERRADA"}
                               </div>
@@ -1097,11 +1098,10 @@ export function ScheduleDashboard() {
                                 }
                                 variant="outline"
                                 size="sm"
-                                className={`font-mono transition-all duration-300 ${
-                                  isOpened
-                                    ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                                    : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                                }`}
+                                className={`font-mono transition-all duration-300 ${isOpened
+                                  ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                                  }`}
                               >
                                 {isOpened ? (
                                   <>
@@ -1196,10 +1196,10 @@ export function ScheduleDashboard() {
                     <p className="text-3xl font-bold text-purple-400 font-mono">
                       {activeClasses.length > 0
                         ? Math.round(
-                            (activeClasses.filter((c) => c.isOpened).length /
-                              activeClasses.length) *
-                              100
-                          )
+                          (activeClasses.filter((c) => c.isOpened).length /
+                            activeClasses.length) *
+                          100
+                        )
                         : 0}
                       %
                     </p>
@@ -1226,11 +1226,10 @@ export function ScheduleDashboard() {
                     key={day}
                     variant={selectedDay === day ? "default" : "outline"}
                     onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${
-                      selectedDay === day
-                        ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                        : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                    }`}
+                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
+                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                      }`}
                   >
                     {day}
                   </Button>
@@ -1251,11 +1250,10 @@ export function ScheduleDashboard() {
                 <Button
                   variant={selectedRoom === null ? "default" : "outline"}
                   onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${
-                    selectedRoom === null
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                  }`}
+                  className={`font-mono transition-all duration-300 ${selectedRoom === null
+                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                    }`}
                 >
                   TODAS LAS SALAS
                 </Button>
@@ -1264,11 +1262,10 @@ export function ScheduleDashboard() {
                     key={room}
                     variant={selectedRoom === room ? "default" : "outline"}
                     onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${
-                      selectedRoom === room
-                        ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                        : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
+                    className={`font-mono transition-all duration-300 ${selectedRoom === room
+                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                      }`}
                   >
                     {room}
                   </Button>
@@ -1324,11 +1321,10 @@ export function ScheduleDashboard() {
                           return (
                             <div
                               key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${
-                                classInfo
-                                  ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                  : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                              }`}
+                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
+                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
+                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
+                                }`}
                             >
                               {classInfo && (
                                 <div className="w-full">
@@ -1412,7 +1408,7 @@ export function ScheduleDashboard() {
                           0
                         ) /
                           (timeSlots.length * rooms.length)) *
-                          100
+                        100
                       )}
                       %
                     </p>
@@ -1521,11 +1517,10 @@ export function ScheduleDashboard() {
                           {record.profeAsignado}
                         </div>
                         <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${
-                            isPresent
-                              ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                              : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                          }`}
+                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
+                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
+                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             {isPresent ? (
@@ -1610,7 +1605,7 @@ export function ScheduleDashboard() {
                           (record) => record.estadoAsistencia === "ASISTIÓ"
                         ).length /
                           attendanceData.length) *
-                          100
+                        100
                       )}
                       %
                     </p>
