@@ -1,32 +1,20 @@
 "use client";
 
+//componentes
+import { HorarioVer } from "./ComponentesShedule/HorarioVer";
+import { AsistenciaVer } from "./ComponentesShedule/AsistenciaVer";
+import { VistaTiempoReal } from "./ComponentesShedule/VistaTiempoReal";
+import { MateriasVer } from "./ComponentesShedule/MateriasVer";
+//
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-//Componentes Crud
-import AgregarMateriaForm from "./AgregarMaterias/agregarmaterias";
-import AgregarProgramas from "./Agregadores/AgregarPrograma/agregarprogramas";
-import AgregarAulaForm from "./Agregadores/AgregarAula/agregaraula";
-import AgregarProfeForm from "./Agregadores/AgregarProfe/agregarprofe";
-import AgregarHorarioForm from "./Agregadores/AgregarHorario/agregarhorario";
+
 //Traedores de info
-import { obtenerAulas } from './Traedores/actions/aulasNombre'
-import {
-  Calendar,
-  Clock,
-  Users,
-  Play,
-  MapPin,
-  CheckCircle,
-  XCircle,
-  Plus,
-  Edit,
-  Trash2,
-  X,
-  BookOpen,
-  Check,
-} from "lucide-react";
-import { Navegador } from "./NavegadorInicio";
+import { obtenerAulas } from "./Traedores/actions/aulasNombre";
+import { materiaH } from "./Traedores/actions/materiaH";
+import { Calendar, Users, Play, BookOpen } from "lucide-react";
+import { Navegador } from "./ComponentesShedule/NavegadorInicio";
 const subjectCategories = {
   // Administración de empresas - Morado
   admin: {
@@ -95,102 +83,94 @@ const getSubjectStyle = (subject: string) => {
     textColor: "text-gray-100",
   };
 };
-
+/*
 const scheduleData = {
   lunes: {
-    "07:00-08:00": {
-      C111: null,
-      C112: null,
-      C113: null,
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
-      C115: null,
+    "07:00": {
+      C111: { subject: "SEGURIDAD INFORMÁTICA", duration: 1, professor: "Dr. Carlos Mendoza", group: "A1" },
+      C112: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "B2" },
+      C113: { subject: "SISTEMAS OPERATIVOS", duration: 1, professor: "MSc. Roberto Silva", group: "C1" },
+      C114: {
+        subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
+        duration: 2,
+        professor: "PhD. Ana Rodríguez",
+        group: "A3",
+      },
+      C115: { subject: "SEGURIDAD INFORMÁTICA", duration: 1, professor: "Dr. Carlos Mendoza", group: "B1" },
       A205: null,
       A206: null,
     },
-    "08:00-09:00": {
+    "08:00": {
       C111: null,
-      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C113: { subject: "SISTEMAS OPERATIVOS" },
-      C114: { subject: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS" },
-      C115: { subject: "SEGURIDAD INFORMÁTICA" },
-      A205: null,
-      A206: null,
-    },
-    "09:00-10:00": {
-      C111: null,
-      C112: null,
-      C113: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
-      C114: null,
-      C115: null,
-      A205: { subject: "SISTEMAS OPERATIVOS" },
+      C112: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "C2" },
+      C113: { subject: "SISTEMAS OPERATIVOS", duration: 1, professor: "MSc. Roberto Silva", group: "A2" },
+      C114: null, // Ocupado por clase anterior
+      C115: { subject: "SEGURIDAD INFORMÁTICA", duration: 1, professor: "Dr. Carlos Mendoza", group: "B3" },
+      A205: { subject: "SISTEMAS OPERATIVOS", duration: 1, professor: "MSc. Roberto Silva", group: "C3" },
       A206: {
-        subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE...)",
+        subject: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE CALIDAD)",
+        duration: 1,
+        professor: "PhD. Luis Martínez",
+        group: "A1",
       },
     },
-    "10:00-11:00": {
-      C111: { subject: "SEGURIDAD INFORMÁTICA" },
+    "09:00": {
+      C111: { subject: "VIRTUALIZACIÓN", duration: 1, professor: "Ing. Patricia López", group: "B1" },
+      C112: null,
+      C113: {
+        subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS",
+        duration: 1,
+        professor: "MSc. Jorge Herrera",
+        group: "A2",
+      },
+      C114: { subject: "ESTRUCTURA DE DATOS", duration: 1, professor: "Ing. Sandra Pérez", group: "C1" },
+      C115: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "A3" },
+      A205: {
+        subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
+        duration: 1,
+        professor: "PhD. Miguel Torres",
+        group: "B2",
+      },
+      A206: null,
+    },
+    "10:00": {
+      C111: { subject: "SEGURIDAD INFORMÁTICA", duration: 1, professor: "Dr. Carlos Mendoza", group: "C2" },
       C112: null,
       C113: null,
-      C114: { subject: "ESTRUCTURA DE DATOS" },
+      C114: { subject: "ESTRUCTURA DE DATOS", duration: 1, professor: "Ing. Sandra Pérez", group: "A1" },
       C115: null,
       A205: null,
       A206: null,
     },
-    "11:00-12:00": {
+    "11:00": {
       C111: null,
       C112: null,
-      C113: { subject: "SISTEMAS OPERATIVOS" },
+      C113: { subject: "SISTEMAS OPERATIVOS", duration: 1, professor: "MSc. Roberto Silva", group: "B3" },
       C114: null,
-      C115: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      A205: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
+      C115: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "C1" },
+      A205: {
+        subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
+        duration: 1,
+        professor: "PhD. Miguel Torres",
+        group: "A2",
+      },
       A206: null,
     },
-    "12:00-13:00": {
-      C111: { subject: "AUTOMATIZACIÓN DE PROCESOS" },
+    "12:00": {
+      C111: { subject: "AUTOMATIZACIÓN DE PROCESOS", duration: 1, professor: "Ing. Fernando Castro", group: "B1" },
       C112: null,
-      C113: { subject: "SISTEMAS OPERATIVOS" },
+      C113: { subject: "SISTEMAS OPERATIVOS", duration: 1, professor: "MSc. Roberto Silva", group: "C3" },
       C114: null,
-      C115: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
+      C115: {
+        subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES",
+        duration: 1,
+        professor: "MSc. Elena Vargas",
+        group: "A3",
+      },
       A205: null,
       A206: null,
     },
-    "13:00-14:00": {
-      C111: null,
-      C112: null,
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: null,
-    },
-    "14:00-15:00": {
-      C111: null,
-      C112: { subject: "PROGRAMACIÓN II" },
-      C113: { subject: "PROGRAMACIÓN II" },
-      C114: null,
-      C115: null,
-      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      A206: { subject: "PROGRAMACIÓN II" },
-    },
-    "15:00-16:00": {
-      C111: { subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT" },
-      C112: null,
-      C113: null,
-      C114: { subject: "PROGRAMACIÓN I" },
-      C115: null,
-      A205: null,
-      A206: null,
-    },
-    "16:00-17:00": {
-      C111: null,
-      C112: { subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE" },
-      C113: { subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES" },
-      C114: null,
-      C115: { subject: "SEGURIDAD INFORMÁTICA" },
-      A205: null,
-      A206: null,
-    },
-    "17:00-18:00": {
+    "13:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -199,25 +179,76 @@ const scheduleData = {
       A205: null,
       A206: null,
     },
-    "18:00-19:00": {
+    "14:00": {
       C111: null,
-      C112: { subject: "COSTOS Y PRESUPUESTO" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: { subject: "PROGRAMACIÓN II", duration: 1, professor: "Ing. David Ramírez", group: "B2" },
+      C113: { subject: "PROGRAMACIÓN II", duration: 1, professor: "Ing. David Ramírez", group: "C1" },
+      C114: null,
+      C115: null,
+      A205: { subject: "FUNDAMENTOS DE ELECTRÓNICA", duration: 1, professor: "Ing. Carmen Jiménez", group: "A1" },
+      A206: { subject: "PROGRAMACIÓN II", duration: 1, professor: "Ing. David Ramírez", group: "A2" },
+    },
+    "15:00": {
+      C111: {
+        subject: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
+        duration: 1,
+        professor: "PhD. Miguel Torres",
+        group: "C2",
+      },
+      C112: null,
+      C113: null,
+      C114: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "B3" },
       C115: null,
       A205: null,
       A206: null,
     },
-    "19:00-20:00": {
+    "16:00": {
       C111: null,
-      C112: { subject: "COSTOS Y PRESUPUESTO" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: {
+        subject: "ARQUITECTURA DE HARDWARE Y SOFTWARE",
+        duration: 1,
+        professor: "PhD. Ricardo Vega",
+        group: "A3",
+      },
+      C113: {
+        subject: "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES",
+        duration: 1,
+        professor: "MSc. Elena Vargas",
+        group: "B1",
+      },
+      C114: null,
+      C115: { subject: "SEGURIDAD INFORMÁTICA", duration: 1, professor: "Dr. Carlos Mendoza", group: "C3" },
+      A205: null,
+      A206: null,
+    },
+    "17:00": {
+      C111: null,
+      C112: null,
+      C113: null,
+      C114: null,
       C115: null,
       A205: null,
       A206: null,
     },
-    "20:00-21:00": {
+    "18:00": {
+      C111: null,
+      C112: { subject: "COSTOS Y PRESUPUESTO", duration: 2, professor: "CPA. Gloria Sánchez", group: "ADM-1" },
+      C113: { subject: "MICROECONOMÍA", duration: 2, professor: "Eco. Jaime Ruiz", group: "ADM-2" },
+      C114: { subject: "MICROECONOMÍA", duration: 2, professor: "Eco. Jaime Ruiz", group: "ADM-3" },
+      C115: null,
+      A205: null,
+      A206: null,
+    },
+    "19:00": {
+      C111: null,
+      C112: null,
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null,
+    },
+    "20:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -228,126 +259,134 @@ const scheduleData = {
     },
   },
   miércoles: {
-    "07:00-08:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C113: null,
-      C114: null,
-      C115: null,
+    "07:00": {
+      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA", duration: 1, professor: "Ing. Carmen Jiménez", group: "IND-1" },
+      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA", duration: 1, professor: "Ing. Carmen Jiménez", group: "IND-2" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "SW-1" },
+      C114: { subject: "VIRTUALIZACIÓN", duration: 1, professor: "Ing. Patricia López", group: "SW-2" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE", duration: 1, professor: "MSc. Claudia Moreno", group: "SW-3" },
       A205: null,
       A206: null,
     },
-    "08:00-09:00": {
-      C111: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C112: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C114: { subject: "VIRTUALIZACIÓN" },
-      C115: { subject: "REQUERIMIENTOS DE SOFTWARE" },
-      A205: null,
-      A206: null,
-    },
-    "09:00-10:00": {
-      C111: { subject: "VIRTUALIZACIÓN" },
+    "08:00": {
+      C111: null,
       C112: null,
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C114: null,
-      C115: null,
-      A205: { subject: "PROGRAMACIÓN I" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "SW-4" },
+      C114: { subject: "VIRTUALIZACIÓN", duration: 1, professor: "Ing. Patricia López", group: "SW-5" },
+      C115: { subject: "REQUERIMIENTOS DE SOFTWARE", duration: 1, professor: "MSc. Claudia Moreno", group: "SW-6" },
+      A205: null,
       A206: null,
     },
-    "10:00-11:00": {
+    "09:00": {
+      C111: { subject: "VIRTUALIZACIÓN", duration: 1, professor: "Ing. Patricia López", group: "SW-7" },
+      C112: null,
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "SW-8" },
+      C114: null,
+      C115: null,
+      A205: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "SW-9" },
+      A206: null,
+    },
+    "10:00": {
       C111: null,
       C112: null,
       C113: null,
       C114: null,
-      C115: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-      A205: { subject: "PROGRAMACIÓN I" },
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      C115: { subject: "FUNDAMENTOS DE ESTADÍSTICA", duration: 1, professor: "MSc. Pablo Herrera", group: "DEP-1" },
+      A205: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "SW-10" },
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA", duration: 1, professor: "MSc. Pablo Herrera", group: "DEP-2" },
     },
-    "11:00-12:00": {
-      C111: { subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS" },
+    "11:00": {
+      C111: {
+        subject: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS",
+        duration: 1,
+        professor: "MSc. Jorge Herrera",
+        group: "SW-11",
+      },
       C112: {
         subject: "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
+        duration: 1,
+        professor: "PhD. Mónica Castillo",
+        group: "DEP-3",
       },
-      C113: { subject: "PENSAMIENTO ALGORÍTMICO" },
+      C113: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "SW-12" },
       C114: null,
       C115: null,
       A205: null,
       A206: null,
     },
-    "12:00-13:00": {
+    "12:00": {
       C111: null,
       C112: null,
       C113: null,
       C114: null,
       C115: null,
-      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
+      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA", duration: 2, professor: "MSc. Pablo Herrera", group: "DEP-4" },
       A206: null,
     },
-    "13:00-14:00": {
+    "13:00": {
       C111: null,
       C112: null,
       C113: null,
       C114: null,
-      C115: { subject: "PROGRAMACIÓN I" },
-      A205: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-      A206: null,
-    },
-    "14:00-15:00": {
-      C111: { subject: "PROGRAMACIÓN I" },
-      C112: { subject: "PENSAMIENTO ALGORÍTMICO" },
-      C113: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C114: { subject: "PROGRAMACIÓN I" },
-      C115: null,
-      A205: null,
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-    },
-    "15:00-16:00": {
-      C111: null,
-      C112: null,
-      C113: null,
-      C114: null,
-      C115: null,
-      A205: null,
-      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA" },
-    },
-    "16:00-17:00": {
-      C111: null,
-      C112: null,
-      C113: null,
-      C114: { subject: "FUNDAMENTOS DE ELECTRÓNICA" },
-      C115: { subject: "PROGRAMACIÓN II" },
+      C115: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "SW-13" },
       A205: null,
       A206: null,
     },
-    "17:00-18:00": {
+    "14:00": {
+      C111: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "SW-14" },
+      C112: { subject: "PENSAMIENTO ALGORÍTMICO", duration: 1, professor: "Ing. María González", group: "SW-15" },
+      C113: { subject: "FUNDAMENTOS DE ELECTRÓNICA", duration: 1, professor: "Ing. Carmen Jiménez", group: "IND-3" },
+      C114: { subject: "PROGRAMACIÓN I", duration: 1, professor: "MSc. Andrea Morales", group: "SW-16" },
+      C115: null,
+      A205: null,
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA", duration: 1, professor: "MSc. Pablo Herrera", group: "DEP-5" },
+    },
+    "15:00": {
       C111: null,
       C112: null,
       C113: null,
       C114: null,
       C115: null,
       A205: null,
+      A206: { subject: "FUNDAMENTOS DE ESTADÍSTICA", duration: 1, professor: "MSc. Pablo Herrera", group: "DEP-6" },
+    },
+    "16:00": {
+      C111: null,
+      C112: null,
+      C113: null,
+      C114: { subject: "FUNDAMENTOS DE ELECTRÓNICA", duration: 1, professor: "Ing. Carmen Jiménez", group: "IND-4" },
+      C115: { subject: "PROGRAMACIÓN II", duration: 1, professor: "Ing. David Ramírez", group: "SW-17" },
+      A205: null,
       A206: null,
     },
-    "18:00-19:00": {
+    "17:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: null,
+      C113: null,
+      C114: null,
       C115: null,
       A205: null,
       A206: null,
     },
-    "19:00-20:00": {
+    "18:00": {
       C111: null,
-      C112: { subject: "CONTABILIDAD GENERAL" },
-      C113: { subject: "MICROECONOMÍA" },
-      C114: { subject: "MICROECONOMÍA" },
+      C112: { subject: "CONTABILIDAD GENERAL", duration: 2, professor: "CPA. Beatriz Morales", group: "ADM-4" },
+      C113: { subject: "MICROECONOMÍA", duration: 2, professor: "Eco. Jaime Ruiz", group: "ADM-5" },
+      C114: { subject: "MICROECONOMÍA", duration: 2, professor: "Eco. Jaime Ruiz", group: "ADM-6" },
       C115: null,
       A205: null,
       A206: null,
     },
-    "20:00-21:00": {
+    "19:00": {
+      C111: null,
+      C112: null,
+      C113: null,
+      C114: null,
+      C115: null,
+      A205: null,
+      A206: null,
+    },
+    "20:00": {
       C111: null,
       C112: null,
       C113: null,
@@ -357,24 +396,24 @@ const scheduleData = {
       A206: null,
     },
   },
-};
-
-//const rooms = ["C111", "C112", "C113", "C114", "C115", "A205", "A206"];
+}*/
 const timeSlots = [
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
+  "07:00",
+  "08:00",
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
 ];
 const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -451,6 +490,11 @@ const attendanceData = [
   },
 ];
 
+type ClassInfo = {
+  subject: string;
+  duration: number;
+};
+
 export function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState("lunes");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
@@ -459,26 +503,15 @@ export function ScheduleDashboard() {
   >("schedule");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set());
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   //Traedores de info
   const [rooms, setRooms] = useState<string[]>([]);
+  const [scheduleData, setScheduleData] = useState<any>({});
   //boton de programas agregar
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenAula, setIsModalOpenAula] = useState(false);
   const [isModalOpenProgram, setIsModalOpenProgram] = useState(false);
   const [isModalOpenProfe, setIsModalOpenProfe] = useState(false);
   const [isModalOpenHorario, setIsModalOpenHorario] = useState(false);
-  const [editingSubject, setEditingSubject] = useState<any>(null);
-  const [subjectForm, setSubjectForm] = useState({
-    name: "",
-    code: "",
-    programId: "",
-    semester: "",
-    credits: "",
-    isActive: true,
-  });
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -486,10 +519,57 @@ export function ScheduleDashboard() {
 
     return () => clearInterval(timer);
   }, []);
-//variables de inicio de dias
-//el encargado de que se muestren las materias
+  const getProcessedSchedule = (daySchedule: any) => {
+    const processed: any = {};
+
+    timeSlots.forEach((timeSlot) => {
+      processed[timeSlot] = {};
+
+      rooms.forEach((room) => {
+        const classInfo = daySchedule[timeSlot]?.[room];
+
+        if (classInfo && classInfo.duration > 1) {
+          // Clase de múltiples horas
+          const startIndex = timeSlots.indexOf(timeSlot);
+          const endIndex = startIndex + classInfo.duration - 1;
+          const endTime = timeSlots[endIndex];
+
+          processed[timeSlot][room] = {
+            subject: classInfo.subject,
+            isMultiHour: true,
+            rowSpan: classInfo.duration,
+            timeRange: `${timeSlot}-${endTime}`,
+          };
+
+          // Marcar las siguientes horas como ocupadas
+          for (let i = 1; i < classInfo.duration; i++) {
+            const nextTimeSlot = timeSlots[startIndex + i];
+            if (nextTimeSlot) {
+              if (!processed[nextTimeSlot]) processed[nextTimeSlot] = {};
+              processed[nextTimeSlot][room] = { occupied: true };
+            }
+          }
+        } else if (classInfo && classInfo.duration === 1) {
+          // Clase de una hora
+          processed[timeSlot][room] = {
+            subject: classInfo.subject,
+            isMultiHour: false,
+            rowSpan: 1,
+          };
+        } else if (!classInfo) {
+          // Sin clase programada
+          processed[timeSlot][room] = null;
+        }
+      });
+    });
+
+    return processed;
+  };
+  //variables de inicio de dias
+  //el encargado de que se muestren las materias
   const getCurrentDay = () => {
     const days = [
+      "domingo",
       "lunes",
       "martes",
       "miércoles",
@@ -501,16 +581,11 @@ export function ScheduleDashboard() {
   };
   const getCurrentTimeSlot = () => {
     const hour = currentTime.getHours();
-    for (const slot of timeSlots) {
-      const [startTime, endTime] = slot.split("-");
-      const [startHour] = startTime.split(":").map(Number);
-      const [endHour] = endTime.split(":").map(Number);
-      if (hour >= startHour && hour < endHour) {
-        return slot;
-      }
-    }
-    return null;
+    const currentHourString = `${hour.toString().padStart(2, "0")}:00`;
+
+    return timeSlots.includes(currentHourString) ? currentHourString : null;
   };
+
   const getCurrentActiveClasses = () => {
     const currentDay = getCurrentDay();
     const currentSlot = getCurrentTimeSlot();
@@ -548,65 +623,6 @@ export function ScheduleDashboard() {
     setOpenedRooms(newOpenedRooms);
   };
 
-  const currentSchedule =
-    scheduleData[selectedDay as keyof typeof scheduleData] ||
-    scheduleData.lunes;
-  const activeClasses = getCurrentActiveClasses();
-  const currentSlot = getCurrentTimeSlot();
-
-  const loadSubjects = async () => {
-    try {
-      // Simulando carga de materias - aquí iría la llamada real a la BD
-      const mockSubjects = [
-        {
-          id: "1",
-          name: "Pensamiento Algorítmico",
-          code: "PA001",
-          programId: "1",
-          semester: 1,
-          credits: 3,
-          isActive: true,
-          program: { name: "Ingeniería de Software", color: "bg-green-500" },
-        },
-        {
-          id: "2",
-          name: "Fundamentos de Electrónica",
-          code: "FE001",
-          programId: "2",
-          semester: 2,
-          credits: 4,
-          isActive: true,
-          program: { name: "Ingeniería Industrial", color: "bg-yellow-500" },
-        },
-        {
-          id: "3",
-          name: "Contabilidad General",
-          code: "CG001",
-          programId: "3",
-          semester: 1,
-          credits: 3,
-          isActive: true,
-          program: {
-            name: "Administración de Empresas",
-            color: "bg-purple-500",
-          },
-        },
-        {
-          id: "4",
-          name: "Fundamentos de Estadística",
-          code: "EST001",
-          programId: "4",
-          semester: 3,
-          credits: 3,
-          isActive: true,
-          program: { name: "Ciencias del Deporte", color: "bg-blue-500" },
-        },
-      ];
-      setSubjects(mockSubjects);
-    } catch (error) {
-      console.error("Error loading subjects:", error);
-    }
-  };
   const cargarAulas = async () => {
     try {
       const aulas = await obtenerAulas();
@@ -615,138 +631,44 @@ export function ScheduleDashboard() {
       console.error("Error cargando aulas:", error);
       setRooms(["D06"]);
     }
-  }
-
-  const loadPrograms = async () => {
+  };
+  const cargarHorarios = async () => {
     try {
-      // Simulando carga de programas - aquí iría la llamada real a la BD
-      const mockPrograms = [
-        {
-          id: "1",
-          name: "Ingeniería de Software",
-          code: "IS",
-          color: "bg-green-500",
-        },
-        {
-          id: "2",
-          name: "Ingeniería Industrial",
-          code: "II",
-          color: "bg-yellow-500",
-        },
-        {
-          id: "3",
-          name: "Administración de Empresas",
-          code: "AE",
-          color: "bg-purple-500",
-        },
-        {
-          id: "4",
-          name: "Ciencias del Deporte",
-          code: "CD",
-          color: "bg-blue-500",
-        },
-      ];
-      setPrograms(mockPrograms);
+      const horarios = await materiaH();
+      setScheduleData(horarios);
+      console.log("Horarios cargados:", horarios);
     } catch (error) {
-      console.error("Error loading programs:", error);
+      console.error("Error cargando horarios:", error);
+      setScheduleData({});
     }
   };
 
-  const handleSaveSubject = async () => {
-    try {
-      if (editingSubject) {
-        // Actualizar materia existente
-        const updatedSubjects = subjects.map((subject) =>
-          subject.id === editingSubject.id
-            ? {
-              ...subject,
-              ...subjectForm,
-              program: programs.find((p) => p.id === subjectForm.programId),
-            }
-            : subject
-        );
-        setSubjects(updatedSubjects);
-      } else {
-        // Crear nueva materia
-        const newSubject = {
-          id: Date.now().toString(),
-          ...subjectForm,
-          semester: Number.parseInt(subjectForm.semester) || null,
-          credits: Number.parseInt(subjectForm.credits) || null,
-          program: programs.find((p) => p.id === subjectForm.programId),
-        };
-        setSubjects([...subjects, newSubject]);
-      }
-
-      setIsSubjectModalOpen(false);
-      setEditingSubject(null);
-      setSubjectForm({
-        name: "",
-        code: "",
-        programId: "",
-        semester: "",
-        credits: "",
-        isActive: true,
-      });
-    } catch (error) {
-      console.error("Error saving subject:", error);
-    }
-  };
-
-  const handleEditSubject = (subject: any) => {
-    setEditingSubject(subject);
-    setSubjectForm({
-      name: subject.name,
-      code: subject.code,
-      programId: subject.programId,
-      semester: subject.semester?.toString() || "",
-      credits: subject.credits?.toString() || "",
-      isActive: subject.isActive,
-    });
-    setIsSubjectModalOpen(true);
-  };
-
-  const handleDeleteSubject = async (subjectId: string) => {
-    try {
-      setSubjects(subjects.filter((subject) => subject.id !== subjectId));
-    } catch (error) {
-      console.error("Error deleting subject:", error);
-    }
-  };
-
-  const openCreateModal = () => {
-    setEditingSubject(null);
-    setSubjectForm({
-      name: "",
-      code: "",
-      programId: "",
-      semester: "",
-      credits: "",
-      isActive: true,
-    });
-    setIsSubjectModalOpen(true);
-  };
+  const currentSchedule = getProcessedSchedule(
+    scheduleData[selectedDay as keyof typeof scheduleData] || {}
+  );
+  const activeClasses = getCurrentActiveClasses();
 
   useEffect(() => {
-    loadSubjects();
-    loadPrograms();
     cargarAulas();
+    //cargarHorarios;
+    //5h debugeando para saber que solo faltaba un ()
+    cargarHorarios();
   }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-6 relative z-10">
       <Navegador />
-
       <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
         <CardContent className="p-4">
           <div className="flex gap-2 flex-wrap">
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${activeView === "schedule"
-                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "schedule"
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -754,10 +676,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${activeView === "attendance"
-                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "attendance"
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -765,10 +688,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${activeView === "realtime"
-                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "realtime"
+                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+              }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -776,10 +700,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${activeView === "subjects"
-                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "subjects"
+                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+              }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -790,830 +715,45 @@ export function ScheduleDashboard() {
 
       {activeView === "subjects" ? (
         <>
-          <Card className="bg-gray-900/20 backdrop-blur-md border-orange-400/30 shadow-2xl shadow-orange-500/10">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-orange-300 font-mono text-xl flex items-center gap-2">
-                  <BookOpen className="w-6 h-6" />
-                  GESTIÓN DE MATERIAS
-                </CardTitle>
-
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  NUEVA MATERIA
-                </Button>
-                <Button
-                  onClick={() => setIsModalOpenProgram(true)}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  NUEVO PROGRAMA
-                </Button>
-                <Button
-                  onClick={() => setIsModalOpenAula(true)}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  NUEVA AULA
-                </Button>
-
-                <Button
-                  onClick={() => setIsModalOpenProfe(true)}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  NUEVO PROFE
-                </Button>
-                <Button
-                  onClick={() => setIsModalOpenHorario(true)}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  NUEVO HORARIOCLASS
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {/* Estadísticas por programa */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  {programs.map((program) => {
-                    const programSubjects = subjects.filter(
-                      (s) => s.programId === program.id && s.isActive
-                    );
-                    return (
-                      <div
-                        key={program.id}
-                        className="bg-gray-900/40 p-4 rounded-lg border border-gray-600/50"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <div
-                            className={`w-3 h-3 rounded-full ${program.color} shadow-lg`}
-                          ></div>
-                          <span className="text-sm font-mono text-gray-300">
-                            {program.name}
-                          </span>
-                        </div>
-                        <div className="text-2xl font-bold text-white">
-                          {programSubjects.length}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          materias activas
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Tabla de materias */}
-                <div className="bg-gray-900/30 rounded-lg border border-gray-600/50 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-800/50">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Código
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Nombre
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Programa
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Semestre
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Créditos
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Estado
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-mono text-gray-300 uppercase tracking-wider">
-                            Acciones
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-700/50">
-                        {subjects.map((subject) => (
-                          <tr
-                            key={subject.id}
-                            className="hover:bg-gray-800/30 transition-colors"
-                          >
-                            <td className="px-4 py-3 text-sm font-mono text-white">
-                              {subject.code}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-300">
-                              {subject.name}
-                            </td>
-                            <td className="px-4 py-3 text-sm">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={`w-2 h-2 rounded-full ${subject.program?.color} shadow-lg`}
-                                ></div>
-                                <span className="text-gray-300">
-                                  {subject.program?.name}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-sm font-mono text-gray-300">
-                              {subject.semester || "-"}
-                            </td>
-                            <td className="px-4 py-3 text-sm font-mono text-gray-300">
-                              {subject.credits || "-"}
-                            </td>
-                            <td className="px-4 py-3 text-sm">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-mono ${subject.isActive
-                                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                                  : "bg-red-500/20 text-red-300 border border-red-500/30"
-                                  }`}
-                              >
-                                {subject.isActive ? "ACTIVA" : "INACTIVA"}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-sm">
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleEditSubject(subject)}
-                                  className="border-blue-500/50 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400"
-                                >
-                                  <Edit className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleDeleteSubject(subject.id)
-                                  }
-                                  className="border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Agregadore */}
-          <AgregarMateriaForm
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onSubmit={(data) => {
-              console.log("Materia agregada:", data);
-              setIsModalOpen(false);
-            }}
-          />
-          <AgregarProgramas
-            isOpen={isModalOpenProgram}
-            onClose={() => setIsModalOpenProgram(false)}
-            onSubmit={(data) => {
-              console.log("Programa agregada:", data);
-              setIsModalOpenProgram(false);
-            }}
-          />
-          <AgregarAulaForm
-            isOpen={isModalOpenAula}
-            onClose={() => setIsModalOpenAula(false)}
-            onSubmit={(data) => {
-              console.log("Programa agregada:", data);
-              setIsModalOpenAula(false);
-            }}
-          />
-          <AgregarProfeForm
-            isOpen={isModalOpenProfe}
-            onClose={() => setIsModalOpenProfe(false)}
-            onSubmit={(data) => {
-              console.log("Programa agregada:", data);
-              setIsModalOpenProfe(false);
-            }}
-          />
-          <AgregarHorarioForm
-            isOpen={isModalOpenHorario}
-            onClose={() => setIsModalOpenHorario(false)}
-            onSubmit={(data) => {
-              console.log("Programa agregada:", data);
-              setIsModalOpenHorario(false);
-            }}
+          <MateriasVer
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            isModalOpenAula={isModalOpenAula}
+            setIsModalOpenAula={setIsModalOpenAula}
+            isModalOpenProgram={isModalOpenProgram}
+            setIsModalOpenProgram={setIsModalOpenProgram}
+            isModalOpenProfe={isModalOpenProfe}
+            setIsModalOpenProfe={setIsModalOpenProfe}
+            isModalOpenHorario={isModalOpenHorario}
+            setIsModalOpenHorario={setIsModalOpenHorario}
           />
         </>
       ) : activeView === "realtime" ? (
-        <>
-          <Card className="bg-gray-900/20 backdrop-blur-md border-green-400/30 shadow-2xl shadow-green-500/10">
-            <CardHeader>
-              <CardTitle className="text-green-300 font-mono text-xl flex items-center gap-2">
-                <Play className="w-6 h-6" />
-                CONTROL EN TIEMPO REAL
-              </CardTitle>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 text-green-400 bg-gray-900/50 px-3 py-1 rounded border border-green-500/30">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-mono">
-                    {currentTime.toLocaleTimeString("es-CO", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-cyan-400 bg-gray-900/50 px-3 py-1 rounded border border-cyan-500/30">
-                  <Calendar className="w-4 h-4" />
-                  <span className="font-mono capitalize">
-                    {getCurrentDay()}, {currentTime.toLocaleDateString("es-CO")}
-                  </span>
-                </div>
-                {currentSlot && (
-                  <div className="flex items-center gap-2 text-yellow-400 bg-gray-900/50 px-3 py-1 rounded border border-yellow-500/30">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-mono">BLOQUE: {currentSlot}</span>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {activeClasses.length > 0 ? (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-green-300 font-mono mb-4">
-                    SALAS QUE DEBEN ESTAR ABIERTAS AHORA:
-                  </h3>
-                  <div className="grid gap-3">
-                    {activeClasses.map(({ room, subject, isOpened }) => {
-                      const subjectStyle = getSubjectStyle(subject!);
-
-                      return (
-                        <div
-                          key={room}
-                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${isOpened
-                            ? "bg-green-500/20 border-green-400/60 shadow-green-500/30"
-                            : "bg-gray-900/40 border-gray-600/50"
-                            }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-cyan-300 font-mono">
-                                  {room}
-                                </div>
-                                <div className="text-xs text-cyan-400 font-mono">
-                                  SALA
-                                </div>
-                              </div>
-                              <div className="flex-1">
-                                <div
-                                  className={`font-bold text-sm font-mono ${subjectStyle.textColor} mb-1`}
-                                >
-                                  {subject}
-                                </div>
-                                <div className="text-xs text-gray-400 font-mono">
-                                  Horario: {currentSlot}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${isOpened
-                                  ? "bg-green-500/30 text-green-300 border border-green-400/50"
-                                  : "bg-red-500/30 text-red-300 border border-red-400/50"
-                                  }`}
-                              >
-                                {isOpened ? "ABIERTA" : "CERRADA"}
-                              </div>
-                              <Button
-                                onClick={() =>
-                                  toggleRoomOpened(room, currentSlot!)
-                                }
-                                variant="outline"
-                                size="sm"
-                                className={`font-mono transition-all duration-300 ${isOpened
-                                  ? "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                                  }`}
-                              >
-                                {isOpened ? (
-                                  <>
-                                    <Check className="w-4 h-4 mr-1" />
-                                    ABIERTA
-                                  </>
-                                ) : (
-                                  <>
-                                    <Play className="w-4 h-4 mr-1" />
-                                    MARCAR ABIERTA
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-400 font-mono mb-2">
-                    NO HAY CLASES PROGRAMADAS
-                  </h3>
-                  <p className="text-gray-500 font-mono">
-                    En este momento no hay clases programadas para{" "}
-                    {getCurrentDay()}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-green-500/30 shadow-lg shadow-green-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-green-300">
-                      SALAS ABIERTAS
-                    </p>
-                    <p className="text-3xl font-bold text-green-400 font-mono">
-                      {activeClasses.filter((c) => c.isOpened).length}
-                    </p>
-                  </div>
-                  <CheckCircle className="w-8 h-8 text-green-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-red-500/30 shadow-lg shadow-red-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-red-300">
-                      SALAS CERRADAS
-                    </p>
-                    <p className="text-3xl font-bold text-red-400 font-mono">
-                      {activeClasses.filter((c) => !c.isOpened).length}
-                    </p>
-                  </div>
-                  <XCircle className="w-8 h-8 text-red-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-cyan-300">
-                      TOTAL ACTIVAS
-                    </p>
-                    <p className="text-3xl font-bold text-cyan-400 font-mono">
-                      {activeClasses.length}
-                    </p>
-                  </div>
-                  <Play className="w-8 h-8 text-cyan-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-purple-500/30 shadow-lg shadow-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-purple-300">
-                      % APERTURA
-                    </p>
-                    <p className="text-3xl font-bold text-purple-400 font-mono">
-                      {activeClasses.length > 0
-                        ? Math.round(
-                          (activeClasses.filter((c) => c.isOpened).length /
-                            activeClasses.length) *
-                          100
-                        )
-                        : 0}
-                      %
-                    </p>
-                  </div>
-                  <MapPin className="w-8 h-8 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </>
+        <VistaTiempoReal
+          currentTime={currentTime}
+          getCurrentDay={getCurrentDay}
+          getCurrentTimeSlot={getCurrentTimeSlot}
+          activeClasses={activeClasses}
+          toggleRoomOpened={toggleRoomOpened}
+          getSubjectStyle={getSubjectStyle}
+        />
       ) : activeView === "schedule" ? (
-        <>
-          <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-cyan-300 font-mono">
-                <Clock className="w-5 h-5" />
-                SELECCIONAR DÍA
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {days.map((day) => (
-                  <Button
-                    key={day}
-                    variant={selectedDay === day ? "default" : "outline"}
-                    onClick={() => setSelectedDay(day)}
-                    className={`capitalize font-mono transition-all duration-300 ${selectedDay === day
-                      ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                      : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                      }`}
-                  >
-                    {day}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/30 backdrop-blur-sm border-purple-500/30 shadow-lg shadow-purple-500/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-purple-300 font-mono">
-                <MapPin className="w-5 h-5" />
-                FILTRAR POR SALA
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={selectedRoom === null ? "default" : "outline"}
-                  onClick={() => setSelectedRoom(null)}
-                  className={`font-mono transition-all duration-300 ${selectedRoom === null
-                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                    }`}
-                >
-                  TODAS LAS SALAS
-                </Button>
-                {rooms.map((room) => (
-                  <Button
-                    key={room}
-                    variant={selectedRoom === room ? "default" : "outline"}
-                    onClick={() => setSelectedRoom(room)}
-                    className={`font-mono transition-all duration-300 ${selectedRoom === room
-                      ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                      : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                      }`}
-                  >
-                    {room}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/20 backdrop-blur-md border-cyan-400/30 shadow-2xl shadow-cyan-500/10">
-            <CardHeader>
-              <CardTitle className="capitalize text-cyan-300 font-mono text-xl">
-                CRONOGRAMA - {selectedDay.toUpperCase()}
-                {selectedRoom && ` - SALA ${selectedRoom}`}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <div className="min-w-[800px]">
-                  <div className="grid grid-cols-8 gap-1 mb-2">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-orange-500/50">
-                      HORA
-                    </div>
-                    {rooms
-                      .filter(
-                        (room) => selectedRoom === null || room === selectedRoom
-                      )
-                      .map((room) => (
-                        <div
-                          key={room}
-                          className="bg-gradient-to-r from-orange-500 to-red-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-orange-500/50"
-                        >
-                          {room}
-                        </div>
-                      ))}
-                  </div>
-
-                  {timeSlots.map((timeSlot) => (
-                    <div key={timeSlot} className="grid grid-cols-8 gap-1 mb-1">
-                      <div className="bg-gradient-to-r from-orange-400 to-red-400 text-black p-3 text-center font-bold rounded flex items-center justify-center font-mono shadow-lg shadow-orange-400/50">
-                        {timeSlot}
-                      </div>
-                      {rooms
-                        .filter(
-                          (room) =>
-                            selectedRoom === null || room === selectedRoom
-                        )
-                        .map((room) => {
-                          const classInfo = currentSchedule[timeSlot]?.[room];
-                          const style = classInfo
-                            ? getSubjectStyle(classInfo.subject)
-                            : null;
-
-                          return (
-                            <div
-                              key={room}
-                              className={`p-2 rounded min-h-[60px] flex items-center justify-center text-xs text-center border transition-all duration-300 ${classInfo
-                                ? `${style?.color} ${style?.glowColor} border-2 hover:scale-105`
-                                : "bg-gray-900/30 border-gray-600/30 backdrop-blur-sm"
-                                }`}
-                            >
-                              {classInfo && (
-                                <div className="w-full">
-                                  <div
-                                    className={`font-bold leading-tight font-mono ${style?.textColor}`}
-                                  >
-                                    {classInfo.subject}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-emerald-700/40 shadow-lg shadow-emerald-700/25">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-emerald-200">
-                      SALAS ACTIVAS
-                    </p>
-                    <p className="text-3xl font-bold text-emerald-300 font-mono">
-                      {
-                        rooms.filter((room) =>
-                          timeSlots.some(
-                            (slot) => currentSchedule[slot]?.[room]
-                          )
-                        ).length
-                      }
-                    </p>
-                  </div>
-                  <MapPin className="w-8 h-8 text-emerald-300" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-cyan-300">
-                      CLASES PROGRAMADAS
-                    </p>
-                    <p className="text-3xl font-bold text-cyan-400 font-mono">
-                      {timeSlots.reduce(
-                        (count, slot) =>
-                          count +
-                          rooms.filter((room) => currentSchedule[slot]?.[room])
-                            .length,
-                        0
-                      )}
-                    </p>
-                  </div>
-                  <Clock className="w-8 h-8 text-cyan-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-purple-500/30 shadow-lg shadow-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-purple-300">
-                      OCUPACIÓN
-                    </p>
-                    <p className="text-3xl font-bold text-purple-400 font-mono">
-                      {Math.round(
-                        (timeSlots.reduce(
-                          (count, slot) =>
-                            count +
-                            rooms.filter(
-                              (room) => currentSchedule[slot]?.[room]
-                            ).length,
-                          0
-                        ) /
-                          (timeSlots.length * rooms.length)) *
-                        100
-                      )}
-                      %
-                    </p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="bg-gray-900/20 backdrop-blur-md border-gray-500/30 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-gray-300 font-mono">
-                LEYENDA DE CARRERAS
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-purple-500/50 border border-purple-400/50 rounded shadow-purple-500/30 shadow-sm"></div>
-                  <span className="text-purple-300 font-mono text-sm">
-                    ADMINISTRACIÓN DE EMPRESAS
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-emerald-800/50 border border-emerald-600/60 rounded shadow-emerald-700/30 shadow-sm"></div>
-                  <span className="text-emerald-200 font-mono text-sm">
-                    INGENIERÍA DE SOFTWARE
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-yellow-500/50 border border-yellow-400/50 rounded shadow-yellow-500/30 shadow-sm"></div>
-                  <span className="text-yellow-300 font-mono text-sm">
-                    INGENIERÍA INDUSTRIAL
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500/50 border border-blue-400/50 rounded shadow-blue-500/30 shadow-sm"></div>
-                  <span className="text-blue-300 font-mono text-sm">
-                    CIENCIAS DEL DEPORTE
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
+        <HorarioVer
+          selectedDay={selectedDay}
+          selectedRoom={selectedRoom}
+          setSelectedDay={setSelectedDay}
+          setSelectedRoom={setSelectedRoom}
+          days={days}
+          rooms={rooms}
+          currentSchedule={currentSchedule}
+          timeSlots={timeSlots}
+          getSubjectStyle={getSubjectStyle}
+        />
       ) : (
-        <>
-          <Card className="bg-gray-900/20 backdrop-blur-md border-purple-400/30 shadow-2xl shadow-purple-500/10">
-            <CardHeader>
-              <CardTitle className="text-purple-300 font-mono text-xl flex items-center gap-2">
-                <Users className="w-6 h-6" />
-                VERIFICADOR DE ASISTENCIA
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <div className="min-w-[1000px]">
-                  <div className="grid grid-cols-7 gap-1 mb-2">
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      FECHA
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      HORA DE INGRESO Y SALIDA
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      MATERIA Y GRUPO
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      PROFE ASIGNADO
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      ESTADO DE ASISTENCIA
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      SALA
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-black p-3 text-center font-bold rounded font-mono shadow-lg shadow-purple-500/50">
-                      ACCIONES
-                    </div>
-                  </div>
-
-                  {attendanceData.map((record) => {
-                    const subjectStyle = getSubjectStyle(record.materia);
-                    const isPresent = record.estadoAsistencia === "ASISTIÓ";
-
-                    return (
-                      <div
-                        key={record.id}
-                        className="grid grid-cols-7 gap-1 mb-1"
-                      >
-                        <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm">
-                          {record.fecha}
-                        </div>
-                        <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm">
-                          {record.horaIngreso}
-                        </div>
-                        <div
-                          className={`p-3 rounded flex items-center justify-center text-xs text-center border-2 ${subjectStyle.color} ${subjectStyle.textColor}`}
-                        >
-                          <div className="font-bold leading-tight font-mono">
-                            {record.materia}
-                          </div>
-                        </div>
-                        <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm">
-                          {record.profeAsignado}
-                        </div>
-                        <div
-                          className={`p-3 rounded flex items-center justify-center font-mono text-sm border-2 ${isPresent
-                            ? "bg-green-500/20 border-green-400/50 text-green-300 shadow-green-500/30"
-                            : "bg-red-500/20 border-red-400/50 text-red-300 shadow-red-500/30"
-                            }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            {isPresent ? (
-                              <CheckCircle className="w-4 h-4" />
-                            ) : (
-                              <XCircle className="w-4 h-4" />
-                            )}
-                            {record.estadoAsistencia}
-                          </div>
-                        </div>
-                        <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center text-cyan-300 font-mono text-sm font-bold">
-                          {record.sala}
-                        </div>
-                        <div className="bg-gray-900/30 border border-gray-600/30 backdrop-blur-sm p-3 rounded flex items-center justify-center">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 font-mono text-xs bg-transparent"
-                          >
-                            EDITAR
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-green-500/30 shadow-lg shadow-green-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-green-300">
-                      ASISTENCIAS
-                    </p>
-                    <p className="text-3xl font-bold text-green-400 font-mono">
-                      {
-                        attendanceData.filter(
-                          (record) => record.estadoAsistencia === "ASISTIÓ"
-                        ).length
-                      }
-                    </p>
-                  </div>
-                  <CheckCircle className="w-8 h-8 text-green-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-red-500/30 shadow-lg shadow-red-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-red-300">
-                      INASISTENCIAS
-                    </p>
-                    <p className="text-3xl font-bold text-red-400 font-mono">
-                      {
-                        attendanceData.filter(
-                          (record) => record.estadoAsistencia === "NO ASISTIÓ"
-                        ).length
-                      }
-                    </p>
-                  </div>
-                  <XCircle className="w-8 h-8 text-red-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/30 backdrop-blur-sm border-purple-500/30 shadow-lg shadow-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-mono text-purple-300">
-                      % ASISTENCIA
-                    </p>
-                    <p className="text-3xl font-bold text-purple-400 font-mono">
-                      {Math.round(
-                        (attendanceData.filter(
-                          (record) => record.estadoAsistencia === "ASISTIÓ"
-                        ).length /
-                          attendanceData.length) *
-                        100
-                      )}
-                      %
-                    </p>
-                  </div>
-                  <Users className="w-8 h-8 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </>
+        <AsistenciaVer
+          attendanceData={attendanceData}
+          getSubjectStyle={getSubjectStyle}
+        />
       )}
     </div>
   );
