@@ -487,6 +487,7 @@ export function ScheduleDashboard() {
     return () => clearInterval(timer);
   }, []);
 //variables de inicio de dias
+//el encargado de que se muestren las materias
   const getCurrentDay = () => {
     const days = [
       "lunes",
@@ -498,7 +499,6 @@ export function ScheduleDashboard() {
     ];
     return days[currentTime.getDay()];
   };
-
   const getCurrentTimeSlot = () => {
     const hour = currentTime.getHours();
     for (const slot of timeSlots) {
@@ -511,7 +511,6 @@ export function ScheduleDashboard() {
     }
     return null;
   };
-  //el encargado de que se muestren las materias
   const getCurrentActiveClasses = () => {
     const currentDay = getCurrentDay();
     const currentSlot = getCurrentTimeSlot();
@@ -536,7 +535,6 @@ export function ScheduleDashboard() {
       }))
       .filter((item) => item.subject !== null);
   };
-
   const toggleRoomOpened = (room: string, timeSlot: string) => {
     const key = `${room}-${timeSlot}`;
     const newOpenedRooms = new Set(openedRooms);
