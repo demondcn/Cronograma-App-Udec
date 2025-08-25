@@ -20,6 +20,7 @@ import {
   Archive,
   Download,
   Calendar,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -28,6 +29,9 @@ import {
 } from "../Agregadores/AgregarAsistencia/actions/crearRegistrosDeAsistencia";
 //Traedores de info
 import { obtenerAsistencias } from "./../Traedores/actions/asistenciasid";
+// Importar la función para obtener horarios sin asistencia
+import { AsistenciaHorario } from "./../Traedores/actions/asisH";
+
 interface AttendanceRecord {
   id: string;
   fecha: string;
@@ -61,69 +65,40 @@ const ATTENDANCE_STATUS = {
   },
   CANCELADA: { label: "CANCELADA", icon: FileX, color: "text-gray-600" },
 };
-// Datos de ejemplo para asistencias guardadas hay que
-// reemplazarlos con datos reales osea con un traedor de asistencias
-// const MOCK_SAVED_ATTENDANCE: AttendanceRecord[] = [
-//   {
-//     id: "saved-1",
-//     fecha: "2024-01-15",
-//     horaInicio: "08:00",
-//     horaFin: "10:00",
-//     materiaAsignada: "Matemáticas",
-//     profeAsignado: "Dr. García",
-//     estadoAsistencia: "ASISTIO",
-//     sala: "A-101",
-//     observaciones: "Clase completada exitosamente",
-//     diaSemana: "lunes",
-//     horarioId: "1",
-//     asignaturaId: "1",
-//     aulaId: "1",
-//     profesorId: "1",
-//   },
-//   {
-//     id: "saved-2",
-//     fecha: "2024-01-15",
-//     horaInicio: "10:30",
-//     horaFin: "12:30",
-//     materiaAsignada: "Física",
-//     profeAsignado: "Dra. López",
-//     estadoAsistencia: "TARDANZA",
-//     sala: "B-205",
-//     observaciones: "Llegó 15 minutos tarde",
-//     diaSemana: "lunes",
-//     horarioId: "2",
-//     asignaturaId: "2",
-//     aulaId: "2",
-//     profesorId: "2",
-//   },
-//   {
-//     id: "saved-3",
-//     fecha: "2024-01-16",
-//     horaInicio: "14:00",
-//     horaFin: "16:00",
-//     materiaAsignada: "Química",
-//     profeAsignado: "Prof. Martínez",
-//     estadoAsistencia: "JUSTIFICADA",
-//     sala: "C-301",
-//     observaciones: "Ausencia por cita médica",
-//     diaSemana: "martes",
-//     horarioId: "3",
-//     asignaturaId: "3",
-//     aulaId: "3",
-//     profesorId: "3",
-//   },
-// ];
-//
+
 export function AsistenciaVer({
   attendanceData,
   getSubjectStyle,
 }: AttendanceViewProps) {
-  const [currentRecords, setCurrentRecords] =
-    useState<AttendanceRecord[]>(attendanceData);
+  const [currentRecords, setCurrentRecords] = useState<AttendanceRecord[]>(attendanceData);
   const [savedRecords, setSavedRecords] = useState<AttendanceRecord[]>([]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Función para recargar los horarios sin asistencia
+  const reloadAttendanceData = async () => {
+    setIsLoading(true);
+    try {
+      const newAttendanceData = await AsistenciaHorario();
+      setCurrentRecords(newAttendanceData);
+    } catch (error) {
+      console.error("Error al recargar datos de asistencia:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Función para recargar las asistencias guardadas
+  const reloadSavedAttendances = async () => {
+    try {
+      const asissdata = await obtenerAsistencias();
+      setSavedRecords(asissdata);
+    } catch (error) {
+      console.error("Error al recargar asistencias guardadas:", error);
+      setSavedRecords([]);
+    }
+  };
 
   const handleStatusChange = (recordId: string, newStatus: string) => {
     setCurrentRecords((prev) =>
@@ -134,6 +109,7 @@ export function AsistenciaVer({
       )
     );
   };
+
   const handleObservationsChange = (
     recordId: string,
     newObservations: string
@@ -180,16 +156,11 @@ export function AsistenciaVer({
       const result = await crearRegistrosDeAsistencia(attendanceDataToSave);
 
       if (result.success) {
-        // Mostrar mensaje de éxito
-        alert(result.message);
-
-        // Agregar los registros guardados a la lista de asistencias guardadas
-        const newSavedRecords = validRecords.map((record) => ({
-          ...record,
-          id: `saved-${Date.now()}-${Math.random()}`, // Generar nuevo ID único
-        }));
-        // Limpiar los registros actuales
-        setCurrentRecords([]);
+        // Recargar los datos después de guardar
+        await reloadAttendanceData();
+        await reloadSavedAttendances();
+        
+        alert("Asistencias guardadas correctamente.");
       } else {
         // Mostrar mensaje de error
         alert(result.message);
@@ -271,27 +242,29 @@ export function AsistenciaVer({
     link.click();
     document.body.removeChild(link);
   };
-  const cargarAsistencia = async () => {
-    try {
-      const asissdata = await obtenerAsistencias();
-      setSavedRecords(asissdata);
-    } catch (error) {
-      setSavedRecords([]);
-    } finally {
-    }
-  };
+
   useEffect(() => {
-    cargarAsistencia();
+    reloadSavedAttendances();
   }, []);
 
   return (
     <>
       <Card className="bg-gray-900/20 backdrop-blur-md border-blue-200/60 shadow-xl shadow-blue-500/10">
         <CardHeader>
-          <CardTitle className="text-blue-700 font-semibold text-xl flex items-center gap-2">
-            <Users className="w-6 h-6" />
-            REGISTRO DE ASISTENCIA
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-blue-700 font-semibold text-xl flex items-center gap-2">
+              <Users className="w-6 h-6" />
+              REGISTRO DE ASISTENCIA
+            </CardTitle>
+            <Button
+              onClick={reloadAttendanceData}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'CARGANDO...' : 'RECARGAR'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {currentRecords.length > 0 && (
@@ -410,15 +383,38 @@ export function AsistenciaVer({
               </div>
             </>
           )}
+
+          {currentRecords.length === 0 && (
+            <div className="text-center py-8 text-blue-700">
+              <p className="text-lg font-semibold">No hay registros pendientes de asistencia para hoy.</p>
+              <Button
+                onClick={reloadAttendanceData}
+                disabled={isLoading}
+                className="mt-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                {isLoading ? 'CARGANDO...' : 'VERIFICAR NUEVOS REGISTROS'}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       <Card className="bg-gray-900/20 backdrop-blur-md border-cyan-400/30 shadow-2xl shadow-orange-500/10 mt-6">
         <CardHeader>
-          <CardTitle className="text-cyan-300 font-semibold text-xl flex items-center gap-2">
-            <Archive className="w-6 h-6" />
-            ASISTENCIAS GUARDADAS
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-cyan-300 font-semibold text-xl flex items-center gap-2">
+              <Archive className="w-6 h-6" />
+              ASISTENCIAS GUARDADAS
+            </CardTitle>
+            <Button
+              onClick={reloadSavedAttendances}
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              ACTUALIZAR
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-6 p-4 bg-gray-900/50 rounded-lg border border-cyan-400/30">
@@ -537,6 +533,12 @@ export function AsistenciaVer({
                   </div>
                 );
               })}
+
+              {savedRecords.length === 0 && (
+                <div className="text-center py-8 text-cyan-300">
+                  <p className="text-lg font-semibold">No hay asistencias guardadas.</p>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
