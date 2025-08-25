@@ -388,6 +388,7 @@ export default function AgregarHorarioForm({
               </Button>
               <Button
                 type="submit"
+                onClick={onClose}
                 className="flex-1 bg-gradient-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white font-semibold shadow-lg shadow-red-300/50 transition-all duration-300"
               >
                 Crear Horario
