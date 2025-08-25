@@ -13,8 +13,11 @@ import { Button } from "@/components/ui/button";
 //Traedores de info
 import { obtenerAulas } from "./Traedores/actions/aulasNombre";
 import { materiaH } from "./Traedores/actions/materiaH";
+import { AsistenciaHorario } from "./Traedores/actions/asisH";
+//iconos
 import { Calendar, Users, Play, BookOpen } from "lucide-react";
 import { Navegador } from "./ComponentesShedule/NavegadorInicio";
+
 const subjectCategories = {
   // Administración de empresas - Morado
   admin: {
@@ -417,79 +420,6 @@ const timeSlots = [
 ];
 const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
-const attendanceData = [
-  {
-    id: 1,
-    fecha: "8/11/2024",
-    horaIngreso: "07:00-08:00",
-    horaSalida: "08:00-09:00",
-    materia: "PENSAMIENTO ALGORÍTMICO",
-    profeAsignado: "Prof. García",
-    estadoAsistencia: "ASISTIÓ",
-    sala: "C112",
-  },
-  {
-    id: 2,
-    fecha: "8/11/2024",
-    horaIngreso: "07:00-08:00",
-    horaSalida: "08:00-09:00",
-    materia: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
-    profeAsignado: "Prof. Martínez",
-    estadoAsistencia: "ASISTIÓ",
-    sala: "C114",
-  },
-  {
-    id: 3,
-    fecha: "8/11/2024",
-    horaIngreso: "07:00-08:00",
-    horaSalida: "08:00-09:00",
-    materia: "SEGURIDAD INFORMÁTICA",
-    profeAsignado: "Prof. López",
-    estadoAsistencia: "ASISTIÓ",
-    sala: "C115",
-  },
-  {
-    id: 4,
-    fecha: "8/11/2024",
-    horaIngreso: "08:00-09:00",
-    horaSalida: "09:00-10:00",
-    materia: "SISTEMAS OPERATIVOS",
-    profeAsignado: "Prof. Rodríguez",
-    estadoAsistencia: "NO ASISTIÓ",
-    sala: "A205",
-  },
-  {
-    id: 5,
-    fecha: "8/11/2024",
-    horaIngreso: "09:00-10:00",
-    horaSalida: "10:00-11:00",
-    materia: "PROFUNDIZACIÓN DISCIPLINAR (SOFTWARE CON ESTÁNDARES DE CALIDAD)",
-    profeAsignado: "Prof. Hernández",
-    estadoAsistencia: "ASISTIÓ",
-    sala: "A206",
-  },
-  {
-    id: 6,
-    fecha: "8/11/2024",
-    horaIngreso: "10:00-11:00",
-    horaSalida: "11:00-12:00",
-    materia: "SEGURIDAD INFORMÁTICA",
-    profeAsignado: "Prof. López",
-    estadoAsistencia: "ASISTIÓ",
-    sala: "C111",
-  },
-  {
-    id: 7,
-    fecha: "8/11/2024",
-    horaIngreso: "11:00-12:00",
-    horaSalida: "12:00-13:00",
-    materia: "PENSAMIENTO ALGORÍTMICO",
-    profeAsignado: "Prof. García",
-    estadoAsistencia: "NO ASISTIÓ",
-    sala: "C115",
-  },
-];
-
 type ClassInfo = {
   subject: string;
   duration: number;
@@ -506,6 +436,7 @@ export function ScheduleDashboard() {
   //Traedores de info
   const [rooms, setRooms] = useState<string[]>([]);
   const [scheduleData, setScheduleData] = useState<any>({});
+  const [asistenciaH, setAsistenciaH] = useState<any[]>([]);
   //boton de programas agregar
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenAula, setIsModalOpenAula] = useState(false);
@@ -565,6 +496,188 @@ export function ScheduleDashboard() {
 
     return processed;
   };
+  //aistencia
+  //traer datos de asistencia de horarios
+  // const getCurrentDayAttendanceData = () => {
+  //   const today = new Date();
+  //   const currentDay = today
+  //     .toLocaleDateString("es-ES", { weekday: "long" })
+  //     .toLowerCase();
+  //   const todayDate = today.toISOString().split("T")[0];
+
+  //   // Mock data based on database structure - filtered by current day
+  //   const mockAttendanceForToday = [
+  //     {
+  //       id: "att-1",
+  //       fecha: todayDate,
+  //       horaInicio: "07:00",
+  //       horaFin: "08:00",
+  //       materiaAsignada: "SEGURIDAD INFORMÁTICA",
+  //       profeAsignado: "Dr. Carlos Mendoza",
+  //       estadoAsistencia: "",
+  //       sala: "C111",
+  //       observaciones: "",
+  //       diaSemana: "lunes",
+  //     },
+  //     {
+  //       id: "att-2",
+  //       fecha: todayDate,
+  //       horaInicio: "07:00",
+  //       horaFin: "08:00",
+  //       materiaAsignada: "PENSAMIENTO ALGORÍTMICO",
+  //       profeAsignado: "Ing. María González",
+  //       estadoAsistencia: "",
+  //       sala: "C112",
+  //       observaciones: "",
+  //       diaSemana: "lunes",
+  //     },
+  //     {
+  //       id: "att-3",
+  //       fecha: todayDate,
+  //       horaInicio: "07:00",
+  //       horaFin: "08:00",
+  //       materiaAsignada: "SISTEMAS OPERATIVOS",
+  //       profeAsignado: "MSc. Roberto Silva",
+  //       estadoAsistencia: "",
+  //       sala: "C113",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-4",
+  //       fecha: todayDate,
+  //       horaInicio: "07:00",
+  //       horaFin: "09:00",
+  //       materiaAsignada: "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
+  //       profeAsignado: "PhD. Ana Rodríguez",
+  //       estadoAsistencia: "",
+  //       sala: "C114",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-5",
+  //       fecha: todayDate,
+  //       horaInicio: "08:00",
+  //       horaFin: "09:00",
+  //       materiaAsignada: "PENSAMIENTO ALGORÍTMICO",
+  //       profeAsignado: "Ing. María González",
+  //       estadoAsistencia: "",
+  //       sala: "C112",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-6",
+  //       fecha: todayDate,
+  //       horaInicio: "08:00",
+  //       horaFin: "09:00",
+  //       materiaAsignada: "SISTEMAS OPERATIVOS",
+  //       profeAsignado: "MSc. Roberto Silva",
+  //       estadoAsistencia: "",
+  //       sala: "A205",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-7",
+  //       fecha: todayDate,
+  //       horaInicio: "09:00",
+  //       horaFin: "10:00",
+  //       materiaAsignada: "VIRTUALIZACIÓN",
+  //       profeAsignado: "Ing. Patricia López",
+  //       estadoAsistencia: "",
+  //       sala: "C111",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-8",
+  //       fecha: todayDate,
+  //       horaInicio: "09:00",
+  //       horaFin: "10:00",
+  //       materiaAsignada: "DISEÑO Y MODELAMIENTO DE BASE DE DATOS",
+  //       profeAsignado: "MSc. Jorge Herrera",
+  //       estadoAsistencia: "",
+  //       sala: "C113",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-9",
+  //       fecha: todayDate,
+  //       horaInicio: "10:00",
+  //       horaFin: "11:00",
+  //       materiaAsignada: "SEGURIDAD INFORMÁTICA",
+  //       profeAsignado: "Dr. Carlos Mendoza",
+  //       estadoAsistencia: "",
+  //       sala: "C111",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-10",
+  //       fecha: todayDate,
+  //       horaInicio: "11:00",
+  //       horaFin: "12:00",
+  //       materiaAsignada: "PENSAMIENTO ALGORÍTMICO",
+  //       profeAsignado: "Ing. María González",
+  //       estadoAsistencia: "",
+  //       sala: "C115",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-11",
+  //       fecha: todayDate,
+  //       horaInicio: "12:00",
+  //       horaFin: "13:00",
+  //       materiaAsignada: "AUTOMATIZACIÓN DE PROCESOS",
+  //       profeAsignado: "Ing. Fernando Castro",
+  //       estadoAsistencia: "",
+  //       sala: "C111",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-12",
+  //       fecha: todayDate,
+  //       horaInicio: "14:00",
+  //       horaFin: "15:00",
+  //       materiaAsignada: "PROGRAMACIÓN II",
+  //       profeAsignado: "Ing. David Ramírez",
+  //       estadoAsistencia: "",
+  //       sala: "C112",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-13",
+  //       fecha: todayDate,
+  //       horaInicio: "15:00",
+  //       horaFin: "16:00",
+  //       materiaAsignada: "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
+  //       profeAsignado: "PhD. Miguel Torres",
+  //       estadoAsistencia: "",
+  //       sala: "C111",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-14",
+  //       fecha: todayDate,
+  //       horaInicio: "16:00",
+  //       horaFin: "17:00",
+  //       materiaAsignada: "ARQUITECTURA DE HARDWARE Y SOFTWARE",
+  //       profeAsignado: "PhD. Ricardo Vega",
+  //       estadoAsistencia: "",
+  //       sala: "C112",
+  //       observaciones: "",
+  //     },
+  //     {
+  //       id: "att-15",
+  //       fecha: todayDate,
+  //       horaInicio: "18:00",
+  //       horaFin: "20:00",
+  //       materiaAsignada: "COSTOS Y PRESUPUESTO",
+  //       profeAsignado: "CPA. Gloria Sánchez",
+  //       estadoAsistencia: "",
+  //       sala: "C112",
+  //       observaciones: "",
+  //     },
+  //   ];
+
+  //   return mockAttendanceForToday;
+  // };
   //variables de inicio de dias
   //el encargado de que se muestren las materias
   const getCurrentDay = () => {
@@ -642,17 +755,30 @@ export function ScheduleDashboard() {
       setScheduleData({});
     }
   };
+  const cargarAsistenciaHorarios = async () => {
+    try {
+      const asistenciaH = await AsistenciaHorario();
+      setAsistenciaH(asistenciaH);
+      console.log("Asistencia del dia de hoy cargados:", asistenciaH);
+    } catch (error) {
+      console.error("Error cargando del dia de hoy asistencia:", error);
+      setAsistenciaH([]);
+    }
+  };
 
   const currentSchedule = getProcessedSchedule(
     scheduleData[selectedDay as keyof typeof scheduleData] || {}
   );
   const activeClasses = getCurrentActiveClasses();
-
+  //aistencia
+  //const attendanceData = getCurrentDayAttendanceData();
+  //
   useEffect(() => {
     cargarAulas();
     //cargarHorarios;
     //5h debugeando para saber que solo faltaba un ()
     cargarHorarios();
+    cargarAsistenciaHorarios();
   }, []);
 
   return (
@@ -751,7 +877,7 @@ export function ScheduleDashboard() {
         />
       ) : (
         <AsistenciaVer
-          attendanceData={attendanceData}
+          attendanceData={asistenciaH}
           getSubjectStyle={getSubjectStyle}
         />
       )}

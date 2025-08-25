@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Calendar, Filter, X, User, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { debugHorarios } from "@/components/Traedores/actions/debugHorarios";
-
 interface ScheduleViewProps {
   selectedDay: string;
   selectedRoom: string | null;

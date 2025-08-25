@@ -2,7 +2,7 @@
 import prisma from '@/lib/db'
 
 export async function CrearHorario(formData: FormData) {
-  const id = formData.get("id") as string;
+  const id = crypto.randomUUID();
   const diaSemana = parseInt(formData.get("diaSemana") as string, 10);
   const horaInicioId = parseInt(formData.get("horaInicio") as string, 10);
   const horaFinId = parseInt(formData.get("horaFin") as string, 10);

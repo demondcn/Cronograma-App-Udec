@@ -18,10 +18,10 @@ export default function AgregarProfeForm({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-cyan-50 to-emerald-50 border-2 border-emerald-400 shadow-lg shadow-emerald-200/50">
-        <CardHeader className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-t-lg">
-          <CardTitle className="text-center font-bold text-xl">
-            Agregar Nuevo Profe
+      <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-yellow-400/50 shadow-2xl shadow-yellow-500/20">
+        <CardHeader className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-t-lg">
+          <CardTitle className="text-center font-bold text-xl font-mono">
+            👨‍🏫 Nuevo Profesor
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -29,22 +29,7 @@ export default function AgregarProfeForm({
             <div className="space-y-2">
               <Label
                 htmlFor="nombre"
-                className="text-emerald-700 font-semibold"
-              >
-                Id del Profe
-              </Label>
-              <Input
-                name="id"
-                id="id"
-                type="text"
-                placeholder="Ej: Cálculo Diferencial"
-                className="border-2 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 bg-white/80"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="nombre"
-                className="text-emerald-700 font-semibold"
+                className="text-yellow-300 font-semibold font-mono"
               >
                 Nombre del Profe
               </Label>
@@ -52,14 +37,14 @@ export default function AgregarProfeForm({
                 name="nombre"
                 id="nombre"
                 type="text"
-                placeholder="Ej: Cálculo Diferencial"
-                className="border-2 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 bg-white/80"
+                placeholder="Ej: Juan Pérez"
+                className="border-2 border-yellow-400/50 focus:border-yellow-400 bg-gray-800/50 text-white"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="nombre"
-                className="text-emerald-700 font-semibold"
+                className="text-yellow-300 font-semibold font-mono"
               >
                 Correo del Profe
               </Label>
@@ -67,14 +52,14 @@ export default function AgregarProfeForm({
                 name="correo"
                 id="correo"
                 type="text"
-                placeholder="Ej: Cálculo Diferencial"
-                className="border-2 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 bg-white/80"
+                placeholder="Ej: juanpere@gmail.com"
+                className="border-2 border-yellow-400/50 focus:border-yellow-400 bg-gray-800/50 text-white"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="nombre"
-                className="text-emerald-700 font-semibold"
+                className="text-yellow-300 font-semibold font-mono"
               >
                 Telefono del Profe
               </Label>
@@ -82,24 +67,24 @@ export default function AgregarProfeForm({
                 name="telefono"
                 id="telefono"
                 type="text"
-                placeholder="Ej: Cálculo Diferencial"
-                className="border-2 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 bg-white/80"
+                placeholder="Ej: +57 3001234567"
+                className="border-2 border-yellow-400/50 focus:border-yellow-400 bg-gray-800/50 text-white"
               />
             </div>
             <div className="flex gap-2">
               <Button
-                type="submit"
-                className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 shadow-lg shadow-emerald-300/50 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-400/50"
-              >
-                Agregar Profe
-              </Button>
-              <Button
                 type="button"
                 onClick={onClose}
                 variant="outline"
-                className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                className="flex-1 border-gray-500 text-gray-300 hover:bg-gray-700 bg-transparent"
               >
                 Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold"
+              >
+                Crear
               </Button>
             </div>
           </form>

@@ -1,14 +1,14 @@
 "use server";
 import prisma from "@/lib/db";
 export async function CrearProfe(formData: FormData) {
-  const id = formData.get("id");
+  const id = crypto.randomUUID();
   const nombre = formData.get("nombre");
   const correo = formData.get("correo");
   const telefono = formData.get("telefono");
 
   console.log(nombre, correo, telefono);
 
-  if (!nombre || !correo || !telefono) {
+  if (!nombre || !id) {
     console.log("NO SE ENVIO NADA");
     return;
   }
