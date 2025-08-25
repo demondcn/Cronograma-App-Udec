@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useTransition } from "react"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -182,7 +182,18 @@ export default function AgregarHorarioForm({
   aulas,
   asignaturas,
 }: AgregarHorarioFormProps) {
+  const [isPending, startTransition] = useTransition()
   if (!isOpen) return null;
+    async function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      try {
+        await CrearHorario(formData)   // llamas a tu server action
+        onClose()                      // cierras el modal al terminar
+      } catch (error) {
+        console.error("Error al crear horario:", error)
+      }
+    })
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -193,7 +204,7 @@ export default function AgregarHorarioForm({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 max-h-[80vh] overflow-y-auto">
-          <form action={CrearHorario} className="space-y-6">
+          <form action={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label
@@ -388,10 +399,10 @@ export default function AgregarHorarioForm({
               </Button>
               <Button
                 type="submit"
-                onClick={onClose}
+                disabled={isPending}
                 className="flex-1 bg-gradient-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white font-semibold shadow-lg shadow-red-300/50 transition-all duration-300"
               >
-                Crear Horario
+                {isPending ? "Creando..." : "Crear Horario"}
               </Button>
             </div>
           </form>
