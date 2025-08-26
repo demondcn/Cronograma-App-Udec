@@ -14,78 +14,66 @@ import { Button } from "@/components/ui/button";
 import { obtenerAulas } from "./Traedores/actions/aulasNombre";
 import { materiaH } from "./Traedores/actions/materiaH";
 import { AsistenciaHorario } from "./Traedores/actions/asisH";
+import { Colores } from "./Traedores/actions/colortraedor";
 //iconos
 import { Calendar, Users, Play, BookOpen } from "lucide-react";
 import { Navegador } from "./ComponentesShedule/NavegadorInicio";
 
-const subjectCategories = {
-  // Administración de empresas - Morado
-  admin: {
-    color: "bg-purple-500/20 border-purple-400/50 shadow-purple-400/20",
-    glowColor: "shadow-lg shadow-purple-500/30",
-    textColor: "text-purple-100",
-    subjects: [
-      "COSTOS Y PRESUPUESTO",
-      "ADMINISTRACIÓN",
-      "CONTABILIDAD GENERAL",
-      "MICROECONOMÍA",
-    ],
-  },
-  // Ingeniería de software - Verde institucional UDEC
-  software: {
-    color: "bg-emerald-800/30 border-emerald-600/60 shadow-emerald-600/25",
-    glowColor: "shadow-lg shadow-emerald-700/40",
-    textColor: "text-emerald-100",
-    subjects: [
-      "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
-      "PENSAMIENTO ALGORÍTMICO",
-      "SISTEMAS OPERATIVOS",
-      "SEGURIDAD INFORMÁTICA",
-      "DISEÑO Y MODELAMIENTO DE BASE DE DATOS",
-      "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
-      "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES",
-      "PROGRAMACIÓN II",
-      "PROGRAMACIÓN I",
-      "ARQUITECTURA DE HARDWARE Y SOFTWARE",
-      "VIRTUALIZACIÓN",
-      "REQUERIMIENTOS DE SOFTWARE",
-    ],
-  },
-  // Ingeniería industrial - Amarillo
-  industrial: {
-    color: "bg-yellow-500/20 border-yellow-400/50 shadow-yellow-400/20",
-    glowColor: "shadow-lg shadow-yellow-500/30",
-    textColor: "text-yellow-100",
-    subjects: [
-      "AUTOMATIZACIÓN DE PROCESOS",
-      "ESTRUCTURA DE DATOS",
-      "FUNDAMENTOS DE ELECTRÓNICA",
-    ],
-  },
-  sports: {
-    color: "bg-blue-500/20 border-blue-400/50 shadow-blue-400/20",
-    glowColor: "shadow-lg shadow-blue-500/30",
-    textColor: "text-blue-100",
-    subjects: [
-      "FUNDAMENTOS DE ESTADÍSTICA",
-      "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
-    ],
-  },
-};
+// const subjectCategories = {
+//   // Administración de empresas - Morado
+//   admin: {
+//     color: "bg-purple-500/20 border-purple-400/50 shadow-purple-400/20",
+//     glowColor: "shadow-lg shadow-purple-500/30",
+//     textColor: "text-purple-100",
+//     subjects: [
+//       "COSTOS Y PRESUPUESTO",
+//       "ADMINISTRACIÓN",
+//       "CONTABILIDAD GENERAL",
+//       "MICROECONOMÍA",
+//     ],
+//   },
+//   // Ingeniería de software - Verde institucional UDEC
+//   software: {
+//     color: "bg-emerald-800/30 border-emerald-600/60 shadow-emerald-600/25",
+//     glowColor: "shadow-lg shadow-emerald-700/40",
+//     textColor: "text-emerald-100",
+//     subjects: [
+//       "PROGRAMACIÓN Y ADMINISTRACIÓN EN BASE DE DATOS",
+//       "PENSAMIENTO ALGORÍTMICO",
+//       "SISTEMAS OPERATIVOS",
+//       "SEGURIDAD INFORMÁTICA",
+//       "DISEÑO Y MODELAMIENTO DE BASE DE DATOS",
+//       "DESARROLLO DE SOFTWARE PARA SISTEMA IOT",
+//       "DESARROLLO NATIVO PARA DISPOSITIVOS MÓVILES",
+//       "PROGRAMACIÓN II",
+//       "PROGRAMACIÓN I",
+//       "ARQUITECTURA DE HARDWARE Y SOFTWARE",
+//       "VIRTUALIZACIÓN",
+//       "REQUERIMIENTOS DE SOFTWARE",
+//     ],
+//   },
+//   // Ingeniería industrial - Amarillo
+//   industrial: {
+//     color: "bg-yellow-500/20 border-yellow-400/50 shadow-yellow-400/20",
+//     glowColor: "shadow-lg shadow-yellow-500/30",
+//     textColor: "text-yellow-100",
+//     subjects: [
+//       "AUTOMATIZACIÓN DE PROCESOS",
+//       "ESTRUCTURA DE DATOS",
+//       "FUNDAMENTOS DE ELECTRÓNICA",
+//     ],
+//   },
+//   sports: {
+//     color: "bg-blue-500/20 border-blue-400/50 shadow-blue-400/20",
+//     glowColor: "shadow-lg shadow-blue-500/30",
+//     textColor: "text-blue-100",
+//     subjects: [
+//       "FUNDAMENTOS DE ESTADÍSTICA",
+//       "BIOESTADÍSTICA APLICADA AL DEPORTE Y LA ACTIVIDAD FÍSICA",
+//     ],
+//   },
+// };
 
-const getSubjectStyle = (subject: string) => {
-  for (const [key, category] of Object.entries(subjectCategories)) {
-    if (category.subjects.some((s) => subject.includes(s))) {
-      return category;
-    }
-  }
-  // Default para materias no clasificadas
-  return {
-    color: "bg-gray-500/20 border-gray-400/50",
-    glowColor: "shadow-lg shadow-gray-500/30",
-    textColor: "text-gray-100",
-  };
-};
 /*
 const scheduleData = {
   lunes: {
@@ -437,6 +425,7 @@ export function ScheduleDashboard() {
   const [rooms, setRooms] = useState<string[]>([]);
   const [scheduleData, setScheduleData] = useState<any>({});
   const [asistenciaH, setAsistenciaH] = useState<any[]>([]);
+  const [subjectCategories, setColor] = useState<any[]>([]);
   //boton de programas agregar
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenAula, setIsModalOpenAula] = useState(false);
@@ -450,6 +439,19 @@ export function ScheduleDashboard() {
 
     return () => clearInterval(timer);
   }, []);
+  const getSubjectStyle = (subject: string) => {
+    for (const [key, category] of Object.entries(subjectCategories)) {
+      if (category.subjects.some((s) => subject === s)) {
+        return category;
+      }
+    }
+    // Default para materias no clasificadas
+    return {
+      color: "bg-gray-500/20 border-gray-400/50",
+      glowColor: "shadow-lg shadow-gray-500/30",
+      textColor: "text-gray-100",
+    };
+  };
   const getProcessedSchedule = (daySchedule: any) => {
     const processed: any = {};
 
@@ -755,7 +757,7 @@ export function ScheduleDashboard() {
       setScheduleData({});
     }
   };
-  const cargarAsistenciaHorarios = async () => {
+  const cargarAsisteincaHorarios = async () => {
     try {
       const asistenciaH = await AsistenciaHorario();
       setAsistenciaH(asistenciaH);
@@ -763,6 +765,16 @@ export function ScheduleDashboard() {
     } catch (error) {
       console.error("Error cargando del dia de hoy asistencia:", error);
       setAsistenciaH([]);
+    }
+  };
+  const cargarColores = async () => {
+    try {
+      const color = await Colores();
+      setColor(color);
+      console.log("Color del dia de hoy cargados:", asistenciaH);
+    } catch (error) {
+      console.error("Error cargando del dia de hoy color:", error);
+      setColor([]);
     }
   };
 
@@ -778,7 +790,8 @@ export function ScheduleDashboard() {
     //cargarHorarios;
     //5h debugeando para saber que solo faltaba un ()
     cargarHorarios();
-    cargarAsistenciaHorarios();
+    cargarAsisteincaHorarios();
+    cargarColores();
   }, []);
 
   return (
