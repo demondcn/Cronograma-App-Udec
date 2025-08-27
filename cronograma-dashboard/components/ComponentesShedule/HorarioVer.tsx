@@ -128,11 +128,10 @@ export function HorarioVer({
                 key={day}
                 variant={selectedDay === day ? "default" : "outline"}
                 onClick={() => setSelectedDay(day)}
-                className={`capitalize font-mono transition-all duration-300 text-xs sm:text-sm flex-1 min-w-[80px] ${
-                  selectedDay === day
-                    ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                    : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+                className={`capitalize font-mono transition-all duration-300 text-xs sm:text-sm flex-1 min-w-[80px] ${selectedDay === day
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                  }`}
                 size="sm"
               >
                 {day.substring(0, 3)}
@@ -171,11 +170,10 @@ export function HorarioVer({
             <Button
               variant={selectedRoom === null ? "default" : "outline"}
               onClick={() => setSelectedRoom(null)}
-              className={`font-mono transition-all duration-300 text-xs sm:text-sm ${
-                selectedRoom === null
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 text-xs sm:text-sm ${selectedRoom === null
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
               size="sm"
             >
               TODAS
@@ -185,11 +183,10 @@ export function HorarioVer({
                 key={room}
                 variant={selectedRoom === room ? "default" : "outline"}
                 onClick={() => setSelectedRoom(room)}
-                className={`font-mono transition-all duration-300 text-xs sm:text-sm ${
-                  selectedRoom === room
-                    ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                    : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+                className={`font-mono transition-all duration-300 text-xs sm:text-sm ${selectedRoom === room
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                  }`}
                 size="sm"
               >
                 {room}
@@ -299,14 +296,12 @@ function SubjectInfoModal({
         <CardContent className="space-y-4">
           {/* Materia */}
           <div
-            className={`p-4 rounded-lg border-2 ${
-              style?.color || "bg-gray-800"
-            } ${style?.glowColor || ""}`}
+            className={`p-4 rounded-lg border-2 ${style?.color || "bg-gray-800"
+              } ${style?.glowColor || ""}`}
           >
             <h3
-              className={`font-bold text-sm uppercase tracking-wide ${
-                style?.textColor || "text-white"
-              } text-center`}
+              className={`font-bold text-sm uppercase tracking-wide ${style?.textColor || "text-white"
+                } text-center`}
             >
               {subject.subject}
             </h3>
@@ -443,13 +438,11 @@ function ScheduleTable({
             const top = visibleRowIndex * totalRowHeight;
             const left = 130 + roomIndex * 150 + roomIndex * 8; // 120px para columna hora + ancho columna + gaps
             const height = classInfo.rowSpan * totalRowHeight - gap;
-
             return (
               <div
                 key={`${timeSlot}-${room}-multi`}
-                className={`absolute rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                  style?.color || "bg-gray-800"
-                } ${style?.glowColor || ""} hover:scale-[1.02] hover:shadow-lg z-10`}
+                className={`absolute rounded-lg border-2 transition-all duration-200 cursor-pointer ${style?.color || "bg-gray-800"
+                  } ${style?.glowColor || ""} hover:scale-[1.02] hover:shadow-lg z-10`}
                 style={{
                   top: `${top}px`,
                   left: `${left}px`,
@@ -460,15 +453,17 @@ function ScheduleTable({
               >
                 <div className="p-3 h-full flex flex-col justify-center text-center">
                   <div
-                    className={`font-bold text-xs uppercase tracking-wide ${
-                      style?.textColor || "text-white"
-                    } line-clamp-2`}
+                    className={`font-bold text-xs uppercase tracking-wide ${style?.textColor || "text-white"
+                      } line-clamp-2`}
                   >
                     {classInfo.subject}
                   </div>
                   {classInfo.timeRange && (
                     <div className="text-xs mt-1 font-mono text-white">
-                      {classInfo.timeRange}
+                      {`${timeSlot}-${timeSlots[
+                        Math.min(timeIndex + (classInfo.rowSpan ?? 1), timeSlots.length - 1)
+                      ]
+                        }`}
                     </div>
                   )}
                 </div>
@@ -527,16 +522,14 @@ function ScheduleRow({
         return (
           <div
             key={room}
-            className={`p-3 rounded-lg flex items-center justify-center text-center border-2 transition-all duration-200 cursor-pointer ${
-              style?.color || "bg-gray-800"
-            } ${style?.glowColor || ""} hover:scale-[1.02] hover:shadow-lg`}
+            className={`p-3 rounded-lg flex items-center justify-center text-center border-2 transition-all duration-200 cursor-pointer ${style?.color || "bg-gray-800"
+              } ${style?.glowColor || ""} hover:scale-[1.02] hover:shadow-lg`}
             onClick={() => onSubjectClick(classInfo, room, timeSlot)}
           >
             <div className="w-full">
               <div
-                className={`font-bold text-xs uppercase tracking-wide ${
-                  style?.textColor || "text-white"
-                } line-clamp-2`}
+                className={`font-bold text-xs uppercase tracking-wide ${style?.textColor || "text-white"
+                  } line-clamp-2`}
               >
                 {classInfo.subject}
               </div>

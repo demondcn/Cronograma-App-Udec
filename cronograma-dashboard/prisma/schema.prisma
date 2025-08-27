@@ -90,6 +90,7 @@ model Horario {
   asignaturaId String
   aulaId      String
   profesorId  String?
+  cantidadSt  Int?
   creadoEn    DateTime     @default(now())
   actualizadoEn DateTime
   asistencias Asistencia[]
@@ -115,6 +116,7 @@ model Asistencia {
   verificadoPor String?
   horarioId    String
   asignaturaId String
+  cantasistida Int?
   aulaId       String
   profesorId   String?
   creadoEn     DateTime         @default(now())

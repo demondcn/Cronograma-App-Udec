@@ -18,6 +18,7 @@ interface AttendanceRecord {
   asignaturaId: string;
   aulaId: string;
   profesorId: string;
+  cantidadAsistida: number;
 }
 
 // Action para obtener las asistencias
@@ -35,6 +36,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
         asignaturaId: true,
         aulaId: true,
         profesorId: true,
+        cantasistida: true,
         profesor: {
           select: {
             nombre: true,
@@ -74,6 +76,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
       asignaturaId: asistencia.asignaturaId,
       aulaId: asistencia.aulaId,
       profesorId: asistencia.profesorId || '',
+      cantidadAsistida: asistencia.cantasistida || 0,
     }));
   } catch (error) {
     console.error('Error obteniendo asistencias:', error);

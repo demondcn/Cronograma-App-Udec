@@ -107,12 +107,12 @@ const mockAsignaturas = [
 ];
 
 const mockAulas = [
-  { id: 1, nombre: "C111"},
-  { id: 2, nombre: "C112"},
-  { id: 3, nombre: "C113"},
-  { id: 4, nombre: "C114"},
-  { id: 5, nombre: "C115"},
-  { id: 6, nombre: "A205"},
+  { id: 1, nombre: "C111" },
+  { id: 2, nombre: "C112" },
+  { id: 3, nombre: "C113" },
+  { id: 4, nombre: "C114" },
+  { id: 5, nombre: "C115" },
+  { id: 6, nombre: "A205" },
   { id: "xdd", nombre: "A206" },
 ];
 
@@ -184,7 +184,7 @@ export default function AgregarHorarioForm({
 }: AgregarHorarioFormProps) {
   const [isPending, startTransition] = useTransition()
   if (!isOpen) return null;
-    async function handleSubmit(formData: FormData) {
+  async function handleSubmit(formData: FormData) {
     startTransition(async () => {
       try {
         await CrearHorario(formData)   // llamas a tu server action
@@ -383,6 +383,22 @@ export default function AgregarHorarioForm({
                   id="grupo"
                   type="text"
                   placeholder="Ej: 101"
+                  className="border-2 border-red-400/50 focus:border-red-400 bg-gray-800/50 text-white"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="creditos"
+                  className="text-emerald-300 font-semibold font-mono"
+                >
+                  Cantidad
+                </Label>
+                <Input
+                  name="cantidad"
+                  id="cantidad"
+                  type="number"
+                  placeholder="Ej: 3"
                   className="border-2 border-red-400/50 focus:border-red-400 bg-gray-800/50 text-white"
                   required
                 />

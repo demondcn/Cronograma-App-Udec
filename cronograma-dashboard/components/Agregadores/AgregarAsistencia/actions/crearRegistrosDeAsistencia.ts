@@ -2,7 +2,7 @@
 import prisma from "@/lib/db";
 
 export interface CrearDatosDeAsistencia {
-  fecha: string;
+  fecha: Date;
   horaInicio: string;
   horaFin: string;
   estado: string;
@@ -11,6 +11,7 @@ export interface CrearDatosDeAsistencia {
   asignaturaId: string;
   aulaId: string;
   profesorId?: string;
+  cantasistida: number;
 }
 
 export async function crearRegistrosDeAsistencia(attendanceData: CrearDatosDeAsistencia[]) {
@@ -31,9 +32,9 @@ export async function crearRegistrosDeAsistencia(attendanceData: CrearDatosDeAsi
     const createdRecords = await Promise.all(
       validRecords.map(async (record) => {
         // Convertir la fecha del formato MM/DD/YYYY a Date
-        const [month, day, year] = record.fecha.split('/');
-        const fecha = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-
+        //const [month, day, year] = record.fecha.split('/');
+        //const fecha = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+        const fecha = record.fecha;
         return await prisma.asistencia.create({
           data: {
             fecha: fecha,
@@ -46,6 +47,7 @@ export async function crearRegistrosDeAsistencia(attendanceData: CrearDatosDeAsi
             aulaId: record.aulaId,
             profesorId: record.profesorId || null,
             actualizadoEn: new Date(),
+            cantasistida: record.cantidadAsistida
           },
           include: {
             profesor: true,
@@ -65,7 +67,7 @@ export async function crearRegistrosDeAsistencia(attendanceData: CrearDatosDeAsi
 
   } catch (error) {
     console.error("Error al crear registros de asistencia:", error);
-    
+
     // Manejar errores específicos
     if (error instanceof Error) {
       if (error.message.includes("Unique constraint failed")) {

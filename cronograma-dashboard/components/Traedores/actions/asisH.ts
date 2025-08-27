@@ -17,6 +17,7 @@ interface Asistencia {
   asignaturaId: string;
   aulaId: string;
   profesorId: string;
+  cantidad: number;
 }
 
 // Función para obtener los horarios de hoy
@@ -82,6 +83,7 @@ export async function AsistenciaHorario(): Promise<Asistencia[]> {
     asignaturaId: horario.asignatura.id,
     aulaId: horario.aula.id,
     profesorId: horario.profesor ? horario.profesor.id : id,
+    cantidadtotal: horario.cantidadSt
   }));
 
   return mockAttendanceForToday;

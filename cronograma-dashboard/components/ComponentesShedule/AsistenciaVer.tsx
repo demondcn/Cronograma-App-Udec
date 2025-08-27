@@ -47,6 +47,8 @@ interface AttendanceRecord {
   asignaturaId: string;
   aulaId: string;
   profesorId: string;
+  cantidadtotal: number;
+  cantidadAsistida?: number;
 }
 
 interface AttendanceViewProps {
@@ -70,8 +72,11 @@ export function AsistenciaVer({
   attendanceData,
   getSubjectStyle,
 }: AttendanceViewProps) {
+  //guardar asistencias nuevas
   const [currentRecords, setCurrentRecords] = useState<AttendanceRecord[]>(attendanceData);
+  //asistencias guardadas
   const [savedRecords, setSavedRecords] = useState<AttendanceRecord[]>([]);
+  //otras cuestiones
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -109,6 +114,18 @@ export function AsistenciaVer({
       )
     );
   };
+  const handleCantidadAsistidaChange = (
+    recordId: string,
+    newCantidad: number
+  ) => {
+    setCurrentRecords((prev) => // Cambia savedRecords por currentRecords
+      prev.map((record) =>
+        record.id === recordId
+          ? { ...record, cantidadAsistida: newCantidad }
+          : record
+      )
+    );
+  };
 
   const handleObservationsChange = (
     recordId: string,
@@ -139,19 +156,29 @@ export function AsistenciaVer({
 
       // Transformar los datos al formato esperado por el action
       const attendanceDataToSave: CrearDatosDeAsistencia[] = validRecords.map(
-        (record) => ({
-          fecha: record.fecha,
-          horaInicio: record.horaInicio,
-          horaFin: record.horaFin,
-          estado: record.estadoAsistencia,
-          observaciones: record.observaciones,
-          horarioId: record.horarioId,
-          asignaturaId: record.asignaturaId,
-          aulaId: record.aulaId,
-          profesorId: record.profesorId,
-        })
-      );
+        (record) => {
+          // Convertir la fecha string a Date object válido
+          let fechaObj = new Date(record.fecha);
+          if (isNaN(fechaObj.getTime())) {
+            // Si la fecha es inválida, usar fecha actual
+            fechaObj = new Date();
+          }
 
+          return {
+            fecha: fechaObj, // Enviar objeto Date, no string
+            horaInicio: record.horaInicio,
+            horaFin: record.horaFin,
+            estado: record.estadoAsistencia,
+            observaciones: record.observaciones,
+            horarioId: record.horarioId,
+            asignaturaId: record.asignaturaId,
+            aulaId: record.aulaId,
+            profesorId: record.profesorId,
+            cantasistida: record.cantidadAsistida || 0,
+          }
+        }
+      );
+      console.log(attendanceDataToSave)
       // Llamar al action para guardar en la base de datos
       const result = await crearRegistrosDeAsistencia(attendanceDataToSave);
 
@@ -159,7 +186,7 @@ export function AsistenciaVer({
         // Recargar los datos después de guardar
         await reloadAttendanceData();
         await reloadSavedAttendances();
-        
+
         alert("Asistencias guardadas correctamente.");
       } else {
         // Mostrar mensaje de error
@@ -271,7 +298,7 @@ export function AsistenciaVer({
             <>
               <div className="overflow-x-auto mb-6">
                 <div className="min-w-[1200px]">
-                  <div className="grid grid-cols-8 gap-2 mb-3">
+                  <div className="grid grid-cols-10 gap-2 mb-3">
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                       FECHA
                     </div>
@@ -294,6 +321,12 @@ export function AsistenciaVer({
                       SALA
                     </div>
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                      TOTAL ESTUDIANTES
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                      ASISTENCIA ESTUDIANTES
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                       OBSERVACIONES
                     </div>
                   </div>
@@ -306,7 +339,7 @@ export function AsistenciaVer({
                     return (
                       <div
                         key={record.id}
-                        className="grid grid-cols-8 gap-2 mb-2"
+                        className="grid grid-cols-10 gap-2 mb-2"
                       >
                         <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                           {record.fecha}
@@ -353,6 +386,22 @@ export function AsistenciaVer({
                         </div>
                         <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                           {record.sala}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.cantidadtotal}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          <Input
+                            type="number"
+                            value={record.cantidadAsistida || 0} // Cambia "" por 0
+                            onChange={(e) => handleCantidadAsistidaChange(
+                              record.id,
+                              parseInt(e.target.value) || 0
+                            )}
+                            placeholder="0"
+                            className="border-cyan-400/30 focus:border-blue-500 text-blue-800 text-sm bg-white/80 text-center"
+                            min="0"
+                          />
                         </div>
                         <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                           <Input
@@ -457,7 +506,7 @@ export function AsistenciaVer({
 
           <div className="overflow-x-auto">
             <div className="min-w-[1200px]">
-              <div className="grid grid-cols-8 gap-2 mb-3">
+              <div className="grid grid-cols-9 gap-2 mb-3">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   FECHA
                 </div>
@@ -480,6 +529,9 @@ export function AsistenciaVer({
                   SALA
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  ASISTENCIA EST
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   OBSERVACIONES
                 </div>
               </div>
@@ -488,11 +540,11 @@ export function AsistenciaVer({
                 const subjectStyle = getSubjectStyle(record.materiaAsignada);
                 const statusInfo =
                   ATTENDANCE_STATUS[
-                    record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
+                  record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
                   ];
 
                 return (
-                  <div key={record.id} className="grid grid-cols-8 gap-2 mb-2">
+                  <div key={record.id} className="grid grid-cols-9 gap-2 mb-2">
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.fecha}
                     </div>
@@ -516,9 +568,8 @@ export function AsistenciaVer({
                       <div className="flex items-center gap-2">
                         {getStatusIcon(record.estadoAsistencia)}
                         <span
-                          className={`font-medium text-sm ${
-                            statusInfo?.color || "text-gray-400"
-                          }`}
+                          className={`font-medium text-sm ${statusInfo?.color || "text-gray-400"
+                            }`}
                         >
                           {statusInfo?.label || record.estadoAsistencia}
                         </span>
@@ -526,6 +577,9 @@ export function AsistenciaVer({
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.sala}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.cantidadAsistida}
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.observaciones}

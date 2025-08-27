@@ -11,6 +11,8 @@ export async function CrearHorario(formData: FormData) {
   const asignaturaId = formData.get("asignaturaId") as string;
   const aulaId = formData.get("aulaId") as string;
   const profesorId = formData.get("profesorId") as string;
+  const cantidad = formData.get("cantidad") as string;
+  const cantidadint = parseInt(cantidad as string, 10)
 
   const Horas = [
     { id: 1, hora: "07:00" },
@@ -52,6 +54,7 @@ export async function CrearHorario(formData: FormData) {
         profesorId,
         actualizadoEn: new Date(),
         activo: true,
+        cantidadSt: cantidadint,
       }
     });
 
