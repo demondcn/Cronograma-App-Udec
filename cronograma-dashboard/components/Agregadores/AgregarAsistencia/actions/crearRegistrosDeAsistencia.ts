@@ -47,7 +47,7 @@ export async function crearRegistrosDeAsistencia(attendanceData: CrearDatosDeAsi
             aulaId: record.aulaId,
             profesorId: record.profesorId || null,
             actualizadoEn: new Date(),
-            cantasistida: record.cantidadAsistida
+            cantasistida: record.cantasistida || 0
           },
           include: {
             profesor: true,

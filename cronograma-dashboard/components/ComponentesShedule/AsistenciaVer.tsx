@@ -31,7 +31,7 @@ import {
 import { obtenerAsistencias } from "./../Traedores/actions/asistenciasid";
 // Importar la función para obtener horarios sin asistencia
 import { AsistenciaHorario } from "./../Traedores/actions/asisH";
-
+import * as XLSX from 'xlsx';
 interface AttendanceRecord {
   id: string;
   fecha: string;
@@ -118,7 +118,7 @@ export function AsistenciaVer({
     recordId: string,
     newCantidad: number
   ) => {
-    setCurrentRecords((prev) => // Cambia savedRecords por currentRecords
+    setCurrentRecords((prev) =>
       prev.map((record) =>
         record.id === recordId
           ? { ...record, cantidadAsistida: newCantidad }
@@ -228,43 +228,54 @@ export function AsistenciaVer({
       });
     }
 
-    const headers = [
-      "Fecha",
-      "Hora Inicio",
-      "Hora Fin",
-      "Materia Asignada",
-      "Profe Asignado",
-      "Estado Asistencia",
-      "Sala",
-      "Observaciones",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...filteredRecords.map((record) =>
-        [
-          record.fecha,
-          record.horaInicio,
-          record.horaFin,
-          `"${record.materiaAsignada}"`,
-          `"${record.profeAsignado}"`,
-          ATTENDANCE_STATUS[
-            record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
-          ]?.label || record.estadoAsistencia,
-          record.sala,
-          `"${record.observaciones}"`,
-        ].join(",")
-      ),
-    ].join("\n");
+    // Preparar datos para Excel
+    const excelData = filteredRecords.map((record) => ({
+      'Fecha': record.fecha,
+      'Hora Inicio': record.horaInicio,
+      'Hora Fin': record.horaFin,
+      'Materia': record.materiaAsignada,
+      'Profesor': record.profeAsignado,
+      'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
+      'Sala': record.sala,
+      'Total Estudiantes': record.cantidadtotal,
+      'Asistencia Estudiantes': record.cantidadAsistida || 0,
+      'Observaciones': record.observaciones || ''
+    }));
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
+    // Crear libro de trabajo de Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Ajustar el ancho de las columnas automáticamente
+    const columnWidths = [
+      { wch: 12 }, // Fecha
+      { wch: 10 }, // Hora Inicio
+      { wch: 10 }, // Hora Fin
+      { wch: 25 }, // Materia
+      { wch: 20 }, // Profesor
+      { wch: 15 }, // Estado
+      { wch: 10 }, // Sala
+      { wch: 15 }, // Total Estudiantes
+      { wch: 18 }, // Asistencia Estudiantes
+      { wch: 30 }  // Observaciones
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Agregar hoja al libro
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
+
+    // Crear archivo
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Descargar archivo
+    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `asistencias_${startDate || "todas"}_${endDate || "hasta_hoy"}.csv`
-    );
-    link.style.visibility = "hidden";
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `asistencias_${new Date().toISOString().split('T')[0]}.xlsx`);
+    link.style.visibility = 'hidden';
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -331,102 +342,93 @@ export function AsistenciaVer({
                     </div>
                   </div>
 
-                  {currentRecords
-                    .sort((a, b) => {
-                      // Convertir horas a minutos para comparar numéricamente
-                      const timeToMinutes = (time: string) => {
-                        const [hours, minutes] = time.split(':').map(Number);
-                        return hours * 60 + minutes;
-                      };
+                  {currentRecords.map((record) => {
+                    const subjectStyle = getSubjectStyle(
+                      record.materiaAsignada
+                    );
 
-                      return timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio);
-                    })
-                    .map((record) => {
-                      const subjectStyle = getSubjectStyle(record.materiaAsignada);
-
-                      return (
+                    return (
+                      <div
+                        key={record.id}
+                        className="grid grid-cols-10 gap-2 mb-2"
+                      >
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.fecha}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.horaInicio}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.horaFin}
+                        </div>
                         <div
-                          key={record.id}
-                          className="grid grid-cols-10 gap-2 mb-2"
+                          className={`p-3 rounded-lg flex items-center justify-center text-xs text-center border-2 shadow-sm ${subjectStyle.color} ${subjectStyle.textColor}`}
                         >
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.fecha}
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.horaInicio}
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.horaFin}
-                          </div>
-                          <div
-                            className={`p-3 rounded-lg flex items-center justify-center text-xs text-center border-2 shadow-sm ${subjectStyle.color} ${subjectStyle.textColor}`}
-                          >
-                            <div className="font-semibold leading-tight">
-                              {record.materiaAsignada}
-                            </div>
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.profeAsignado}
-                          </div>
-                          <div className="bg-blue-50/90 border border-blue-200 p-3 rounded-lg flex items-center justify-center shadow-sm">
-                            <Select
-                              value={record.estadoAsistencia}
-                              onValueChange={(value) =>
-                                handleStatusChange(record.id, value)
-                              }
-                            >
-                              <SelectTrigger className="w-full border-blue-300 focus:border-blue-500">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(ATTENDANCE_STATUS).map(
-                                  ([key, status]) => (
-                                    <SelectItem key={key} value={key}>
-                                      <div className="flex items-center gap-2">
-                                        {getStatusIcon(key)}
-                                        {status.label}
-                                      </div>
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.sala}
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            {record.cantidadtotal}
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            <Input
-                              type="number"
-                              value={record.cantidadAsistida || 0} // Cambia "" por 0
-                              onChange={(e) => handleCantidadAsistidaChange(
-                                record.id,
-                                parseInt(e.target.value) || 0
-                              )}
-                              placeholder="0"
-                              className="border-cyan-400/30 focus:border-blue-500 text-blue-800 text-sm bg-white/80 text-center"
-                              min="0"
-                            />
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            <Input
-                              value={record.observaciones}
-                              onChange={(e) =>
-                                handleObservationsChange(
-                                  record.id,
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Agregar observaciones..."
-                              className="border-cyan-400/30 focus:border-blue-500 text-blue-800 text-sm bg-white/80"
-                            />
+                          <div className="font-semibold leading-tight">
+                            {record.materiaAsignada}
                           </div>
                         </div>
-                      );
-                    })}
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.profeAsignado}
+                        </div>
+                        <div className="bg-blue-50/90 border border-blue-200 p-3 rounded-lg flex items-center justify-center shadow-sm">
+                          <Select
+                            value={record.estadoAsistencia}
+                            onValueChange={(value) =>
+                              handleStatusChange(record.id, value)
+                            }
+                          >
+                            <SelectTrigger className="w-full border-blue-300 focus:border-blue-500">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(ATTENDANCE_STATUS).map(
+                                ([key, status]) => (
+                                  <SelectItem key={key} value={key}>
+                                    <div className="flex items-center gap-2">
+                                      {getStatusIcon(key)}
+                                      {status.label}
+                                    </div>
+                                  </SelectItem>
+                                )
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.sala}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          {record.cantidadtotal}
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          <Input
+                            type="number"
+                            value={record.cantidadAsistida || 0} // Cambia "" por 0
+                            onChange={(e) => handleCantidadAsistidaChange(
+                              record.id,
+                              parseInt(e.target.value) || 0
+                            )}
+                            min="0"
+                            max={record.cantidadtotal}
+                          />
+                        </div>
+                        <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                          <Input
+                            value={record.observaciones}
+                            onChange={(e) =>
+                              handleObservationsChange(
+                                record.id,
+                                e.target.value
+                              )
+                            }
+                            placeholder="Agregar observaciones..."
+                            className="border-cyan-400/30 focus:border-blue-500 text-blue-800 text-sm bg-white/80"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
