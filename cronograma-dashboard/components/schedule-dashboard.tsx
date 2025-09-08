@@ -469,6 +469,8 @@ export function ScheduleDashboard() {
 
           processed[timeSlot][room] = {
             subject: classInfo.subject,
+            professor: classInfo.professor,
+            group: classInfo.group,
             isMultiHour: true,
             rowSpan: classInfo.duration,
             timeRange: `${timeSlot}-${endTime}`,
@@ -486,6 +488,8 @@ export function ScheduleDashboard() {
           // Clase de una hora
           processed[timeSlot][room] = {
             subject: classInfo.subject,
+            professor: classInfo.professor,
+            group: classInfo.group,
             isMultiHour: false,
             rowSpan: 1,
           };
@@ -803,11 +807,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "schedule"
-                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "schedule"
+                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -815,11 +818,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "attendance"
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "attendance"
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -827,11 +829,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "realtime"
-                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "realtime"
+                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -839,11 +840,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "subjects"
-                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "subjects"
+                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+                }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
