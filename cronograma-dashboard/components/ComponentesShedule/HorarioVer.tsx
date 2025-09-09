@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Calendar, Filter, X, User, Users } from "lucide-react";
 import { useState, useMemo } from "react";
+
 import { debugHorarios } from "@/components/Traedores/actions/debugHorarios";
 interface ScheduleViewProps {
   selectedDay: string;
@@ -82,7 +83,7 @@ export function HorarioVer({
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Botón para recargar la página */}
-      <div className="flex justify-end">
+      {/* <div className="flex justify-end">
         <Button
           size="sm"
           variant="outline"
@@ -112,7 +113,7 @@ export function HorarioVer({
         >
           Debug Horarios DB
         </Button>
-      </div>
+      </div> */}
       {/* Selector de día */}
       <Card className="bg-gray-900/30 backdrop-blur-sm border-cyan-500/30 shadow-lg shadow-cyan-500/20">
         <CardHeader className="pb-3">

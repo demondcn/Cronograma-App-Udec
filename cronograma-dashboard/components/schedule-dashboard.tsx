@@ -16,7 +16,7 @@ import { materiaH } from "./Traedores/actions/materiaH";
 import { AsistenciaHorario } from "./Traedores/actions/asisH";
 import { Colores } from "./Traedores/actions/colortraedor";
 //iconos
-import { Calendar, Users, Play, BookOpen } from "lucide-react";
+import { Calendar, Users, Play, BookOpen, Lock } from "lucide-react";
 import { Navegador } from "./ComponentesShedule/NavegadorInicio";
 
 // const subjectCategories = {
@@ -432,6 +432,11 @@ export function ScheduleDashboard() {
   const [isModalOpenProgram, setIsModalOpenProgram] = useState(false);
   const [isModalOpenProfe, setIsModalOpenProfe] = useState(false);
   const [isModalOpenHorario, setIsModalOpenHorario] = useState(false);
+  // Nuevos estados para autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [authError, setAuthError] = useState("");
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -452,6 +457,28 @@ export function ScheduleDashboard() {
       textColor: "text-gray-100",
     };
   };
+  // Función para manejar el clic en el botón de gestión de materias
+  const handleSubjectsClick = () => {
+    if (isAuthenticated) {
+      setActiveView("subjects");
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+  // Función para verificar la contraseña
+  const handlePasswordSubmit = () => {
+    if (passwordInput === "70407") {
+      setIsAuthenticated(true);
+      setShowAuthModal(false);
+      setActiveView("subjects");
+      setAuthError("");
+      setPasswordInput("");
+    } else {
+      setAuthError("Contraseña incorrecta. Intenta nuevamente.");
+    }
+  };
+  //procesador de horarios
+
   const getProcessedSchedule = (daySchedule: any) => {
     const processed: any = {};
 
@@ -807,10 +834,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${activeView === "schedule"
-                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "schedule"
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -818,10 +846,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${activeView === "attendance"
-                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "attendance"
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -829,28 +858,75 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${activeView === "realtime"
-                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "realtime"
+                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+              }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
             </Button>
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
-              onClick={() => setActiveView("subjects")}
-              className={`font-mono transition-all duration-300 ${activeView === "subjects"
-                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-                }`}
+              onClick={handleSubjectsClick}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "subjects"
+                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+              }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
+              {!isAuthenticated && <Lock className="w-3 h-3 ml-2" />}
             </Button>
           </div>
         </CardContent>
       </Card>
+      {/* Modal de autenticación*/}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg border border-orange-500/50 w-80">
+            <h3 className="text-lg font-bold text-orange-400 mb-4 flex items-center">
+              <Lock className="w-5 h-5 mr-2" />
+              Autenticación Requerida
+            </h3>
+            <p className="text-gray-300 mb-4">
+              Ingresa la contraseña para acceder a la gestión de materias:
+            </p>
+            <input
+              type="password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white mb-2"
+              placeholder="Contraseña"
+              onKeyPress={(e) => e.key === "Enter" && handlePasswordSubmit()}
+            />
+            {authError && (
+              <p className="text-red-400 text-sm mb-3">{authError}</p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAuthModal(false);
+                  setPasswordInput("");
+                  setAuthError("");
+                }}
+                className="text-gray-300 border-gray-600 hover:bg-gray-700"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handlePasswordSubmit}
+                className="bg-orange-500 hover:bg-orange-400 text-black"
+              >
+                Acceder
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeView === "subjects" ? (
         <>
