@@ -232,7 +232,7 @@ export function HorarioVer({
 
       {/* Tabla de horario */}
       <Card className="bg-gray-900/20 backdrop-blur-md border-cyan-400/30 shadow-2xl shadow-cyan-500/10">
-        <CardHeader className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-md pb-3">
+        <CardHeader className="sticky top-0 z-10 bg-gray-900/20 backdrop-blur-md pb-3">
           <CardTitle className="capitalize text-cyan-300 font-mono text-lg sm:text-xl">
             CRONOGRAMA - {selectedDay.toUpperCase()}
             {selectedRoom && ` - SALA ${selectedRoom}`}

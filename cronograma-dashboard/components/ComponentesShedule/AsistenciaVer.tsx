@@ -105,43 +105,40 @@ export function AsistenciaVer({
     }
   };
 
-  const handleStatusChange = (recordId: string, newStatus: string) => {
-    setCurrentRecords((prev) =>
-      prev.map((record) =>
-        record.id === recordId
-          ? { ...record, estadoAsistencia: newStatus }
-          : record
-      )
-    );
-  };
   const handleCantidadAsistidaChange = (
     recordId: string,
-    newCantidad: number
+    newCantidad: string
   ) => {
+    // Convertir a número, si está vacío usar 0
+    const cantidadNum = newCantidad === "" ? 0 : parseInt(newCantidad) || 0;
+
     setCurrentRecords((prev) =>
       prev.map((record) =>
         record.id === recordId
-          ? { ...record, cantidadAsistida: newCantidad }
+          ? {
+            ...record,
+            cantidadAsistida: cantidadNum,
+            estadoAsistencia: cantidadNum > 0 ? "ASISTIO" : record.estadoAsistencia
+          }
           : record
       )
     );
   };
 
-  const handleObservationsChange = (
-    recordId: string,
-    newObservations: string
-  ) => {
-    setCurrentRecords((prev) =>
-      prev.map((record) =>
-        record.id === recordId
-          ? { ...record, observaciones: newObservations }
-          : record
-      )
-    );
-  };
 
   const handleSave = async () => {
     try {
+      // Validar que los registros con estado ASISTIO tengan cantidadAsistida > 0
+      const invalidRecords = currentRecords.filter(
+        record => record.estadoAsistencia === "ASISTIO" &&
+          (!record.cantidadAsistida || record.cantidadAsistida <= 0)
+      );
+
+      if (invalidRecords.length > 0) {
+        alert("Los registros marcados como 'ASISTIÓ' deben tener un número mayor a 0 en 'ASISTENCIA ESTUDIANTES'.");
+        return;
+      }
+
       // Filtrar solo los registros que tienen un estado de asistencia válido
       const validRecords = currentRecords.filter(
         (record) =>
@@ -178,7 +175,7 @@ export function AsistenciaVer({
           }
         }
       );
-      console.log(attendanceDataToSave)
+
       // Llamar al action para guardar en la base de datos
       const result = await crearRegistrosDeAsistencia(attendanceDataToSave);
 
@@ -206,79 +203,6 @@ export function AsistenciaVer({
     if (!statusInfo) return null;
     const Icon = statusInfo.icon;
     return <Icon className={`w-4 h-4 ${statusInfo.color}`} />;
-  };
-
-  const exportToExcel = () => {
-    let filteredRecords = savedRecords;
-
-    if (startDate || endDate) {
-      filteredRecords = savedRecords.filter((record) => {
-        const recordDate = new Date(record.fecha);
-        const start = startDate ? new Date(startDate) : null;
-        const end = endDate ? new Date(endDate) : null;
-
-        if (start && end) {
-          return recordDate >= start && recordDate <= end;
-        } else if (start) {
-          return recordDate >= start;
-        } else if (end) {
-          return recordDate <= end;
-        }
-        return true;
-      });
-    }
-
-    // Preparar datos para Excel
-    const excelData = filteredRecords.map((record) => ({
-      'Fecha': record.fecha,
-      'Hora Inicio': record.horaInicio,
-      'Hora Fin': record.horaFin,
-      'Materia': record.materiaAsignada,
-      'Profesor': record.profeAsignado,
-      'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
-      'Sala': record.sala,
-      'Total Estudiantes': record.cantidadtotal,
-      'Asistencia Estudiantes': record.cantidadAsistida || 0,
-      'Observaciones': record.observaciones || ''
-    }));
-
-    // Crear libro de trabajo de Excel
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-    // Ajustar el ancho de las columnas automáticamente
-    const columnWidths = [
-      { wch: 12 }, // Fecha
-      { wch: 10 }, // Hora Inicio
-      { wch: 10 }, // Hora Fin
-      { wch: 25 }, // Materia
-      { wch: 20 }, // Profesor
-      { wch: 15 }, // Estado
-      { wch: 10 }, // Sala
-      { wch: 15 }, // Total Estudiantes
-      { wch: 18 }, // Asistencia Estudiantes
-      { wch: 30 }  // Observaciones
-    ];
-    worksheet['!cols'] = columnWidths;
-
-    // Agregar hoja al libro
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
-
-    // Crear archivo
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-    // Descargar archivo
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `asistencias_${new Date().toISOString().split('T')[0]}.xlsx`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   useEffect(() => {
@@ -309,7 +233,7 @@ export function AsistenciaVer({
             <>
               <div className="overflow-x-auto mb-6">
                 <div className="min-w-[1200px]">
-                  <div className="grid grid-cols-10 gap-2 mb-3">
+                  <div className="grid grid-cols-8 gap-2 mb-3">
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                       FECHA
                     </div>
@@ -326,9 +250,6 @@ export function AsistenciaVer({
                       PROFE ASIGNADO
                     </div>
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
-                      ESTADO ASISTENCIA
-                    </div>
-                    <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                       SALA
                     </div>
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
@@ -336,9 +257,6 @@ export function AsistenciaVer({
                     </div>
                     <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                       ASISTENCIA ESTUDIANTES
-                    </div>
-                    <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-3 text-center font-semibold rounded-lg shadow-md">
-                      OBSERVACIONES
                     </div>
                   </div>
 
@@ -358,7 +276,7 @@ export function AsistenciaVer({
                       return (
                         <div
                           key={record.id}
-                          className="grid grid-cols-10 gap-2 mb-2"
+                          className="grid grid-cols-8 gap-2 mb-2"
                         >
                           <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                             {record.fecha}
@@ -379,30 +297,6 @@ export function AsistenciaVer({
                           <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                             {record.profeAsignado}
                           </div>
-                          <div className="bg-blue-50/90 border border-blue-200 p-3 rounded-lg flex items-center justify-center shadow-sm">
-                            <Select
-                              value={record.estadoAsistencia}
-                              onValueChange={(value) =>
-                                handleStatusChange(record.id, value)
-                              }
-                            >
-                              <SelectTrigger className="w-full border-blue-300 focus:border-blue-500">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(ATTENDANCE_STATUS).map(
-                                  ([key, status]) => (
-                                    <SelectItem key={key} value={key}>
-                                      <div className="flex items-center gap-2">
-                                        {getStatusIcon(key)}
-                                        {status.label}
-                                      </div>
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </div>
                           <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                             {record.sala}
                           </div>
@@ -411,27 +305,18 @@ export function AsistenciaVer({
                           </div>
                           <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                             <Input
-                              type="number"
-                              value={record.cantidadAsistida || 0} // Cambia "" por 0
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={record.cantidadAsistida === undefined ? "" : record.cantidadAsistida}
                               onChange={(e) => handleCantidadAsistidaChange(
                                 record.id,
-                                parseInt(e.target.value) || 0
+                                e.target.value
                               )}
+                              placeholder="0"
                               min="0"
                               max={record.cantidadtotal}
-                            />
-                          </div>
-                          <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
-                            <Input
-                              value={record.observaciones}
-                              onChange={(e) =>
-                                handleObservationsChange(
-                                  record.id,
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Agregar observaciones..."
-                              className="border-cyan-400/30 focus:border-blue-500 text-blue-800 text-sm bg-white/80"
+                              className="text-center"
                             />
                           </div>
                         </div>
