@@ -28,9 +28,9 @@ import {
   CrearDatosDeAsistencia,
 } from "../Agregadores/AgregarAsistencia/actions/crearRegistrosDeAsistencia";
 //Traedores de info
-import { obtenerAsistencias } from "./../Traedores/actions/asistenciasid";
+import { obtenerAsistencias } from "../Traedores/actions/asistenciasid";
 // Importar la función para obtener horarios sin asistencia
-import { AsistenciaHorario } from "./../Traedores/actions/asisH";
+import { AsistenciaHorario } from "../Traedores/actions/asisH";
 import * as XLSX from 'xlsx';
 interface AttendanceRecord {
   id: string;
@@ -68,7 +68,7 @@ const ATTENDANCE_STATUS = {
   CANCELADA: { label: "CANCELADA", icon: FileX, color: "text-gray-600" },
 };
 
-export function AsistenciaVer({
+export function AsistenciaAdmin({
   attendanceData,
   getSubjectStyle,
 }: AttendanceViewProps) {
@@ -464,6 +464,155 @@ export function AsistenciaVer({
               </Button>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-gray-900/20 backdrop-blur-md border-cyan-400/30 shadow-2xl shadow-orange-500/10 mt-6">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-cyan-300 font-semibold text-xl flex items-center gap-2">
+              <Archive className="w-6 h-6" />
+              ASISTENCIAS GUARDADAS
+            </CardTitle>
+            <Button
+              onClick={reloadSavedAttendances}
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              ACTUALIZAR
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6 p-4 bg-gray-900/50 rounded-lg border border-cyan-400/30">
+            <h3 className="text-cyan-300 font-semibold mb-3 flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Filtrar por Fecha para Exportar
+            </h3>
+            <div className="flex gap-4 items-center flex-wrap">
+              <div className="flex items-center gap-2">
+                <label className="text-cyan-300 font-medium text-sm">
+                  Desde:
+                </label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border-cyan-400/50 focus:border-cyan-400 bg-gray-900/30 text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-cyan-300 font-medium text-sm">
+                  Hasta:
+                </label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="border-cyan-400/50 focus:border-cyan-400 bg-gray-900/30 text-white"
+                />
+              </div>
+              <Button
+                onClick={exportToExcel}
+                className="bg-gradient-to-r from-cyan-500 to-cyan-500 hover:from-blue-600 hover:to-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                DESCARGAR EXCEL
+              </Button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <div className="min-w-[1200px]">
+              <div className="grid grid-cols-9 gap-2 mb-3">
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  FECHA
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  HORA INICIO
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  HORA FIN
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  MATERIA ASIGNADA
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  PROFE ASIGNADO
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  ESTADO ASISTENCIA
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  SALA
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  ASISTENCIA EST
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  OBSERVACIONES
+                </div>
+              </div>
+
+              {savedRecords.map((record) => {
+                const subjectStyle = getSubjectStyle(record.materiaAsignada);
+                const statusInfo =
+                  ATTENDANCE_STATUS[
+                  record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
+                  ];
+
+                return (
+                  <div key={record.id} className="grid grid-cols-9 gap-2 mb-2">
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.fecha}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.horaInicio}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.horaFin}
+                    </div>
+                    <div
+                      className={`p-3 rounded-lg flex items-center justify-center text-xs text-center border-2 shadow-sm ${subjectStyle.color} ${subjectStyle.textColor}`}
+                    >
+                      <div className="font-semibold leading-tight">
+                        {record.materiaAsignada}
+                      </div>
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.profeAsignado}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center shadow-sm">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(record.estadoAsistencia)}
+                        <span
+                          className={`font-medium text-sm ${statusInfo?.color || "text-gray-400"
+                            }`}
+                        >
+                          {statusInfo?.label || record.estadoAsistencia}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.sala}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.cantidadAsistida}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.observaciones}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {savedRecords.length === 0 && (
+                <div className="text-center py-8 text-cyan-300">
+                  <p className="text-lg font-semibold">No hay asistencias guardadas.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </>

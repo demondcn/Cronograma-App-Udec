@@ -5,6 +5,7 @@ import { HorarioVer } from "./ComponentesShedule/HorarioVer";
 import { AsistenciaVer } from "./ComponentesShedule/AsistenciaVer";
 import { VistaTiempoReal } from "./ComponentesShedule/VistaTiempoReal";
 import { MateriasVer } from "./ComponentesShedule/MateriasVer";
+import { AsistenciaAdmin } from "./ComponentesShedule/AsistenciaAdmin"
 //
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -417,7 +418,7 @@ export function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState("lunes");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<
-    "schedule" | "attendance" | "realtime" | "subjects"
+    "schedule" | "attendance" | "realtime" | "subjects" | "adminasis"
   >("schedule");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set());
@@ -432,11 +433,13 @@ export function ScheduleDashboard() {
   const [isModalOpenProgram, setIsModalOpenProgram] = useState(false);
   const [isModalOpenProfe, setIsModalOpenProfe] = useState(false);
   const [isModalOpenHorario, setIsModalOpenHorario] = useState(false);
+  // Estados para autenticación
   // Nuevos estados para autenticación
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
+  const [targetView, setTargetView] = useState<"subjects" | "adminasis" | null>(null);
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -457,20 +460,24 @@ export function ScheduleDashboard() {
       textColor: "text-gray-100",
     };
   };
-  // Función para manejar el clic en el botón de gestión de materias
-  const handleSubjectsClick = () => {
+  // Función para manejar el clic en botones que requieren autenticación
+  const handleAuthRequiredClick = (view: "subjects" | "adminasis") => {
     if (isAuthenticated) {
-      setActiveView("subjects");
+      setActiveView(view);
     } else {
+      setTargetView(view);
       setShowAuthModal(true);
     }
   };
+  // Función para verificar la contraseña
   // Función para verificar la contraseña
   const handlePasswordSubmit = () => {
     if (passwordInput === "70407") {
       setIsAuthenticated(true);
       setShowAuthModal(false);
-      setActiveView("subjects");
+      if (targetView) {
+        setActiveView(targetView);
+      }
       setAuthError("");
       setPasswordInput("");
     } else {
@@ -834,11 +841,10 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "schedule"
-                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "schedule"
+                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -846,35 +852,45 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "attendance"
-                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "attendance"
+                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+                }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
             </Button>
+
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "realtime"
-                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-              }`}
+              className={`font-mono transition-all duration-300 ${activeView === "realtime"
+                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+                }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
             </Button>
             <Button
+              variant={activeView === "adminasis" ? "default" : "outline"}
+              onClick={() => handleAuthRequiredClick("adminasis")}
+              className={`font-mono transition-all duration-300 ${activeView === "adminasis"
+                ? "bg-red-500 hover:bg-red-400 text-black shadow-lg shadow-red-500/50"
+                : "border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
+                }`}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              CONTROL DE ASISTENCIA
+              {!isAuthenticated && <Lock className="w-3 h-3 ml-2" />}
+            </Button>
+            <Button
               variant={activeView === "subjects" ? "default" : "outline"}
-              onClick={handleSubjectsClick}
-              className={`font-mono transition-all duration-300 ${
-                activeView === "subjects"
-                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-              }`}
+              onClick={() => handleAuthRequiredClick("subjects")}
+              className={`font-mono transition-all duration-300 ${activeView === "subjects"
+                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+                }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -892,7 +908,7 @@ export function ScheduleDashboard() {
               Autenticación Requerida
             </h3>
             <p className="text-gray-300 mb-4">
-              Ingresa la contraseña para acceder a la gestión de materias:
+              Ingresa la contraseña para acceder a {targetView === "subjects" ? "gestión de materias" : "control de asistencia"}:
             </p>
             <input
               type="password"
@@ -900,7 +916,7 @@ export function ScheduleDashboard() {
               onChange={(e) => setPasswordInput(e.target.value)}
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white mb-2"
               placeholder="Contraseña"
-              onKeyPress={(e) => e.key === "Enter" && handlePasswordSubmit()}
+              onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
             />
             {authError && (
               <p className="text-red-400 text-sm mb-3">{authError}</p>
@@ -912,6 +928,7 @@ export function ScheduleDashboard() {
                   setShowAuthModal(false);
                   setPasswordInput("");
                   setAuthError("");
+                  setTargetView(null);
                 }}
                 className="text-gray-300 border-gray-600 hover:bg-gray-700"
               >
@@ -962,6 +979,11 @@ export function ScheduleDashboard() {
           rooms={rooms}
           currentSchedule={currentSchedule}
           timeSlots={timeSlots}
+          getSubjectStyle={getSubjectStyle}
+        />
+      ) : activeView === "adminasis" ? (
+        <AsistenciaAdmin
+          attendanceData={asistenciaH}
           getSubjectStyle={getSubjectStyle}
         />
       ) : (
