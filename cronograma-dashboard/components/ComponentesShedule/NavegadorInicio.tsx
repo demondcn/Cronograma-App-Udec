@@ -11,7 +11,7 @@ export const Navegador = () => {
             </div>
             <div className="flex items-center gap-2 text-sm text-cyan-400 bg-gray-900/50 px-4 py-2 rounded-lg border border-cyan-500/30">
                 <Calendar className="w-4 h-4" />
-                <span className="font-mono">SEMESTRE 2025-1</span>
+                <span className="font-mono">SEMESTRE 2025-2</span>
             </div>
         </div>
     );
