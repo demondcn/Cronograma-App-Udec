@@ -19,6 +19,7 @@ interface AttendanceRecord {
   aulaId: string;
   profesorId: string;
   cantidadAsistida: number;
+  programaNombre: string;
 }
 
 // Action para obtener las asistencias
@@ -55,10 +56,16 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
         asignatura: {
           select: {
             nombre: true,
+            programa: { // Incluir el programa relacionado
+              select: {
+                nombre: true,
+              }
+            }
           }
         },
       },
     });
+
 
     // Transformar los datos a la estructura deseada
     return asistencias.map((asistencia) => ({
@@ -77,6 +84,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
       aulaId: asistencia.aulaId,
       profesorId: asistencia.profesorId || '',
       cantidadAsistida: asistencia.cantasistida || 0,
+      programaNombre: asistencia.asignatura.programa.nombre,
     }));
   } catch (error) {
     console.error('Error obteniendo asistencias:', error);

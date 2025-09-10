@@ -20,6 +20,21 @@ import { Colores } from "./Traedores/actions/colortraedor";
 import { Calendar, Users, Play, BookOpen, Lock } from "lucide-react";
 import { Navegador } from "./ComponentesShedule/NavegadorInicio";
 
+// Función para ajustar la hora final restando 1 minuto
+const adjustEndTime = (endTime: string): string => {
+  const timeParts = endTime.split(':');
+  let hour = parseInt(timeParts[0]);
+  let minute = parseInt(timeParts[1]);
+
+  if (minute === 0) {
+    hour -= 1;
+    minute = 59;
+  } else {
+    minute -= 1;
+  }
+
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+};
 // const subjectCategories = {
 //   // Administración de empresas - Morado
 //   admin: {
@@ -470,7 +485,6 @@ export function ScheduleDashboard() {
     }
   };
   // Función para verificar la contraseña
-  // Función para verificar la contraseña
   const handlePasswordSubmit = () => {
     if (passwordInput === "70407") {
       setIsAuthenticated(true);
@@ -500,14 +514,14 @@ export function ScheduleDashboard() {
           const startIndex = timeSlots.indexOf(timeSlot);
           const endIndex = startIndex + classInfo.duration - 1;
           const endTime = timeSlots[endIndex];
-
+          const formattedEndTime = adjustEndTime(timeSlots[Math.min(endIndex + 1, timeSlots.length - 1)]);
           processed[timeSlot][room] = {
             subject: classInfo.subject,
             professor: classInfo.professor,
             group: classInfo.group,
             isMultiHour: true,
             rowSpan: classInfo.duration,
-            timeRange: `${timeSlot}-${endTime}`,
+            timeRange: `${timeSlot}-${formattedEndTime}`,
           };
 
           // Marcar las siguientes horas como ocupadas
@@ -520,12 +534,15 @@ export function ScheduleDashboard() {
           }
         } else if (classInfo && classInfo.duration === 1) {
           // Clase de una hora
+          const startIndex = timeSlots.indexOf(timeSlot);
+          const formattedEndTime = adjustEndTime(timeSlots[Math.min(startIndex + 1, timeSlots.length - 1)]);
           processed[timeSlot][room] = {
             subject: classInfo.subject,
             professor: classInfo.professor,
             group: classInfo.group,
             isMultiHour: false,
             rowSpan: 1,
+            timeRange: `${timeSlot}-${formattedEndTime}`,
           };
         } else if (!classInfo) {
           // Sin clase programada

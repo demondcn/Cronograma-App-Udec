@@ -49,6 +49,7 @@ interface AttendanceRecord {
   profesorId: string;
   cantidadtotal: number;
   cantidadAsistida?: number;
+  programaNombre: string;
 }
 
 interface AttendanceViewProps {
@@ -234,6 +235,7 @@ export function AsistenciaAdmin({
       'Hora Inicio': record.horaInicio,
       'Hora Fin': record.horaFin,
       'Materia': record.materiaAsignada,
+      'Programa': record.programaNombre, // Nueva columna
       'Profesor': record.profeAsignado,
       'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
       'Sala': record.sala,
@@ -251,8 +253,9 @@ export function AsistenciaAdmin({
       { wch: 12 }, // Fecha
       { wch: 10 }, // Hora Inicio
       { wch: 10 }, // Hora Fin
-      { wch: 25 }, // Materia
-      { wch: 20 }, // Profesor
+      { wch: 63 }, // Materia
+      { wch: 28 }, // Programa (nueva columna)
+      { wch: 41 }, // Profesor
       { wch: 15 }, // Estado
       { wch: 10 }, // Sala
       { wch: 15 }, // Total Estudiantes
@@ -524,7 +527,7 @@ export function AsistenciaAdmin({
 
           <div className="overflow-x-auto">
             <div className="min-w-[1200px]">
-              <div className="grid grid-cols-9 gap-2 mb-3">
+              <div className="grid grid-cols-10 gap-2 mb-3">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   FECHA
                 </div>
@@ -536,6 +539,9 @@ export function AsistenciaAdmin({
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   MATERIA ASIGNADA
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  PROGRAMA {/* Nueva columna */}
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   PROFE ASIGNADO
@@ -562,7 +568,7 @@ export function AsistenciaAdmin({
                   ];
 
                 return (
-                  <div key={record.id} className="grid grid-cols-9 gap-2 mb-2">
+                  <div key={record.id} className="grid grid-cols-10 gap-2 mb-2">
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.fecha}
                     </div>
@@ -572,11 +578,14 @@ export function AsistenciaAdmin({
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.horaFin}
                     </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.materiaAsignada}
+                    </div>
                     <div
                       className={`p-3 rounded-lg flex items-center justify-center text-xs text-center border-2 shadow-sm ${subjectStyle.color} ${subjectStyle.textColor}`}
                     >
                       <div className="font-semibold leading-tight">
-                        {record.materiaAsignada}
+                        {record.programaNombre}
                       </div>
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">

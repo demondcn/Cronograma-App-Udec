@@ -6,8 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Calendar, Filter, X, User, Users } from "lucide-react";
 import { useState, useMemo } from "react";
+//funcion cambio para mostrar -1min
+const adjustEndTime = (endTime: string): string => {
+  const timeParts = endTime.split(':');
+  let hour = parseInt(timeParts[0]);
+  let minute = parseInt(timeParts[1]);
 
-import { debugHorarios } from "@/components/Traedores/actions/debugHorarios";
+  if (minute === 0) {
+    hour -= 1;
+    minute = 59;
+  } else {
+    minute -= 1;
+  }
+
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+};
+//import { debugHorarios } from "@/components/Traedores/actions/debugHorarios";
 interface ScheduleViewProps {
   selectedDay: string;
   selectedRoom: string | null;
@@ -79,6 +93,7 @@ export function HorarioVer({
   // Responsive room filter
   const displayedRooms = showRoomFilter ? rooms : rooms.slice(0, 4);
   const hasMoreRooms = rooms.length > 4;
+  // Función para ajustar la hora final restando 1 minuto
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -461,10 +476,9 @@ function ScheduleTable({
                   </div>
                   {classInfo.timeRange && (
                     <div className="text-xs mt-1 font-mono text-white">
-                      {`${timeSlot}-${timeSlots[
-                        Math.min(timeIndex + (classInfo.rowSpan ?? 1), timeSlots.length - 1)
-                      ]
-                        }`}
+                      {`${timeSlot}-${adjustEndTime(
+                        timeSlots[Math.min(timeIndex + (classInfo.rowSpan ?? 1), timeSlots.length - 1)]
+                      )}`}
                     </div>
                   )}
                 </div>
