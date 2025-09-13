@@ -5,7 +5,7 @@ import { HorarioVer } from "./ComponentesShedule/HorarioVer";
 import { AsistenciaVer } from "./ComponentesShedule/AsistenciaVer";
 import { VistaTiempoReal } from "./ComponentesShedule/VistaTiempoReal";
 import { MateriasVer } from "./ComponentesShedule/MateriasVer";
-import { AsistenciaAdmin } from "./ComponentesShedule/AsistenciaAdmin"
+import { AsistenciaAdmin } from "./ComponentesShedule/AsistenciaAdmin";
 //
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +22,7 @@ import { Navegador } from "./ComponentesShedule/NavegadorInicio";
 
 // Función para ajustar la hora final restando 1 minuto
 const adjustEndTime = (endTime: string): string => {
-  const timeParts = endTime.split(':');
+  const timeParts = endTime.split(":");
   let hour = parseInt(timeParts[0]);
   let minute = parseInt(timeParts[1]);
 
@@ -33,7 +33,32 @@ const adjustEndTime = (endTime: string): string => {
     minute -= 1;
   }
 
-  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  return `${hour.toString().padStart(2, "0")}:${minute
+    .toString()
+    .padStart(2, "0")}`;
+};
+const cargadorDeTail = {
+
+  topography: {
+    color: "bg-gray-900/80 border-gray-800 shadow-gray-900/30",
+    glowColor: "shadow-lg shadow-gray-900/40",
+    textColor: "text-white",
+    subjects: [],
+  },
+
+  format: {
+    color: "bg-red-500/20 border-red-400/50 shadow-red-500/20",
+    glowColor: "shadow-lg shadow-red-500/40",
+    textColor: "text-red-50",
+    subjects: [],
+  },
+
+  Diags: {
+    color: "bg-gray-200/80 border-gray-300/70 shadow-gray-400/20",
+    glowColor: "shadow-lg shadow-gray-400/40",
+    textColor: "text-gray-800",
+    subjects: [],
+  },
 };
 // const subjectCategories = {
 //   // Administración de empresas - Morado
@@ -454,7 +479,9 @@ export function ScheduleDashboard() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
-  const [targetView, setTargetView] = useState<"subjects" | "adminasis" | null>(null);
+  const [targetView, setTargetView] = useState<"subjects" | "adminasis" | null>(
+    null
+  );
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -514,7 +541,9 @@ export function ScheduleDashboard() {
           const startIndex = timeSlots.indexOf(timeSlot);
           const endIndex = startIndex + classInfo.duration - 1;
           const endTime = timeSlots[endIndex];
-          const formattedEndTime = adjustEndTime(timeSlots[Math.min(endIndex + 1, timeSlots.length - 1)]);
+          const formattedEndTime = adjustEndTime(
+            timeSlots[Math.min(endIndex + 1, timeSlots.length - 1)]
+          );
           processed[timeSlot][room] = {
             subject: classInfo.subject,
             professor: classInfo.professor,
@@ -535,7 +564,9 @@ export function ScheduleDashboard() {
         } else if (classInfo && classInfo.duration === 1) {
           // Clase de una hora
           const startIndex = timeSlots.indexOf(timeSlot);
-          const formattedEndTime = adjustEndTime(timeSlots[Math.min(startIndex + 1, timeSlots.length - 1)]);
+          const formattedEndTime = adjustEndTime(
+            timeSlots[Math.min(startIndex + 1, timeSlots.length - 1)]
+          );
           processed[timeSlot][room] = {
             subject: classInfo.subject,
             professor: classInfo.professor,
@@ -858,10 +889,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "schedule" ? "default" : "outline"}
               onClick={() => setActiveView("schedule")}
-              className={`font-mono transition-all duration-300 ${activeView === "schedule"
-                ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
-                : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "schedule"
+                  ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/50"
+                  : "border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               CRONOGRAMA
@@ -869,10 +901,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "attendance" ? "default" : "outline"}
               onClick={() => setActiveView("attendance")}
-              className={`font-mono transition-all duration-300 ${activeView === "attendance"
-                ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
-                : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "attendance"
+                  ? "bg-purple-500 hover:bg-purple-400 text-black shadow-lg shadow-purple-500/50"
+                  : "border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CHECK LIST DE ASISTENCIA
@@ -881,10 +914,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "realtime" ? "default" : "outline"}
               onClick={() => setActiveView("realtime")}
-              className={`font-mono transition-all duration-300 ${activeView === "realtime"
-                ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
-                : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "realtime"
+                  ? "bg-green-500 hover:bg-green-400 text-black shadow-lg shadow-green-500/50"
+                  : "border-green-500/50 text-green-300 hover:bg-green-500/20 hover:border-green-400"
+              }`}
             >
               <Play className="w-4 h-4 mr-2" />
               CONTROL TIEMPO REAL
@@ -892,10 +926,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "adminasis" ? "default" : "outline"}
               onClick={() => handleAuthRequiredClick("adminasis")}
-              className={`font-mono transition-all duration-300 ${activeView === "adminasis"
-                ? "bg-red-500 hover:bg-red-400 text-black shadow-lg shadow-red-500/50"
-                : "border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "adminasis"
+                  ? "bg-red-500 hover:bg-red-400 text-black shadow-lg shadow-red-500/50"
+                  : "border-red-500/50 text-red-300 hover:bg-red-500/20 hover:border-red-400"
+              }`}
             >
               <Users className="w-4 h-4 mr-2" />
               CONTROL DE ASISTENCIA
@@ -904,10 +939,11 @@ export function ScheduleDashboard() {
             <Button
               variant={activeView === "subjects" ? "default" : "outline"}
               onClick={() => handleAuthRequiredClick("subjects")}
-              className={`font-mono transition-all duration-300 ${activeView === "subjects"
-                ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
-                : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
-                }`}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "subjects"
+                  ? "bg-orange-500 hover:bg-orange-400 text-black shadow-lg shadow-orange-500/50"
+                  : "border-orange-500/50 text-orange-300 hover:bg-orange-500/20 hover:border-orange-400"
+              }`}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               GESTIÓN DE MATERIAS
@@ -925,7 +961,11 @@ export function ScheduleDashboard() {
               Autenticación Requerida
             </h3>
             <p className="text-gray-300 mb-4">
-              Ingresa la contraseña para acceder a {targetView === "subjects" ? "gestión de materias" : "control de asistencia"}:
+              Ingresa la contraseña para acceder a{" "}
+              {targetView === "subjects"
+                ? "gestión de materias"
+                : "control de asistencia"}
+              :
             </p>
             <input
               type="password"
@@ -933,7 +973,7 @@ export function ScheduleDashboard() {
               onChange={(e) => setPasswordInput(e.target.value)}
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white mb-2"
               placeholder="Contraseña"
-              onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+              onKeyPress={(e) => e.key === "Enter" && handlePasswordSubmit()}
             />
             {authError && (
               <p className="text-red-400 text-sm mb-3">{authError}</p>
