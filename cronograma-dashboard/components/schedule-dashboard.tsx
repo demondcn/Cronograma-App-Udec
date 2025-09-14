@@ -38,7 +38,6 @@ const adjustEndTime = (endTime: string): string => {
     .padStart(2, "0")}`;
 };
 const cargadorDeTail = {
-
   topography: {
     color: "bg-gray-900/80 border-gray-800 shadow-gray-900/30",
     glowColor: "shadow-lg shadow-gray-900/40",
@@ -57,6 +56,12 @@ const cargadorDeTail = {
     color: "bg-gray-200/80 border-gray-300/70 shadow-gray-400/20",
     glowColor: "shadow-lg shadow-gray-400/40",
     textColor: "text-gray-800",
+    subjects: [],
+  },
+  MINTIC: {
+    color: "bg-blue-950/90 border-blue-900/80 shadow-blue-900/20", // Fondo, borde y sombra ultra oscuros
+    glowColor: "shadow-lg shadow-blue-800/40", // Sombra de resplandor un poco más clara
+    textColor: "text-gray-100", // Texto en blanco/gris muy claro para máximo contraste
     subjects: [],
   },
 };
