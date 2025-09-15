@@ -411,13 +411,13 @@ function ScheduleTable({
           gridTemplateColumns: `120px repeat(${filteredRooms.length}, 150px)`,
         }}
       >
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 text-white p-3 text-center font-bold rounded-lg font-mono shadow-lg border border-orange-400/50">
+        <div className="bg-gradient-to-br from-green-500 to-lime-500 text-white p-3 text-center font-bold rounded-lg font-mono shadow-lg border border-green-400/50">
           <div className="text-sm font-extrabold">HORA</div>
         </div>
         {filteredRooms.map((room) => (
           <div
             key={room}
-            className="bg-gradient-to-br from-orange-500 to-pink-500 text-white p-3 text-center font-bold rounded-lg font-mono shadow-lg border border-orange-400/50"
+            className="bg-gradient-to-br from-green-500 to-lime-500 text-white p-3 text-center font-bold rounded-lg font-mono shadow-lg border border-green-400/50"
           >
             <div className="text-sm font-extrabold">{room}</div>
           </div>
@@ -513,7 +513,7 @@ function ScheduleRow({
         height: "65px", // Altura fija
       }}
     >
-      <div className="bg-gradient-to-r from-orange-400 to-pink-400 text-white p-3 text-center font-bold rounded-lg flex items-center justify-center font-mono shadow-md border border-orange-300/50">
+      <div className="bg-gradient-to-r from-green-400 to-lime-400 text-blue p-3 text-center font-bold rounded-lg flex items-center justify-center font-mono shadow-md border border-green-300/50">
         <div className="text-sm font-extrabold">{timeSlot}</div>
       </div>
 

@@ -2,13 +2,6 @@
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
   Users,
@@ -17,21 +10,18 @@ import {
   Clock,
   AlertTriangle,
   FileX,
-  Archive,
-  Download,
-  Calendar,
   RefreshCw,
+  Filter,
+  Search
 } from "lucide-react";
 import { useState } from "react";
 import {
   crearRegistrosDeAsistencia,
   CrearDatosDeAsistencia,
 } from "../Agregadores/AgregarAsistencia/actions/crearRegistrosDeAsistencia";
-//Traedores de info
-import { obtenerAsistencias } from "./../Traedores/actions/asistenciasid";
 // Importar la función para obtener horarios sin asistencia
 import { AsistenciaHorario } from "./../Traedores/actions/asisH";
-import * as XLSX from 'xlsx';
+
 interface AttendanceRecord {
   id: string;
   fecha: string;
@@ -80,6 +70,18 @@ export function AsistenciaVer({
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  //filtros
+  const [filterName, setFilterName] = useState("");
+  const [filterSubject, setFilterSubject] = useState("");
+
+  // Filtrar registros basados en los filtros
+  const filteredRecords = currentRecords.filter(record => {
+    const matchesName = filterName === "" || 
+      record.profeAsignado.toLowerCase().includes(filterName.toLowerCase());
+    const matchesSubject = filterSubject === "" || 
+      record.materiaAsignada.toLowerCase().includes(filterSubject.toLowerCase());
+    return matchesName && matchesSubject;
+  });
 
   // Función para recargar los horarios sin asistencia
   const reloadAttendanceData = async () => {
@@ -91,17 +93,6 @@ export function AsistenciaVer({
       console.error("Error al recargar datos de asistencia:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // Función para recargar las asistencias guardadas
-  const reloadSavedAttendances = async () => {
-    try {
-      const asissdata = await obtenerAsistencias();
-      setSavedRecords(asissdata);
-    } catch (error) {
-      console.error("Error al recargar asistencias guardadas:", error);
-      setSavedRecords([]);
     }
   };
 
@@ -124,7 +115,6 @@ export function AsistenciaVer({
       )
     );
   };
-
 
   const handleSave = async () => {
     try {
@@ -182,7 +172,6 @@ export function AsistenciaVer({
       if (result.success) {
         // Recargar los datos después de guardar
         await reloadAttendanceData();
-        await reloadSavedAttendances();
 
         alert("Asistencias guardadas correctamente.");
       } else {
@@ -206,7 +195,6 @@ export function AsistenciaVer({
   };
 
   useEffect(() => {
-    reloadSavedAttendances();
   }, []);
 
   return (
@@ -227,9 +215,61 @@ export function AsistenciaVer({
               {isLoading ? 'CARGANDO...' : 'RECARGAR'}
             </Button>
           </div>
+          <div className="mt-4 p-4 bg-gray-800/30 rounded-lg border border-blue-200/30">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-5 h-5 text-blue-400" />
+              <h3 className="text-blue-400 font-semibold">FILTROS</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-cyan-200">Filtrar por Profesor:</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar por nombre del profesor..."
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                    className="pl-10 bg-gray-900/40 border-cyan-400/30 text-cyan-200 placeholder-gray-400"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-cyan-200">Filtrar por Materia:</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar por materia..."
+                    value={filterSubject}
+                    onChange={(e) => setFilterSubject(e.target.value)}
+                    className="pl-10 bg-gray-900/40 border-cyan-400/30 text-cyan-200 placeholder-gray-400"
+                  />
+                </div>
+              </div>
+            </div>
+            {(filterName || filterSubject) && (
+              <div className="mt-3 flex items-center gap-2 text-sm text-blue-300">
+                <span>
+                  Mostrando {filteredRecords.length} de {currentRecords.length} registros
+                </span>
+                <Button
+                  onClick={() => {
+                    setFilterName("")
+                    setFilterSubject("")
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 text-xs border-blue-400/30 text-blue-300 hover:bg-blue-400/10"
+                >
+                  Limpiar filtros
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          {currentRecords.length > 0 && (
+          {filteredRecords.length > 0 ? (
             <>
               <div className="overflow-x-auto mb-6">
                 <div className="min-w-[1200px]">
@@ -260,7 +300,7 @@ export function AsistenciaVer({
                     </div>
                   </div>
 
-                  {currentRecords
+                  {filteredRecords
                     .sort((a, b) => {
                       // Convertir horas a minutos para comparar numéricamente
                       const timeToMinutes = (time: string) => {
@@ -334,11 +374,14 @@ export function AsistenciaVer({
                 </Button>
               </div>
             </>
-          )}
-
-          {currentRecords.length === 0 && (
+          ) : (
             <div className="text-center py-8 text-blue-700">
-              <p className="text-lg font-semibold">No hay registros pendientes de asistencia para hoy.</p>
+              <p className="text-lg font-semibold">
+                {currentRecords.length === 0 
+                  ? "No hay registros pendientes de asistencia para hoy."
+                  : "No se encontraron registros que coincidan con los filtros."
+                }
+              </p>
               <Button
                 onClick={reloadAttendanceData}
                 disabled={isLoading}
