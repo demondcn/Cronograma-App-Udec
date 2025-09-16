@@ -62,33 +62,37 @@ export function HorarioVer({
     setIsSubjectModalOpen(true);
   };
   // Estadísticas
+  // Estadísticas
   const stats = useMemo(() => {
     const activeRooms = new Set<string>();
     let totalClasses = 0;
-
+    let totalDurations = 0; // suma total de duration
     timeSlots.forEach((slot) => {
       rooms.forEach((room) => {
-        if (
-          currentSchedule[slot]?.[room] &&
-          !currentSchedule[slot][room].occupied
-        ) {
+        const classInfo = currentSchedule[slot]?.[room];
+        //console.log('slot:', slot, 'room:', room, 'classInfo:', classInfo);
+        if (classInfo) {
           activeRooms.add(room);
-          totalClasses++;
+          totalDurations += classInfo.rowSpan ?? 0;
+          totalClasses ++;
         }
       });
     });
 
+    // fórmula nueva
+    const totalPossible = timeSlots.length * rooms.length;
     const occupancyRate =
-      rooms.length && timeSlots.length
-        ? Math.round((totalClasses / (timeSlots.length * rooms.length)) * 100)
+      totalPossible > 0
+        ? (100 / totalPossible) * totalDurations
         : 0;
 
     return {
       activeRooms: activeRooms.size,
-      totalClasses,
-      occupancyRate,
+      totalClasses, 
+      occupancyRate: Math.round(occupancyRate), 
     };
   }, [timeSlots, rooms, currentSchedule]);
+
 
   // Responsive room filter
   const displayedRooms = showRoomFilter ? rooms : rooms.slice(0, 4);

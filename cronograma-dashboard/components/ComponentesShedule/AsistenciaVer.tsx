@@ -74,12 +74,17 @@ export function AsistenciaVer({
   const [filterName, setFilterName] = useState("");
   const [filterSubject, setFilterSubject] = useState("");
 
-  // Filtrar registros basados en los filtros
+  // Filtrar registros basados en los filtros (versión mejorada)
   const filteredRecords = currentRecords.filter(record => {
-    const matchesName = filterName === "" || 
-      record.profeAsignado.toLowerCase().includes(filterName.toLowerCase());
-    const matchesSubject = filterSubject === "" || 
+    const matchesSubject = filterSubject === "" ||
       record.materiaAsignada.toLowerCase().includes(filterSubject.toLowerCase());
+    let matchesName = true;
+    if (filterName !== "") {
+      const searchTerms = filterName.toLowerCase().split(/\s+/).filter(term => term.length > 0);
+      const profesor = record.profeAsignado.toLowerCase();
+      matchesName = searchTerms.every(term => profesor.includes(term));
+    }
+
     return matchesName && matchesSubject;
   });
 
@@ -377,7 +382,7 @@ export function AsistenciaVer({
           ) : (
             <div className="text-center py-8 text-blue-700">
               <p className="text-lg font-semibold">
-                {currentRecords.length === 0 
+                {currentRecords.length === 0
                   ? "No hay registros pendientes de asistencia para hoy."
                   : "No se encontraron registros que coincidan con los filtros."
                 }
