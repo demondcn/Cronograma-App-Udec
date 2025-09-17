@@ -16,7 +16,7 @@ import AgregarProgramas from "../Agregadores/AgregarPrograma/agregarprogramas"
 import AgregarAulaForm from "../Agregadores/AgregarAula/agregaraula"
 import AgregarProfeForm from "../Agregadores/AgregarProfe/agregarprofe"
 import AgregarHorarioForm from "../Agregadores/AgregarHorario/agregarhorario"
-import { TableManagement } from "../TableDatesExample/table-management"
+import { TableManagement } from "./ComponentsAdminCrud/table-management"
 
 interface SubjectsViewProps {
   isModalOpen: boolean
