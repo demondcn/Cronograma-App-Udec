@@ -241,7 +241,7 @@ export function HorarioVer({
           color="cyan"
         />
         <StatCard
-          title="OCUPACIÓN"
+          title="USABILIDAD"
           value={`${stats.occupancyRate}%`}
           icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
           color="purple"
