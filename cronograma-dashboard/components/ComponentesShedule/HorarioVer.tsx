@@ -271,6 +271,7 @@ export function HorarioVer({
         </CardContent>
       </Card>
 
+      
       {/* Leyenda */}
       <LegendCard />
       {isSubjectModalOpen && selectedSubject && (
