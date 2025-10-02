@@ -210,98 +210,80 @@ export function AsistenciaAdmin({
     return <Icon className={`w-4 h-4 ${statusInfo.color}`} />;
   };
 
-  const exportToExcel = () => {
-    let filteredRecords = savedRecords;
+const exportToExcel = () => {
+  let filteredRecords = savedRecords;
 
-    if (startDate || endDate) {
-      filteredRecords = savedRecords.filter((record) => {
-        const recordDate = new Date(record.fecha);
-        const start = startDate ? new Date(startDate) : null;
-        const end = endDate ? new Date(endDate) : null;
+  if (startDate || endDate) {
+    filteredRecords = savedRecords.filter((record) => {
+      const recordDate = new Date(record.fecha);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
 
-        if (start && end) {
-          return recordDate >= start && recordDate <= end;
-        } else if (start) {
-          return recordDate >= start;
-        } else if (end) {
-          return recordDate <= end;
-        }
-        return true;
-      });
-    }
-
-    // Preparar datos para Excel
-    const excelData = filteredRecords.map((record) => ({
-      Fecha: record.fecha,
-      "Hora Inicio": record.horaInicio,
-      "Hora Fin": record.horaFin,
-      Materia: record.materiaAsignada,
-      Programa: record.programaNombre,
-      Profesor: record.profeAsignado,
-      Estado:
-        ATTENDANCE_STATUS[
-          record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
-        ]?.label || record.estadoAsistencia,
-      Sala: record.sala,
-      "Total Estudiantes": record.cantidadtotal, // ✅ Agregado
-      "Asistencia Estudiantes": record.cantidadAsistida || 0,
-      "Porcentaje Asistencia":
-        record.cantidadtotal > 0
-          ? `${Math.round(
-              ((record.cantidadAsistida || 0) / record.cantidadtotal) * 100
-            )}%`
-          : "0%", // ✅ Nuevo campo calculado
-      Observaciones: record.observaciones || "",
-    }));
-
-    // Crear libro de trabajo de Excel
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-    // Ajustar el ancho de las columnas automáticamente
-    const columnWidths = [
-      { wch: 12 }, // Fecha
-      { wch: 10 }, // Hora Inicio
-      { wch: 10 }, // Hora Fin
-      { wch: 63 }, // Materia
-      { wch: 28 }, // Programa
-      { wch: 41 }, // Profesor
-      { wch: 15 }, // Estado
-      { wch: 10 }, // Sala
-      { wch: 15 }, // Total Estudiantes
-      { wch: 18 }, // Asistencia Estudiantes
-      { wch: 18 }, // Porcentaje Asistencia (nuevo)
-      { wch: 30 }, // Observaciones
-    ];
-    worksheet["!cols"] = columnWidths;
-
-    // Agregar hoja al libro
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Asistencias");
-
-    // Crear archivo
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
+      if (start && end) {
+        return recordDate >= start && recordDate <= end;
+      } else if (start) {
+        return recordDate >= start;
+      } else if (end) {
+        return recordDate <= end;
+      }
+      return true;
     });
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+  }
 
-    // Descargar archivo
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
+  // Preparar datos para Excel
+  const excelData = filteredRecords.map((record) => ({
+    'Fecha': record.fecha,
+    'Hora Inicio': record.horaInicio,
+    'Hora Fin': record.horaFin,
+    'Materia': record.materiaAsignada,
+    'Programa': record.programaNombre,
+    'Profesor': record.profeAsignado,
+    'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
+    'Sala': record.sala,
+    'Total Estudiantes': record.cantidadtotal,
+    'Asistencia Estudiantes': record.cantidadAsistida || 0,
+    'Observaciones': record.observaciones || ''
+  }));
 
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `asistencias_${new Date().toISOString().split("T")[0]}.xlsx`
-    );
-    link.style.visibility = "hidden";
+  // Crear libro de trabajo de Excel
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // Ajustar el ancho de las columnas automáticamente
+  const columnWidths = [
+    { wch: 12 }, // Fecha
+    { wch: 10 }, // Hora Inicio
+    { wch: 10 }, // Hora Fin
+    { wch: 63 }, // Materia
+    { wch: 28 }, // Programa
+    { wch: 41 }, // Profesor
+    { wch: 15 }, // Estado
+    { wch: 10 }, // Sala
+    { wch: 15 }, // Total Estudiantes
+    { wch: 18 }, // Asistencia Estudiantes
+    { wch: 30 }  // Observaciones
+  ];
+  worksheet['!cols'] = columnWidths;
+
+  // Agregar hoja al libro
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
+
+  // Crear archivo
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+  // Descargar archivo
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', `asistencias_${new Date().toISOString().split('T')[0]}.xlsx`);
+  link.style.visibility = 'hidden';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   useEffect(() => {
     reloadSavedAttendances();
