@@ -18,6 +18,7 @@ interface AttendanceRecord {
   asignaturaId: string;
   aulaId: string;
   profesorId: string;
+  cantidadtotal: number; // ✅ Agregado
   cantidadAsistida: number;
   programaNombre: string;
 }
@@ -51,12 +52,13 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
         horario: {
           select: {
             diaSemana: true,
+            cantidadSt: true, // ✅ Agregado - este es el total de estudiantes
           }
         },
         asignatura: {
           select: {
             nombre: true,
-            programa: { // Incluir el programa relacionado
+            programa: {
               select: {
                 nombre: true,
               }
@@ -66,23 +68,23 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
       },
     });
 
-
     // Transformar los datos a la estructura deseada
     return asistencias.map((asistencia) => ({
       id: asistencia.id,
-      fecha: asistencia.fecha.toISOString().split('T')[0], // Formatear a 'YYYY-MM-DD'
+      fecha: asistencia.fecha.toISOString().split('T')[0],
       horaInicio: asistencia.horaInicio,
       horaFin: asistencia.horaFin,
       materiaAsignada: asistencia.asignatura.nombre,
       profeAsignado: asistencia.profesor ? asistencia.profesor.nombre : '',
       estadoAsistencia: asistencia.estado,
       sala: asistencia.aula.nombre,
-      observaciones: asistencia.observaciones || '', // Si no hay observaciones, dejar vacío
-      diaSemana: asistencia.horario.diaSemana,
+      observaciones: asistencia.observaciones || '',
+      diaSemana: asistencia.horario.diaSemana.toString(), // Convertir a string si es necesario
       horarioId: asistencia.horarioId,
       asignaturaId: asistencia.asignaturaId,
       aulaId: asistencia.aulaId,
       profesorId: asistencia.profesorId || '',
+      cantidadtotal: asistencia.horario.cantidadSt || 0, // ✅ Agregado
       cantidadAsistida: asistencia.cantasistida || 0,
       programaNombre: asistencia.asignatura.programa.nombre,
     }));

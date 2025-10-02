@@ -31,7 +31,7 @@ import {
 import { obtenerAsistencias } from "../Traedores/actions/asistenciasid";
 // Importar la función para obtener horarios sin asistencia
 import { AsistenciaHorario } from "../Traedores/actions/asisH";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 interface AttendanceRecord {
   id: string;
   fecha: string;
@@ -74,7 +74,8 @@ export function AsistenciaAdmin({
   getSubjectStyle,
 }: AttendanceViewProps) {
   //guardar asistencias nuevas
-  const [currentRecords, setCurrentRecords] = useState<AttendanceRecord[]>(attendanceData);
+  const [currentRecords, setCurrentRecords] =
+    useState<AttendanceRecord[]>(attendanceData);
   //asistencias guardadas
   const [savedRecords, setSavedRecords] = useState<AttendanceRecord[]>([]);
   //otras cuestiones
@@ -176,10 +177,10 @@ export function AsistenciaAdmin({
             aulaId: record.aulaId,
             profesorId: record.profesorId,
             cantasistida: record.cantidadAsistida || 0,
-          }
+          };
         }
       );
-      console.log(attendanceDataToSave)
+      console.log(attendanceDataToSave);
       // Llamar al action para guardar en la base de datos
       const result = await crearRegistrosDeAsistencia(attendanceDataToSave);
 
@@ -231,17 +232,26 @@ export function AsistenciaAdmin({
 
     // Preparar datos para Excel
     const excelData = filteredRecords.map((record) => ({
-      'Fecha': record.fecha,
-      'Hora Inicio': record.horaInicio,
-      'Hora Fin': record.horaFin,
-      'Materia': record.materiaAsignada,
-      'Programa': record.programaNombre, // Nueva columna
-      'Profesor': record.profeAsignado,
-      'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
-      'Sala': record.sala,
-      'Total Estudiantes': record.cantidadtotal,
-      'Asistencia Estudiantes': record.cantidadAsistida || 0,
-      'Observaciones': record.observaciones || ''
+      Fecha: record.fecha,
+      "Hora Inicio": record.horaInicio,
+      "Hora Fin": record.horaFin,
+      Materia: record.materiaAsignada,
+      Programa: record.programaNombre,
+      Profesor: record.profeAsignado,
+      Estado:
+        ATTENDANCE_STATUS[
+          record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
+        ]?.label || record.estadoAsistencia,
+      Sala: record.sala,
+      "Total Estudiantes": record.cantidadtotal, // ✅ Agregado
+      "Asistencia Estudiantes": record.cantidadAsistida || 0,
+      "Porcentaje Asistencia":
+        record.cantidadtotal > 0
+          ? `${Math.round(
+              ((record.cantidadAsistida || 0) / record.cantidadtotal) * 100
+            )}%`
+          : "0%", // ✅ Nuevo campo calculado
+      Observaciones: record.observaciones || "",
     }));
 
     // Crear libro de trabajo de Excel
@@ -254,30 +264,39 @@ export function AsistenciaAdmin({
       { wch: 10 }, // Hora Inicio
       { wch: 10 }, // Hora Fin
       { wch: 63 }, // Materia
-      { wch: 28 }, // Programa (nueva columna)
+      { wch: 28 }, // Programa
       { wch: 41 }, // Profesor
       { wch: 15 }, // Estado
       { wch: 10 }, // Sala
       { wch: 15 }, // Total Estudiantes
       { wch: 18 }, // Asistencia Estudiantes
-      { wch: 30 }  // Observaciones
+      { wch: 18 }, // Porcentaje Asistencia (nuevo)
+      { wch: 30 }, // Observaciones
     ];
-    worksheet['!cols'] = columnWidths;
+    worksheet["!cols"] = columnWidths;
 
     // Agregar hoja al libro
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Asistencias");
 
     // Crear archivo
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
     // Descargar archivo
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', `asistencias_${new Date().toISOString().split('T')[0]}.xlsx`);
-    link.style.visibility = 'hidden';
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `asistencias_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+    link.style.visibility = "hidden";
 
     document.body.appendChild(link);
     link.click();
@@ -302,8 +321,10 @@ export function AsistenciaAdmin({
               disabled={isLoading}
               className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'CARGANDO...' : 'RECARGAR'}
+              <RefreshCw
+                className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+              {isLoading ? "CARGANDO..." : "RECARGAR"}
             </Button>
           </div>
         </CardHeader>
@@ -349,14 +370,19 @@ export function AsistenciaAdmin({
                     .sort((a, b) => {
                       // Convertir horas a minutos para comparar numéricamente
                       const timeToMinutes = (time: string) => {
-                        const [hours, minutes] = time.split(':').map(Number);
+                        const [hours, minutes] = time.split(":").map(Number);
                         return hours * 60 + minutes;
                       };
 
-                      return timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio);
+                      return (
+                        timeToMinutes(a.horaInicio) -
+                        timeToMinutes(b.horaInicio)
+                      );
                     })
                     .map((record) => {
-                      const subjectStyle = getSubjectStyle(record.materiaAsignada);
+                      const subjectStyle = getSubjectStyle(
+                        record.materiaAsignada
+                      );
 
                       return (
                         <div
@@ -416,10 +442,12 @@ export function AsistenciaAdmin({
                             <Input
                               type="number"
                               value={record.cantidadAsistida || 0} // Cambia "" por 0
-                              onChange={(e) => handleCantidadAsistidaChange(
-                                record.id,
-                                parseInt(e.target.value) || 0
-                              )}
+                              onChange={(e) =>
+                                handleCantidadAsistidaChange(
+                                  record.id,
+                                  parseInt(e.target.value) || 0
+                                )
+                              }
                               min="0"
                               max={record.cantidadtotal}
                             />
@@ -456,14 +484,18 @@ export function AsistenciaAdmin({
 
           {currentRecords.length === 0 && (
             <div className="text-center py-8 text-blue-700">
-              <p className="text-lg font-semibold">No hay registros pendientes de asistencia para hoy.</p>
+              <p className="text-lg font-semibold">
+                No hay registros pendientes de asistencia para hoy.
+              </p>
               <Button
                 onClick={reloadAttendanceData}
                 disabled={isLoading}
                 className="mt-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                {isLoading ? 'CARGANDO...' : 'VERIFICAR NUEVOS REGISTROS'}
+                <RefreshCw
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+                {isLoading ? "CARGANDO..." : "VERIFICAR NUEVOS REGISTROS"}
               </Button>
             </div>
           )}
@@ -527,7 +559,7 @@ export function AsistenciaAdmin({
 
           <div className="overflow-x-auto">
             <div className="min-w-[1200px]">
-              <div className="grid grid-cols-10 gap-2 mb-3">
+              <div className="grid grid-cols-11 gap-2 mb-3">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   FECHA
                 </div>
@@ -553,6 +585,9 @@ export function AsistenciaAdmin({
                   SALA
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  TOTAL EST
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   ASISTENCIA EST
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
@@ -564,11 +599,11 @@ export function AsistenciaAdmin({
                 const subjectStyle = getSubjectStyle(record.materiaAsignada);
                 const statusInfo =
                   ATTENDANCE_STATUS[
-                  record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
+                    record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
                   ];
 
                 return (
-                  <div key={record.id} className="grid grid-cols-10 gap-2 mb-2">
+                  <div key={record.id} className="grid grid-cols-11 gap-2 mb-2">
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.fecha}
                     </div>
@@ -595,8 +630,9 @@ export function AsistenciaAdmin({
                       <div className="flex items-center gap-2">
                         {getStatusIcon(record.estadoAsistencia)}
                         <span
-                          className={`font-medium text-sm ${statusInfo?.color || "text-gray-400"
-                            }`}
+                          className={`font-medium text-sm ${
+                            statusInfo?.color || "text-gray-400"
+                          }`}
                         >
                           {statusInfo?.label || record.estadoAsistencia}
                         </span>
@@ -604,6 +640,9 @@ export function AsistenciaAdmin({
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.sala}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.cantidadtotal} {/* ✅ Total de estudiantes */}
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.cantidadAsistida}
@@ -617,7 +656,9 @@ export function AsistenciaAdmin({
 
               {savedRecords.length === 0 && (
                 <div className="text-center py-8 text-cyan-300">
-                  <p className="text-lg font-semibold">No hay asistencias guardadas.</p>
+                  <p className="text-lg font-semibold">
+                    No hay asistencias guardadas.
+                  </p>
                 </div>
               )}
             </div>
