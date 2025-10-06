@@ -101,7 +101,23 @@ export function AsistenciaAdmin({
   const reloadSavedAttendances = async () => {
     try {
       const asissdata = await obtenerAsistencias();
-      setSavedRecords(asissdata);
+
+      // Ordenar y filtrar las asistencias
+      const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+
+      const sortedAndFiltered = asissdata
+        .filter((record) => {
+          const recordDate = new Date(record.fecha).toISOString().split("T")[0];
+          return recordDate === today; // Solo mostrar asistencias de hoy
+        })
+        .sort((a, b) => {
+          // Ordenar por fecha más reciente primero
+          const dateA = new Date(a.fecha);
+          const dateB = new Date(b.fecha);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+      setSavedRecords(sortedAndFiltered);
     } catch (error) {
       console.error("Error al recargar asistencias guardadas:", error);
       setSavedRecords([]);
