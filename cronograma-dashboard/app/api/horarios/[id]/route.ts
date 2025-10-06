@@ -52,7 +52,8 @@ export async function PUT(
       asignaturaId, 
       aulaId, 
       profesorId, 
-      cantidadSt 
+      cantidadSt,
+      cadi
     } = body
     
     // Verificar si el horario existe
@@ -120,6 +121,7 @@ export async function PUT(
         horaFin,
         semestre,
         grupo: grupo || null,
+        cadi: cadi || null,
         activo: activo !== undefined ? activo : true,
         asignaturaId,
         aulaId,

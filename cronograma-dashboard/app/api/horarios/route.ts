@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
       asignaturaId, 
       aulaId, 
       profesorId, 
-      cantidadSt 
+      cantidadSt,
+      cadi
     } = body
     
     if (!diaSemana || !horaInicio || !horaFin || !semestre || !asignaturaId || !aulaId) {
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
         horaFin,
         semestre,
         grupo: grupo || null,
+        cadi: cadi || null,
         activo: activo !== undefined ? activo : true,
         asignaturaId,
         aulaId,

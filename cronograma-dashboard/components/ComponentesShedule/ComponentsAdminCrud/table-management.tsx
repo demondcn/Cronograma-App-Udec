@@ -111,6 +111,7 @@ export function TableManagement() {
     { key: "horaFin", label: "Hora Fin" },
     { key: "semestre", label: "Semestre" },
     { key: "grupo", label: "Grupo" },
+    { key: "cadi", label: "Cadi" },
     { key: "activo", label: "Activo", type: "boolean" as const },
     { 
       key: "asignaturaId", 

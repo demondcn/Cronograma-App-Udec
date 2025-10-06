@@ -12,6 +12,7 @@ interface AttendanceRecord {
   profeAsignado: string;
   estadoAsistencia: string;
   sala: string;
+  cadi: string;
   observaciones: string;
   diaSemana: string;
   horarioId: string;
@@ -52,7 +53,8 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
         horario: {
           select: {
             diaSemana: true,
-            cantidadSt: true, // ✅ Agregado - este es el total de estudiantes
+            cantidadSt: true,
+            cadi: true,
           }
         },
         asignatura: {
@@ -84,6 +86,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
       asignaturaId: asistencia.asignaturaId,
       aulaId: asistencia.aulaId,
       profesorId: asistencia.profesorId || '',
+      cadi:asistencia.horario.cadi || 'falta agregar',
       cantidadtotal: asistencia.horario.cantidadSt || 0, // ✅ Agregado
       cantidadAsistida: asistencia.cantasistida || 0,
       programaNombre: asistencia.asignatura.programa.nombre,

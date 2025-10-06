@@ -7,36 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== MODELOS PRINCIPALES ====================
-
 model Programa {
-  id         String       @id @default(cuid())
-  nombre     String       @unique
-  codigo     String       @unique
-  color      String
-  colorBrillo String
-  colorTexto String
-  creadoEn   DateTime     @default(now())
+  id            String       @id @default(cuid())
+  nombre        String       @unique
+  codigo        String       @unique
+  color         String
+  colorBrillo   String
+  colorTexto    String
+  creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
-  asignaturas Asignatura[]
+  asignaturas   Asignatura[]
 
   @@index([codigo])
-  @@map("programas") // Nombre real de la tabla en la base de datos
+  @@map("programas")
 }
 
 model Asignatura {
-  id          String       @id @default(cuid())
-  nombre      String
-  codigo      String       @unique
-  programaId  String
-  semestre    Int?
-  creditos    Int?
-  activa      Boolean      @default(true)
-  creadoEn    DateTime     @default(now())
+  id            String       @id @default(cuid())
+  nombre        String
+  codigo        String       @unique
+  programaId    String
+  semestre      Int?
+  creditos      Int?
+  activa        Boolean      @default(true)
+  creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
-  asistencias Asistencia[]
-  horarios    Horario[]
-  programa    Programa     @relation(fields: [programaId], references: [id], onDelete: Cascade)
+  programa      Programa     @relation(fields: [programaId], references: [id], onDelete: Cascade)
+  asistencias   Asistencia[]
+  horarios      Horario[]
 
   @@index([codigo])
   @@index([activa])
@@ -45,18 +43,18 @@ model Asignatura {
 }
 
 model Aula {
-  id          String       @id @default(cuid())
-  nombre      String       @unique
-  capacidad   Int?
-  edificio    String?
-  piso        String?
-  equipos     Json?
-  activa      Boolean      @default(true)
-  creadoEn    DateTime     @default(now())
+  id            String       @id @default(cuid())
+  nombre        String       @unique
+  capacidad     Int?
+  edificio      String?
+  piso          String?
+  equipos       Json?
+  activa        Boolean      @default(true)
+  creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
-  asistencias Asistencia[]
-  estados     EstadoAula[]
-  horarios    Horario[]
+  asistencias   Asistencia[]
+  estados       EstadoAula[]
+  horarios      Horario[]
 
   @@index([activa])
   @@index([nombre])
@@ -64,15 +62,15 @@ model Aula {
 }
 
 model Profesor {
-  id          String       @id @default(cuid())
-  nombre      String
-  correo      String       @unique
-  telefono    String?
-  activo      Boolean      @default(true)
-  creadoEn    DateTime     @default(now())
+  id            String       @id @default(cuid())
+  nombre        String
+  correo        String       @unique
+  telefono      String?
+  activo        Boolean      @default(true)
+  creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
-  asistencias Asistencia[]
-  horarios    Horario[]
+  asistencias   Asistencia[]
+  horarios      Horario[]
 
   @@index([correo])
   @@index([activo])
@@ -80,23 +78,24 @@ model Profesor {
 }
 
 model Horario {
-  id          String       @id @default(cuid())
-  diaSemana   Int
-  horaInicio  String
-  horaFin     String
-  semestre    String
-  grupo       String?
-  activo      Boolean      @default(true)
-  asignaturaId String
-  aulaId      String
-  profesorId  String?
-  cantidadSt  Int?
-  creadoEn    DateTime     @default(now())
+  id            String       @id @default(cuid())
+  diaSemana     Int
+  horaInicio    String
+  horaFin       String
+  semestre      String
+  grupo         String?
+  cadi          String?
+  activo        Boolean      @default(true)
+  asignaturaId  String
+  aulaId        String
+  profesorId    String?
+  creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
-  asistencias Asistencia[]
-  profesor    Profesor?    @relation(fields: [profesorId], references: [id])
-  aula        Aula         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  asignatura  Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+  cantidadSt    Int?
+  asistencias   Asistencia[]
+  asignatura    Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+  aula          Aula         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  profesor      Profesor?    @relation(fields: [profesorId], references: [id])
 
   @@unique([diaSemana, horaInicio, horaFin, aulaId, semestre])
   @@index([diaSemana, semestre])
@@ -107,24 +106,24 @@ model Horario {
 }
 
 model Asistencia {
-  id           String           @id @default(cuid())
-  fecha        DateTime
-  horaInicio   String
-  horaFin      String
-  estado       EstadoAsistencia
+  id            String           @id @default(cuid())
+  fecha         DateTime
+  horaInicio    String
+  horaFin       String
+  estado        EstadoAsistencia
   observaciones String?
   verificadoPor String?
-  horarioId    String
-  asignaturaId String
-  cantasistida Int?
-  aulaId       String
-  profesorId   String?
-  creadoEn     DateTime         @default(now())
+  horarioId     String
+  asignaturaId  String
+  aulaId        String
+  profesorId    String?
+  creadoEn      DateTime         @default(now())
   actualizadoEn DateTime
-  profesor     Profesor?        @relation(fields: [profesorId], references: [id])
-  aula         Aula             @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  horario      Horario          @relation(fields: [horarioId], references: [id], onDelete: Cascade)
-  asignatura   Asignatura       @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+  cantasistida  Int?
+  asignatura    Asignatura       @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+  aula          Aula             @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  horario       Horario          @relation(fields: [horarioId], references: [id], onDelete: Cascade)
+  profesor      Profesor?        @relation(fields: [profesorId], references: [id])
 
   @@unique([horarioId, fecha])
   @@index([fecha])
@@ -134,19 +133,19 @@ model Asistencia {
 }
 
 model EstadoAula {
-  id          String    @id @default(cuid())
-  aulaId      String
-  fecha       DateTime
-  franja      String
-  abierta     Boolean   @default(false)
-  horaApertura DateTime?
-  horaCierre   DateTime?
-  abiertoPor   String?
-  cerradoPor   String?
-  notas        String?
-  creadoEn     DateTime  @default(now())
+  id            String    @id @default(cuid())
+  aulaId        String
+  fecha         DateTime
+  franja        String
+  abierta       Boolean   @default(false)
+  horaApertura  DateTime?
+  horaCierre    DateTime?
+  abiertoPor    String?
+  cerradoPor    String?
+  notas         String?
+  creadoEn      DateTime  @default(now())
   actualizadoEn DateTime
-  aula         Aula      @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  aula          Aula      @relation(fields: [aulaId], references: [id], onDelete: Cascade)
 
   @@unique([aulaId, fecha, franja])
   @@index([fecha])
@@ -156,21 +155,19 @@ model EstadoAula {
 }
 
 model RegistroSistema {
-  id           String   @id @default(cuid())
-  accion       String
-  tipoEntidad  String
-  entidadId    String
-  usuarioId    String?
-  detalles     Json?
-  fechaHora    DateTime @default(now())
+  id          String   @id @default(cuid())
+  accion      String
+  tipoEntidad String
+  entidadId   String
+  usuarioId   String?
+  detalles    Json?
+  fechaHora   DateTime @default(now())
 
   @@index([accion])
   @@index([tipoEntidad, entidadId])
   @@index([fechaHora])
   @@map("registros_sistema")
 }
-
-// ==================== ENUMERACIONES ====================
 
 enum EstadoAsistencia {
   ASISTIO

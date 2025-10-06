@@ -41,6 +41,7 @@ interface AttendanceRecord {
   profeAsignado: string;
   estadoAsistencia: string;
   sala: string;
+  cadi: string;
   observaciones: string;
   diaSemana: string;
   horarioId: string;
@@ -210,80 +211,92 @@ export function AsistenciaAdmin({
     return <Icon className={`w-4 h-4 ${statusInfo.color}`} />;
   };
 
-const exportToExcel = () => {
-  let filteredRecords = savedRecords;
+  const exportToExcel = () => {
+    let filteredRecords = savedRecords;
 
-  if (startDate || endDate) {
-    filteredRecords = savedRecords.filter((record) => {
-      const recordDate = new Date(record.fecha);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
+    if (startDate || endDate) {
+      filteredRecords = savedRecords.filter((record) => {
+        const recordDate = new Date(record.fecha);
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
 
-      if (start && end) {
-        return recordDate >= start && recordDate <= end;
-      } else if (start) {
-        return recordDate >= start;
-      } else if (end) {
-        return recordDate <= end;
-      }
-      return true;
+        if (start && end) {
+          return recordDate >= start && recordDate <= end;
+        } else if (start) {
+          return recordDate >= start;
+        } else if (end) {
+          return recordDate <= end;
+        }
+        return true;
+      });
+    }
+
+    // Preparar datos para Excel
+    const excelData = filteredRecords.map((record) => ({
+      Fecha: record.fecha,
+      "Hora Inicio": record.horaInicio,
+      "Hora Fin": record.horaFin,
+      Materia: record.materiaAsignada,
+      Programa: record.programaNombre,
+      Profesor: record.profeAsignado,
+      Estado:
+        ATTENDANCE_STATUS[
+          record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS
+        ]?.label || record.estadoAsistencia,
+      Sala: record.sala,
+      Cadi: record.cadi,
+      "Total Estudiantes": record.cantidadtotal,
+      "Asistencia Estudiantes": record.cantidadAsistida || 0,
+      Observaciones: record.observaciones || "",
+    }));
+
+    // Crear libro de trabajo de Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Ajustar el ancho de las columnas automáticamente
+    const columnWidths = [
+      { wch: 12 }, // Fecha
+      { wch: 10 }, // Hora Inicio
+      { wch: 10 }, // Hora Fin
+      { wch: 63 }, // Materia
+      { wch: 28 }, // Programa
+      { wch: 41 }, // Profesor
+      { wch: 15 }, // Estado
+      { wch: 10 }, // Sala
+      { wch: 15 }, // Total Estudiantes
+      { wch: 18 }, // Asistencia Estudiantes
+      { wch: 30 }, // Observaciones
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    // Agregar hoja al libro
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Asistencias");
+
+    // Crear archivo
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
     });
-  }
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-  // Preparar datos para Excel
-  const excelData = filteredRecords.map((record) => ({
-    'Fecha': record.fecha,
-    'Hora Inicio': record.horaInicio,
-    'Hora Fin': record.horaFin,
-    'Materia': record.materiaAsignada,
-    'Programa': record.programaNombre,
-    'Profesor': record.profeAsignado,
-    'Estado': ATTENDANCE_STATUS[record.estadoAsistencia as keyof typeof ATTENDANCE_STATUS]?.label || record.estadoAsistencia,
-    'Sala': record.sala,
-    'Total Estudiantes': record.cantidadtotal,
-    'Asistencia Estudiantes': record.cantidadAsistida || 0,
-    'Observaciones': record.observaciones || ''
-  }));
+    // Descargar archivo
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
 
-  // Crear libro de trabajo de Excel
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `asistencias_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+    link.style.visibility = "hidden";
 
-  // Ajustar el ancho de las columnas automáticamente
-  const columnWidths = [
-    { wch: 12 }, // Fecha
-    { wch: 10 }, // Hora Inicio
-    { wch: 10 }, // Hora Fin
-    { wch: 63 }, // Materia
-    { wch: 28 }, // Programa
-    { wch: 41 }, // Profesor
-    { wch: 15 }, // Estado
-    { wch: 10 }, // Sala
-    { wch: 15 }, // Total Estudiantes
-    { wch: 18 }, // Asistencia Estudiantes
-    { wch: 30 }  // Observaciones
-  ];
-  worksheet['!cols'] = columnWidths;
-
-  // Agregar hoja al libro
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
-
-  // Crear archivo
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-  // Descargar archivo
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-
-  link.setAttribute('href', url);
-  link.setAttribute('download', `asistencias_${new Date().toISOString().split('T')[0]}.xlsx`);
-  link.style.visibility = 'hidden';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     reloadSavedAttendances();
@@ -541,7 +554,7 @@ const exportToExcel = () => {
 
           <div className="overflow-x-auto">
             <div className="min-w-[1200px]">
-              <div className="grid grid-cols-11 gap-2 mb-3">
+              <div className="grid grid-cols-12 gap-2 mb-3">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   FECHA
                 </div>
@@ -567,6 +580,9 @@ const exportToExcel = () => {
                   SALA
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
+                  CADI
+                </div>
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
                   TOTAL EST
                 </div>
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 text-center font-semibold rounded-lg shadow-md">
@@ -585,7 +601,7 @@ const exportToExcel = () => {
                   ];
 
                 return (
-                  <div key={record.id} className="grid grid-cols-11 gap-2 mb-2">
+                  <div key={record.id} className="grid grid-cols-12 gap-2 mb-2">
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.fecha}
                     </div>
@@ -622,6 +638,9 @@ const exportToExcel = () => {
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.sala}
+                    </div>
+                    <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
+                      {record.cadi}
                     </div>
                     <div className="bg-gray-900/40 border border-cyan-400/30 p-3 rounded-lg flex items-center justify-center text-cyan-200 font-medium text-sm shadow-sm">
                       {record.cantidadtotal} {/* ✅ Total de estudiantes */}
