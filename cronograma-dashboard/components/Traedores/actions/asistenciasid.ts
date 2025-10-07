@@ -19,9 +19,10 @@ interface AttendanceRecord {
   asignaturaId: string;
   aulaId: string;
   profesorId: string;
-  cantidadtotal: number; // ✅ Agregado
+  cantidadtotal: number;
   cantidadAsistida: number;
   programaNombre: string;
+  grupo: string;
 }
 
 // Action para obtener las asistencias
@@ -55,6 +56,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
             diaSemana: true,
             cantidadSt: true,
             cadi: true,
+            grupo: true,
           }
         },
         asignatura: {
@@ -90,6 +92,7 @@ export async function obtenerAsistencias(): Promise<AttendanceRecord[]> {
       cantidadtotal: asistencia.horario.cantidadSt || 0, // ✅ Agregado
       cantidadAsistida: asistencia.cantasistida || 0,
       programaNombre: asistencia.asignatura.programa.nombre,
+      grupo: asistencia.horario.grupo || ''
     }));
   } catch (error) {
     console.error('Error obteniendo asistencias:', error);

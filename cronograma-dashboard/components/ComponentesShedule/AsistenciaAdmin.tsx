@@ -51,6 +51,7 @@ interface AttendanceRecord {
   cantidadtotal: number;
   cantidadAsistida?: number;
   programaNombre: string;
+  grupo: string;
 }
 
 interface AttendanceViewProps {
@@ -101,23 +102,23 @@ export function AsistenciaAdmin({
   const reloadSavedAttendances = async () => {
     try {
       const asissdata = await obtenerAsistencias();
+      setSavedRecords(asissdata);
+      // // Ordenar y filtrar las asistencias
+      // const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
 
-      // Ordenar y filtrar las asistencias
-      const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+      // const sortedAndFiltered = asissdata
+      //   .filter((record) => {
+      //     const recordDate = new Date(record.fecha).toISOString().split("T")[0];
+      //     return recordDate === today; // Solo mostrar asistencias de hoy
+      //   })
+      //   .sort((a, b) => {
+      //     // Ordenar por fecha más reciente primero
+      //     const dateA = new Date(a.fecha);
+      //     const dateB = new Date(b.fecha);
+      //     return dateB.getTime() - dateA.getTime();
+      //   });
 
-      const sortedAndFiltered = asissdata
-        .filter((record) => {
-          const recordDate = new Date(record.fecha).toISOString().split("T")[0];
-          return recordDate === today; // Solo mostrar asistencias de hoy
-        })
-        .sort((a, b) => {
-          // Ordenar por fecha más reciente primero
-          const dateA = new Date(a.fecha);
-          const dateB = new Date(b.fecha);
-          return dateB.getTime() - dateA.getTime();
-        });
-
-      setSavedRecords(sortedAndFiltered);
+      //setSavedRecords(sortedAndFiltered);
     } catch (error) {
       console.error("Error al recargar asistencias guardadas:", error);
       setSavedRecords([]);
@@ -254,6 +255,7 @@ export function AsistenciaAdmin({
       "Hora Fin": record.horaFin,
       Materia: record.materiaAsignada,
       Programa: record.programaNombre,
+      Grupo: record.grupo,
       Profesor: record.profeAsignado,
       Estado:
         ATTENDANCE_STATUS[
@@ -277,6 +279,7 @@ export function AsistenciaAdmin({
       { wch: 10 }, // Hora Fin
       { wch: 63 }, // Materia
       { wch: 28 }, // Programa
+      { wch: 15 }, // Grupo
       { wch: 41 }, // Profesor
       { wch: 15 }, // Estado
       { wch: 10 }, // Sala
