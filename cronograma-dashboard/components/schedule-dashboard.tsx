@@ -6,6 +6,7 @@ import { AsistenciaVer } from "./ComponentesShedule/AsistenciaVer";
 import { VistaTiempoReal } from "./ComponentesShedule/VistaTiempoReal";
 import { MateriasVer } from "./ComponentesShedule/MateriasVer";
 import { AsistenciaAdmin } from "./ComponentesShedule/AsistenciaAdmin";
+import { LabRoomsView } from "./lab-rooms-view";
 //
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -463,8 +464,14 @@ export function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState("lunes");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<
-    "schedule" | "attendance" | "realtime" | "subjects" | "adminasis"
+    | "schedule"
+    | "attendance"
+    | "realtime"
+    | "subjects"
+    | "adminasis"
+    | "labrooms"
   >("schedule");
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [openedRooms, setOpenedRooms] = useState<Set<string>>(new Set());
   //Traedores de info
@@ -954,6 +961,18 @@ export function ScheduleDashboard() {
               GESTIÓN DE MATERIAS
               {!isAuthenticated && <Lock className="w-3 h-3 ml-2" />}
             </Button>
+            <Button
+              variant={activeView === "labrooms" ? "default" : "outline"}
+              onClick={() => setActiveView("labrooms")}
+              className={`font-mono transition-all duration-300 ${
+                activeView === "labrooms"
+                  ? "bg-blue-500 hover:bg-blue-400 text-black shadow-lg shadow-blue-500/50"
+                  : "border-blue-500/50 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400"
+              }`}
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              SALAS DE CÓMPUTO
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1007,8 +1026,9 @@ export function ScheduleDashboard() {
         </div>
       )}
 
-      {activeView === "subjects" ? (
-        <>
+      {activeView === "labrooms" ? (
+        <LabRoomsView getSubjectStyle={getSubjectStyle} />
+      ) : activeView === "subjects" ? (
           <MateriasVer
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
@@ -1021,7 +1041,6 @@ export function ScheduleDashboard() {
             isModalOpenHorario={isModalOpenHorario}
             setIsModalOpenHorario={setIsModalOpenHorario}
           />
-        </>
       ) : activeView === "realtime" ? (
         <VistaTiempoReal
           currentTime={currentTime}
