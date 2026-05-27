@@ -14,7 +14,7 @@ cronograma-dashboard/
 |   +-- api/                  # Endpoints REST internos
 |   +-- centros-computo/      # Dashboard del cronograma
 |   +-- cgca/                 # Placeholder CGCA
-|   +-- recursos-educativos/  # Placeholder recursos educativos
+|   +-- recursos-educativos/  # Centro de Recursos Deportivos
 |   +-- layout.tsx            # Layout raiz
 |   \-- page.tsx              # Entrada principal
 +-- components/
@@ -137,6 +137,10 @@ Estados soportados:
 ### Salas de computo
 
 `LabRoomsView` renderiza distribuciones visuales de salas como C111, C112, C113, C114 y C115. La informacion de equipos y posiciones esta definida de forma estatica dentro del componente.
+
+### Centro de Recursos Deportivos
+
+`SportsResourcesView` renderiza la gestion local de solicitudes de elementos deportivos en `/recursos-educativos`. Permite crear solicitudes con documento, rol y elementos solicitados, genera fecha y dia automaticamente, asigna estado inicial `RECEPCIONADA`, calcula estadisticas por estado y permite cambiar estado, editar observaciones y eliminar solicitudes en memoria.
 
 ## 8. Convenciones importantes
 

@@ -12,6 +12,7 @@ Aplicacion web para consultar y administrar el cronograma academico de salas, ma
 - Panel administrativo para consultar asistencias guardadas y exportarlas a Excel.
 - Gestion academica de programas, asignaturas, aulas, profesores y horarios.
 - Vista de salas de computo con distribucion de equipos.
+- Gestion local de solicitudes de elementos deportivos en `/recursos-educativos`.
 
 ## Tecnologias
 
@@ -101,7 +102,7 @@ Rutas principales:
 /                    # Pantalla Apoyo AcademicoSoftSoacha
 /centros-computo     # Dashboard actual del cronograma
 /cgca                # Placeholder de CGCA
-/recursos-educativos # Placeholder de Centro de recursos Educativos
+/recursos-educativos # Centro de Recursos Deportivos
 ```
 
 ## Scripts disponibles
