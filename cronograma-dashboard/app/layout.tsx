@@ -4,8 +4,8 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Cronograma Centros de Computo',
-  description: 'cronogram',
+  title: 'Apoyo AcademicoSoftSoacha',
+  description: 'Portal de apoyo academico SoftSoacha',
   generator: 'centos',
 }
 
