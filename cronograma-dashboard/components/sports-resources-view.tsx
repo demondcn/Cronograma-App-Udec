@@ -26,7 +26,6 @@ import {
   User,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -50,7 +49,6 @@ import { Textarea } from "@/components/ui/textarea";
 type SportsRequestStatus =
   | "RECEPCIONADA"
   | "PENDIENTE"
-  | "ENTREGADO"
   | "DEVOLUCION"
   | "CANCELADA";
 
@@ -67,7 +65,9 @@ interface SportsItemSelection {
 
 interface SportsRequest {
   id: string;
+  applicantName: string;
   documentNumber: string;
+  responsibleTeacher: string;
   role: SportsUserRole;
   selectedItems: SportsItemSelection[];
   requestDate: string;
@@ -78,9 +78,11 @@ interface SportsRequest {
 }
 
 interface SportsRequestForm {
+  applicantName: string;
   documentNumber: string;
+  responsibleTeacher: string;
   role: SportsUserRole;
-  elementsText: string;
+  selectedItems: SportsItemSelection[];
   status: SportsRequestStatus;
   observations: string;
 }
@@ -98,17 +100,17 @@ const SPORTS_REQUESTS_STORAGE_KEY = "sports_requests";
 const SPORTS_ADMIN_SESSION_KEY = "sports_admin_authenticated";
 const SPORTS_ADMIN_PASSWORD = "70407";
 
-const roleOptions: SportsUserRole[] = [
-  "ESTUDIANTE",
-  "DOCENTE",
-  "ADMINISTRATIVO",
-  "OTRO",
+const TEACHERS = [
+  "Carlos Andrés Ramírez",
+  "María Fernanda López",
+  "Jhonatan Pérez García",
+  "Diana Carolina Torres",
+  "Luis Fernando Gómez",
 ];
 
 const statusOptions: SportsRequestStatus[] = [
   "RECEPCIONADA",
   "PENDIENTE",
-  "ENTREGADO",
   "DEVOLUCION",
   "CANCELADA",
 ];
@@ -183,24 +185,18 @@ const sportsInventory: SportsInventoryItem[] = [
 ];
 
 const emptyAdminForm: SportsRequestForm = {
+  applicantName: "",
   documentNumber: "",
+  responsibleTeacher: "",
   role: "ESTUDIANTE",
-  elementsText: "",
+  selectedItems: [],
   status: "RECEPCIONADA",
   observations: "",
-};
-
-const roleStyles: Record<SportsUserRole, string> = {
-  ESTUDIANTE: "border-sky-300/40 bg-sky-400/15 text-sky-100",
-  DOCENTE: "border-orange-300/50 bg-orange-400/20 text-orange-100",
-  ADMINISTRATIVO: "border-violet-300/40 bg-violet-400/15 text-violet-100",
-  OTRO: "border-gray-300/30 bg-gray-400/15 text-gray-100",
 };
 
 const statusStyles: Record<SportsRequestStatus, string> = {
   RECEPCIONADA: "border-yellow-300/50 bg-yellow-400/20 text-yellow-100",
   PENDIENTE: "border-red-300/50 bg-red-500/20 text-red-100",
-  ENTREGADO: "border-blue-300/50 bg-blue-500/20 text-blue-100",
   DEVOLUCION: "border-emerald-300/50 bg-emerald-500/20 text-emerald-100",
   CANCELADA: "border-gray-300/40 bg-gray-500/20 text-gray-100",
 };
@@ -245,6 +241,14 @@ function isSportsStatus(value: unknown): value is SportsRequestStatus {
     typeof value === "string" &&
     statusOptions.includes(value as SportsRequestStatus)
   );
+}
+
+function normalizeStatus(value: unknown): SportsRequestStatus {
+  if (isSportsStatus(value)) {
+    return value;
+  }
+
+  return "RECEPCIONADA";
 }
 
 function normalizeItems(
@@ -293,7 +297,11 @@ function normalizeRequest(value: unknown, index: number): SportsRequest | null {
 
   const rawRequest = value as Partial<SportsRequest>;
   const id = String(rawRequest.id || `sports-request-${index + 1}`);
+  const applicantName = String(rawRequest.applicantName || "").trim();
   const documentNumber = String(rawRequest.documentNumber || "").trim();
+  const responsibleTeacher = String(
+    rawRequest.responsibleTeacher || ""
+  ).trim();
 
   if (!documentNumber) {
     return null;
@@ -301,7 +309,10 @@ function normalizeRequest(value: unknown, index: number): SportsRequest | null {
 
   return {
     id,
+    applicantName: applicantName || "Sin nombre registrado",
     documentNumber,
+    responsibleTeacher:
+      responsibleTeacher || "Sin profesor responsable registrado",
     role: isSportsRole(rawRequest.role) ? rawRequest.role : "OTRO",
     selectedItems: normalizeItems(
       rawRequest.selectedItems,
@@ -310,9 +321,7 @@ function normalizeRequest(value: unknown, index: number): SportsRequest | null {
     ),
     requestDate: String(rawRequest.requestDate || ""),
     requestDay: String(rawRequest.requestDay || ""),
-    status: isSportsStatus(rawRequest.status)
-      ? rawRequest.status
-      : "RECEPCIONADA",
+    status: normalizeStatus(rawRequest.status),
     observations: String(rawRequest.observations || ""),
   };
 }
@@ -364,41 +373,57 @@ function formatSelectedItems(request: SportsRequest) {
     .join(", ");
 }
 
-function selectedItemsToEditText(request: SportsRequest) {
-  return request.selectedItems
+function formatSelectedItemsList(items: SportsItemSelection[]) {
+  if (items.length === 0) {
+    return "Sin elementos";
+  }
+
+  return items
     .map((item) =>
       item.detail
-        ? `${item.quantity} x ${item.name} - ${item.detail}`
+        ? `${item.quantity} x ${item.name} (${item.detail})`
         : `${item.quantity} x ${item.name}`
     )
-    .join("\n");
-}
-
-function parseItemsFromText(text: string, requestId: string) {
-  const lines = text
-    .split(/\n|,/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  return lines.map((line, index) => {
-    const match = line.match(/^(\d+)\s*x\s*(.+?)(?:\s*[-–]\s*(.+))?$/i);
-
-    return {
-      id: `${requestId}-edited-item-${index + 1}`,
-      name: match ? match[2].trim() : line,
-      detail: match?.[3]?.trim() || "",
-      quantity: match ? Math.max(1, Number(match[1])) : 1,
-    };
-  });
+    .join(", ");
 }
 
 export function SportsResourcesView() {
   const [currentStep, setCurrentStep] = useState<PublicStep>(1);
+  const [applicantName, setApplicantName] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
-  const [role, setRole] = useState<SportsUserRole | "">("");
+  const [responsibleTeacher, setResponsibleTeacher] = useState("");
+  const [teacherSearch, setTeacherSearch] = useState("");
+  const [itemSearch, setItemSearch] = useState("");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const filteredInventory = useMemo(() => {
+    const normalizedSearch = itemSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return sportsInventory;
+    }
+
+    return sportsInventory.filter((item) =>
+      [item.name, item.detail, ...item.tags]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
+    );
+  }, [itemSearch]);
+
+  const filteredTeachers = useMemo(() => {
+    const normalizedSearch = teacherSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return TEACHERS;
+    }
+
+    return TEACHERS.filter((teacher) =>
+      teacher.toLowerCase().includes(normalizedSearch)
+    );
+  }, [teacherSearch]);
 
   const selectedItems = useMemo(
     () =>
@@ -443,10 +468,14 @@ export function SportsResourcesView() {
   };
 
   const goToItemsStep = () => {
+    const cleanName = applicantName.trim();
     const cleanDocument = documentNumber.trim();
+    const cleanTeacher = responsibleTeacher.trim();
 
-    if (!cleanDocument || !role) {
-      setFormError("Completa el número de documento y selecciona tu rol.");
+    if (!cleanName || !cleanDocument || !cleanTeacher) {
+      setFormError(
+        "Completa el nombre completo, el numero de documento y el profesor responsable."
+      );
       return;
     }
 
@@ -465,10 +494,17 @@ export function SportsResourcesView() {
     setCurrentStep(3);
   };
 
-  const submitRequest = () => {
+  const submitRequest = async () => {
+    const cleanName = applicantName.trim();
     const cleanDocument = documentNumber.trim();
+    const cleanTeacher = responsibleTeacher.trim();
 
-    if (!cleanDocument || !role || selectedItems.length === 0) {
+    if (
+      !cleanName ||
+      !cleanDocument ||
+      !cleanTeacher ||
+      selectedItems.length === 0
+    ) {
       setFormError("Completa todos los pasos antes de enviar la solicitud.");
       return;
     }
@@ -477,8 +513,10 @@ export function SportsResourcesView() {
     const currentRequests = readStoredRequests();
     const newRequest: SportsRequest = {
       id: createRequestId(),
+      applicantName: cleanName,
       documentNumber: cleanDocument,
-      role,
+      responsibleTeacher: cleanTeacher,
+      role: "ESTUDIANTE",
       selectedItems,
       requestDate: requestDate.requestDate,
       requestDay: requestDate.requestDay,
@@ -487,12 +525,43 @@ export function SportsResourcesView() {
     };
 
     saveStoredRequests([newRequest, ...currentRequests]);
+    setApplicantName("");
     setDocumentNumber("");
-    setRole("");
+    setResponsibleTeacher("");
+    setTeacherSearch("");
+    setItemSearch("");
     setQuantities({});
     setFormError("");
-    setSuccessMessage("Solicitud enviada correctamente.");
     setCurrentStep(1);
+
+    try {
+      const response = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newRequest),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        console.error("Error enviando notificaciones de WhatsApp:", result);
+        setSuccessMessage(
+          "Solicitud registrada, pero falló el envío de WhatsApp."
+        );
+        return;
+      }
+
+      setSuccessMessage(
+        "Solicitud registrada y notificaciones enviadas correctamente."
+      );
+    } catch (error) {
+      console.error("Error enviando notificaciones de WhatsApp:", error);
+      setSuccessMessage(
+        "Solicitud registrada, pero falló el envío de WhatsApp."
+      );
+    }
   };
 
   return (
@@ -528,6 +597,22 @@ export function SportsResourcesView() {
                   <div className="grid gap-2">
                     <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
                       <User className="h-4 w-4 text-orange-400" />
+                      Nombre completo
+                    </label>
+                    <Input
+                      value={applicantName}
+                      onChange={(event) => {
+                        setApplicantName(event.target.value);
+                        setFormError("");
+                      }}
+                      placeholder="Ingresa tu nombre completo"
+                      className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
+                      <ClipboardList className="h-4 w-4 text-orange-400" />
                       Número de Documento
                     </label>
                     <Input
@@ -547,27 +632,42 @@ export function SportsResourcesView() {
 
                   <div className="grid gap-2">
                     <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
-                      <ClipboardList className="h-4 w-4 text-orange-400" />
-                      Rol en la Institución
+                      <Shield className="h-4 w-4 text-orange-400" />
+                      Profesor responsable
                     </label>
+                    <Input
+                      value={teacherSearch}
+                      onChange={(event) => setTeacherSearch(event.target.value)}
+                      placeholder="Buscar profesor por nombre..."
+                      className="h-10 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
+                    />
                     <Select
-                      value={role}
+                      value={responsibleTeacher}
                       onValueChange={(value) => {
-                        setRole(value as SportsUserRole);
+                        setResponsibleTeacher(value);
+                        setTeacherSearch("");
                         setFormError("");
                       }}
                     >
-                      <SelectTrigger className="h-11 w-full border-amber-300/35 bg-black/35 text-gray-100 focus:ring-orange-500/30 sm:w-52">
-                        <SelectValue placeholder="Selecciona tu rol" />
+                      <SelectTrigger className="h-11 border-amber-300/35 bg-black/35 text-gray-100 focus:border-orange-400 focus:ring-orange-500/30">
+                        <SelectValue placeholder="Selecciona el profesor responsable" />
                       </SelectTrigger>
                       <SelectContent className="border-amber-300/30 bg-gray-950 text-amber-50">
-                        {roleOptions.map((roleOption) => (
-                          <SelectItem key={roleOption} value={roleOption}>
-                            {roleOption}
+                        {filteredTeachers.map((teacher) => (
+                          <SelectItem key={teacher} value={teacher}>
+                            {teacher}
                           </SelectItem>
                         ))}
+                        {filteredTeachers.length === 0 && (
+                          <div className="px-3 py-2 text-sm text-slate-400">
+                            No se encontraron profesores.
+                          </div>
+                        )}
                       </SelectContent>
                     </Select>
+                    <span className="text-xs text-slate-400">
+                      Selecciona el docente que autoriza o acompaña la solicitud
+                    </span>
                   </div>
                 </div>
 
@@ -594,8 +694,21 @@ export function SportsResourcesView() {
                   description="Elige los elementos deportivos que deseas solicitar"
                 />
 
+                <div className="grid gap-2">
+                  <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
+                    <Package className="h-4 w-4 text-orange-400" />
+                    Buscar elemento deportivo
+                  </label>
+                  <Input
+                    value={itemSearch}
+                    onChange={(event) => setItemSearch(event.target.value)}
+                    placeholder="Buscar por nombre, marca, color o tipo..."
+                    className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
+                  />
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {sportsInventory.map((item) => {
+                  {filteredInventory.map((item) => {
                     const quantity = quantities[item.id] || 0;
                     const isSelected = quantity > 0;
 
@@ -667,6 +780,12 @@ export function SportsResourcesView() {
                   })}
                 </div>
 
+                {filteredInventory.length === 0 && (
+                  <div className="rounded-xl border border-amber-300/20 bg-black/25 px-4 py-6 text-center text-sm font-semibold text-slate-300">
+                    No se encontraron elementos con ese filtro.
+                  </div>
+                )}
+
                 <div
                   className={`rounded-xl border px-4 py-3 text-sm font-bold ${
                     selectedTotal > 0
@@ -717,10 +836,17 @@ export function SportsResourcesView() {
                     </h3>
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <SummaryItem
+                        label="Solicitante"
+                        value={applicantName.trim()}
+                      />
+                      <SummaryItem
                         label="Número de Documento"
                         value={documentNumber.trim()}
                       />
-                      <SummaryItem label="Rol" value={role || "Sin rol"} />
+                      <SummaryItem
+                        label="Profesor responsable"
+                        value={responsibleTeacher.trim()}
+                      />
                       <SummaryItem
                         label="Fecha"
                         value={summaryDate.requestDate}
@@ -804,6 +930,7 @@ export function SportsResourcesAdminView() {
     null
   );
   const [formData, setFormData] = useState<SportsRequestForm>(emptyAdminForm);
+  const [adminTeacherSearch, setAdminTeacherSearch] = useState("");
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -831,14 +958,26 @@ export function SportsResourcesAdminView() {
       ).length,
       pendientes: requests.filter((request) => request.status === "PENDIENTE")
         .length,
-      entregados: requests.filter((request) => request.status === "ENTREGADO")
-        .length,
       devoluciones: requests.filter(
         (request) => request.status === "DEVOLUCION"
       ).length,
+      canceladas: requests.filter((request) => request.status === "CANCELADA")
+        .length,
     }),
     [requests]
   );
+
+  const filteredAdminTeachers = useMemo(() => {
+    const normalizedSearch = adminTeacherSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return TEACHERS;
+    }
+
+    return TEACHERS.filter((teacher) =>
+      teacher.toLowerCase().includes(normalizedSearch)
+    );
+  }, [adminTeacherSearch]);
 
   const persistRequests = (
     updater: SportsRequest[] | ((currentRequests: SportsRequest[]) => SportsRequest[])
@@ -873,6 +1012,7 @@ export function SportsResourcesAdminView() {
   const resetForm = () => {
     setFormData(emptyAdminForm);
     setEditingRequest(null);
+    setAdminTeacherSearch("");
     setFormError("");
   };
 
@@ -885,9 +1025,11 @@ export function SportsResourcesAdminView() {
     setSuccessMessage("");
     setEditingRequest(request);
     setFormData({
+      applicantName: request.applicantName,
       documentNumber: request.documentNumber,
+      responsibleTeacher: request.responsibleTeacher,
       role: request.role,
-      elementsText: selectedItemsToEditText(request),
+      selectedItems: request.selectedItems,
       status: request.status,
       observations: request.observations,
     });
@@ -900,12 +1042,20 @@ export function SportsResourcesAdminView() {
       return;
     }
 
+    const applicantName = formData.applicantName.trim();
     const documentNumber = formData.documentNumber.trim();
-    const elementsText = formData.elementsText.trim();
+    const responsibleTeacher = formData.responsibleTeacher.trim();
     const observations = formData.observations.trim();
 
-    if (!documentNumber || !formData.role || !elementsText) {
-      setFormError("Completa documento, rol y elementos solicitados.");
+    if (
+      !applicantName ||
+      !documentNumber ||
+      !responsibleTeacher ||
+      formData.selectedItems.length === 0
+    ) {
+      setFormError(
+        "Completa nombre, documento, profesor responsable y elementos solicitados."
+      );
       return;
     }
 
@@ -914,9 +1064,11 @@ export function SportsResourcesAdminView() {
         request.id === editingRequest.id
           ? {
               ...request,
+              applicantName,
               documentNumber,
+              responsibleTeacher,
               role: formData.role,
-              selectedItems: parseItemsFromText(elementsText, request.id),
+              selectedItems: formData.selectedItems,
               status: formData.status,
               observations,
             }
@@ -936,6 +1088,39 @@ export function SportsResourcesAdminView() {
         request.id === requestId ? { ...request, status } : request
       )
     );
+  };
+
+  const updateAdminItemQuantity = (item: SportsInventoryItem, change: number) => {
+    setFormData((currentForm) => {
+      const currentItem = currentForm.selectedItems.find(
+        (selectedItem) => selectedItem.id === item.id
+      );
+      const currentQuantity = currentItem?.quantity || 0;
+      const nextQuantity = Math.min(
+        item.available,
+        Math.max(0, currentQuantity + change)
+      );
+
+      return {
+        ...currentForm,
+        selectedItems:
+          nextQuantity === 0
+            ? currentForm.selectedItems.filter(
+                (selectedItem) => selectedItem.id !== item.id
+              )
+            : [
+                ...currentForm.selectedItems.filter(
+                  (selectedItem) => selectedItem.id !== item.id
+                ),
+                {
+                  id: item.id,
+                  name: item.name,
+                  detail: item.detail,
+                  quantity: nextQuantity,
+                },
+              ],
+      };
+    });
   };
 
   const deleteRequest = (requestId: string) => {
@@ -974,7 +1159,7 @@ export function SportsResourcesAdminView() {
                 variant="outline"
                 className="w-fit border-amber-400/40 bg-black/30 text-amber-100 hover:bg-amber-400/15 hover:text-amber-50"
               >
-                <Link href="/recursos-educativos">
+                <Link href="/recursos-deportivos">
                   <ArrowLeft className="h-4 w-4" />
                   Volver al formulario
                 </Link>
@@ -1025,10 +1210,10 @@ export function SportsResourcesAdminView() {
             className="border-red-300/35 text-red-100 shadow-red-500/10"
           />
           <StatCard
-            title="ELEMENTOS ENTREGADOS"
-            value={stats.entregados}
+            title="SOLICITUDES CANCELADAS"
+            value={stats.canceladas}
             icon={<CheckCircle className="h-6 w-6" />}
-            className="border-blue-300/35 text-blue-100 shadow-blue-500/10"
+            className="border-gray-300/35 text-gray-100 shadow-gray-500/10"
           />
           <StatCard
             title="DEVOLUCIONES REGISTRADAS"
@@ -1055,7 +1240,7 @@ export function SportsResourcesAdminView() {
               asChild
               className="h-12 bg-gradient-to-r from-amber-400 to-orange-500 px-5 font-bold text-black shadow-lg shadow-orange-500/25 hover:from-amber-300 hover:to-orange-400"
             >
-              <Link href="/recursos-educativos">
+              <Link href="/recursos-deportivos">
                 <Plus className="h-5 w-5" />
                 Nueva solicitud
               </Link>
@@ -1069,12 +1254,13 @@ export function SportsResourcesAdminView() {
             )}
 
             <div className="overflow-x-auto rounded-xl border border-amber-300/25 bg-gray-950/55 shadow-inner shadow-amber-500/10">
-              <div className="min-w-[1328px]">
-                <div className="grid grid-cols-[112px_108px_126px_146px_215px_178px_205px_238px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase tracking-normal text-black">
+              <div className="min-w-[1500px]">
+                <div className="grid grid-cols-[108px_104px_160px_120px_180px_210px_170px_200px_248px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase tracking-normal text-black">
                   <TableHead>Fecha</TableHead>
                   <TableHead>Día</TableHead>
+                  <TableHead>Solicitante</TableHead>
                   <TableHead>Documento</TableHead>
-                  <TableHead>Rol</TableHead>
+                  <TableHead>Profesor</TableHead>
                   <TableHead>Elementos</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Observaciones</TableHead>
@@ -1090,7 +1276,7 @@ export function SportsResourcesAdminView() {
                   requests.map((request) => (
                     <div
                       key={request.id}
-                      className="grid grid-cols-[112px_108px_126px_146px_215px_178px_205px_238px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 transition-colors hover:bg-amber-500/10"
+                      className="grid grid-cols-[108px_104px_160px_120px_180px_210px_170px_200px_248px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 transition-colors hover:bg-amber-500/10"
                     >
                       <TableCell className="justify-center whitespace-nowrap text-center font-bold text-amber-100">
                         {request.requestDate}
@@ -1098,17 +1284,18 @@ export function SportsResourcesAdminView() {
                       <TableCell className="justify-center whitespace-nowrap text-center font-mono text-xs text-yellow-100">
                         {request.requestDay}
                       </TableCell>
+                      <TableCell className="font-bold text-amber-50">
+                        <span className="line-clamp-2 break-words">
+                          {request.applicantName}
+                        </span>
+                      </TableCell>
                       <TableCell className="justify-center whitespace-nowrap text-center font-mono text-xs text-gray-100">
                         {request.documentNumber}
                       </TableCell>
-                      <TableCell className="justify-center">
-                        <Badge
-                          variant="outline"
-                          className={`${roleStyles[request.role]} whitespace-nowrap text-[11px]`}
-                        >
-                          <User className="mr-1 h-3 w-3" />
-                          {request.role}
-                        </Badge>
+                      <TableCell className="font-semibold text-amber-50/90">
+                        <span className="line-clamp-2 break-words">
+                          {request.responsibleTeacher}
+                        </span>
                       </TableCell>
                       <TableCell className="whitespace-normal leading-relaxed text-amber-50/90">
                         <span className="line-clamp-3 break-words">
@@ -1213,6 +1400,23 @@ export function SportsResourcesAdminView() {
           <div className="grid gap-4">
             <div className="grid gap-2">
               <label className="text-sm font-medium text-amber-100">
+                Nombre completo del solicitante
+              </label>
+              <Input
+                value={formData.applicantName}
+                onChange={(event) =>
+                  setFormData((currentForm) => ({
+                    ...currentForm,
+                    applicantName: event.target.value,
+                  }))
+                }
+                placeholder="Ej. Juan Perez"
+                className="border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">
                 Número de documento
               </label>
               <Input
@@ -1231,26 +1435,40 @@ export function SportsResourcesAdminView() {
 
             <div className="grid gap-2">
               <label className="text-sm font-medium text-amber-100">
-                Tipo de rol
+                Profesor responsable
               </label>
+              <Input
+                value={adminTeacherSearch}
+                onChange={(event) => setAdminTeacherSearch(event.target.value)}
+                placeholder="Buscar profesor por nombre..."
+                className="border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
+              />
               <Select
-                value={formData.role}
+                value={formData.responsibleTeacher}
                 onValueChange={(value) =>
-                  setFormData((currentForm) => ({
-                    ...currentForm,
-                    role: value as SportsUserRole,
-                  }))
+                  {
+                    setFormData((currentForm) => ({
+                      ...currentForm,
+                      responsibleTeacher: value,
+                    }));
+                    setAdminTeacherSearch("");
+                  }
                 }
               >
-                <SelectTrigger className="w-full border-amber-300/30 bg-black/30 text-white">
-                  <SelectValue placeholder="Selecciona un rol" />
+                <SelectTrigger className="border-amber-300/30 bg-black/30 text-white">
+                  <SelectValue placeholder="Selecciona el profesor responsable" />
                 </SelectTrigger>
                 <SelectContent className="border-amber-300/30 bg-gray-950 text-amber-50">
-                  {roleOptions.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
+                  {filteredAdminTeachers.map((teacher) => (
+                    <SelectItem key={teacher} value={teacher}>
+                      {teacher}
                     </SelectItem>
                   ))}
+                  {filteredAdminTeachers.length === 0 && (
+                    <div className="px-3 py-2 text-sm text-slate-400">
+                      No se encontraron profesores.
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -1259,20 +1477,55 @@ export function SportsResourcesAdminView() {
               <label className="text-sm font-medium text-amber-100">
                 Elementos solicitados
               </label>
-              <Textarea
-                value={formData.elementsText}
-                onChange={(event) =>
-                  setFormData((currentForm) => ({
-                    ...currentForm,
-                    elementsText: event.target.value,
-                  }))
-                }
-                placeholder="Ej. 2 x Balón de Fútbol - Golty Amarillo"
-                className="min-h-28 border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
-              />
+              <div className="grid max-h-72 gap-3 overflow-y-auto rounded-xl border border-amber-300/20 bg-black/20 p-3">
+                {sportsInventory.map((item) => {
+                  const quantity =
+                    formData.selectedItems.find(
+                      (selectedItem) => selectedItem.id === item.id
+                    )?.quantity || 0;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="grid gap-3 rounded-lg border border-amber-300/15 bg-gray-950/70 p-3 sm:grid-cols-[1fr_auto] sm:items-center"
+                    >
+                      <div>
+                        <p className="font-bold text-amber-50">{item.name}</p>
+                        <p className="text-xs text-gray-400">
+                          {item.detail} · {item.available} disponibles
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={quantity === 0}
+                          onClick={() => updateAdminItemQuantity(item, -1)}
+                          className="h-8 w-8 border-amber-300/35 bg-black/30 text-amber-100 hover:bg-orange-500/20 disabled:opacity-40"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-6 text-center font-black text-amber-50">
+                          {quantity}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={quantity >= item.available}
+                          onClick={() => updateAdminItemQuantity(item, 1)}
+                          className="h-8 w-8 border-amber-300/35 bg-black/30 text-amber-100 hover:bg-orange-500/20 disabled:opacity-40"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
               <span className="text-xs text-gray-400">
-                Usa una línea por elemento. Formato recomendado: 2 x Elemento -
-                detalle.
+                Puedes agregar, quitar o modificar cantidades desde este listado.
               </span>
             </div>
 
@@ -1372,10 +1625,17 @@ export function SportsResourcesAdminView() {
               <DetailRow label="Fecha" value={viewingRequest.requestDate} />
               <DetailRow label="Día" value={viewingRequest.requestDay} />
               <DetailRow
+                label="Solicitante"
+                value={viewingRequest.applicantName}
+              />
+              <DetailRow
                 label="Documento"
                 value={viewingRequest.documentNumber}
               />
-              <DetailRow label="Rol" value={viewingRequest.role} />
+              <DetailRow
+                label="Profesor responsable"
+                value={viewingRequest.responsibleTeacher}
+              />
               <DetailRow
                 label="Elementos"
                 value={formatSelectedItems(viewingRequest)}
@@ -1427,7 +1687,7 @@ function PublicHeader() {
             variant="outline"
             className="border-orange-400/45 bg-black/25 text-orange-200 hover:bg-orange-500/15 hover:text-orange-100"
           >
-            <Link href="/recursos-educativos/admin">
+            <Link href="/recursos-deportivos/admin">
               <Shield className="h-4 w-4" />
               Administración
             </Link>
@@ -1602,7 +1862,7 @@ function AdminLogin({
             variant="outline"
             className="border-amber-300/30 bg-black/20 text-amber-100 hover:bg-amber-400/15 hover:text-amber-50"
           >
-            <Link href="/recursos-educativos">
+            <Link href="/recursos-deportivos">
               <ArrowLeft className="h-4 w-4" />
               Volver al formulario
             </Link>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BookOpenCheck, GraduationCap, LibraryBig, Monitor } from "lucide-react"
+import { BookOpenCheck, Dumbbell, GraduationCap, Monitor } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -19,11 +19,11 @@ const navigationItems = [
       "border-emerald-400/50 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-400/30 hover:border-emerald-300",
   },
   {
-    label: "Centro de recursos Educativos",
-    href: "/recursos-educativos",
-    icon: LibraryBig,
+    label: "Recursos Deportivos",
+    href: "/recursos-deportivos",
+    icon: Dumbbell,
     className:
-      "border-violet-400/40 bg-violet-500/15 text-violet-50 hover:bg-violet-400/25 hover:border-violet-300",
+      "border-orange-400/50 bg-orange-500/20 text-orange-50 hover:bg-orange-400/30 hover:border-amber-300",
   },
 ]
 
