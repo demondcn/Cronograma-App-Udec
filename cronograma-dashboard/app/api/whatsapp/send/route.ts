@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 
 const CONTACTS = ["573054233742", "573103326751", "573218108433"];
 const WHATSAPP_TEMPLATE_NAME =
-  process.env.WHATSAPP_TEMPLATE_NAME || "hello_world";
-const WHATSAPP_TEMPLATE_LANGUAGE =
-  process.env.WHATSAPP_TEMPLATE_LANGUAGE || "en_US";
+  process.env.WHATSAPP_TEMPLATE_NAME || "nueva_solicitud_deportiva";
+const WHATSAPP_TEMPLATE_LANGUAGE = process.env.WHATSAPP_TEMPLATE_LANGUAGE || "es";
 
 interface WhatsAppRequestItem {
   name?: string;
@@ -15,7 +14,6 @@ interface WhatsAppRequestItem {
 interface WhatsAppRequestPayload {
   applicantName?: string;
   documentNumber?: string;
-  responsibleTeacher?: string;
   selectedItems?: WhatsAppRequestItem[];
   requestDate?: string;
   requestDay?: string;
@@ -30,24 +28,13 @@ function buildItemsText(request: WhatsAppRequestPayload) {
         const name = item.name || "Elemento deportivo";
         const detail = item.detail ? ` (${item.detail})` : "";
 
-        return `- ${quantity} x ${name}${detail}`;
+        return `${quantity} x ${name}${detail}`;
       })
-      .join("\n") || "Sin elementos"
+      .join(", ") || "Sin elementos"
   );
 }
 
 function buildTemplate(request: WhatsAppRequestPayload, itemsText: string) {
-  const isTestTemplate = WHATSAPP_TEMPLATE_NAME === "hello_world";
-
-  if (isTestTemplate) {
-    return {
-      name: WHATSAPP_TEMPLATE_NAME,
-      language: {
-        code: WHATSAPP_TEMPLATE_LANGUAGE,
-      },
-    };
-  }
-
   return {
     name: WHATSAPP_TEMPLATE_NAME,
     language: {
@@ -97,38 +84,43 @@ export async function POST(req: Request) {
 
     const requestData = (await req.json()) as WhatsAppRequestPayload;
     const itemsText = buildItemsText(requestData);
-    const template = buildTemplate(requestData, itemsText);
-    const mode =
-      WHATSAPP_TEMPLATE_NAME === "hello_world" ? "test" : "production";
     const endpoint = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
 
+    console.log("WhatsApp template config:", {
+      templateName: WHATSAPP_TEMPLATE_NAME,
+      templateLanguage: WHATSAPP_TEMPLATE_LANGUAGE,
+      phoneNumberId,
+    });
+
     console.log("WhatsApp send request:", {
-      mode,
       contacts: CONTACTS,
       phoneNumberId,
       templateName: WHATSAPP_TEMPLATE_NAME,
       templateLanguage: WHATSAPP_TEMPLATE_LANGUAGE,
       applicantName: requestData.applicantName,
       documentNumber: requestData.documentNumber,
-      responsibleTeacher: requestData.responsibleTeacher,
-      selectedItemsCount: requestData.selectedItems?.length || 0,
+      selectedItemsCount: requestData.selectedItems?.length,
     });
 
     const results = await Promise.all(
       CONTACTS.map(async (phone) => {
         try {
+          const payload = {
+            messaging_product: "whatsapp",
+            to: phone,
+            type: "template",
+            template: buildTemplate(requestData, itemsText),
+          };
+
+          console.log("WhatsApp payload:", JSON.stringify(payload, null, 2));
+
           const metaResponse = await fetch(endpoint, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: phone,
-              type: "template",
-              template,
-            }),
+            body: JSON.stringify(payload),
           });
 
           const data = await metaResponse.json();
@@ -140,9 +132,19 @@ export async function POST(req: Request) {
           };
 
           if (metaResponse.ok) {
-            console.log("WhatsApp Meta response:", result);
+            console.log("WhatsApp Meta response success:", {
+              phone,
+              ok: metaResponse.ok,
+              status: metaResponse.status,
+              data,
+            });
           } else {
-            console.error("WhatsApp Meta response error:", result);
+            console.error("WhatsApp Meta response error:", {
+              phone,
+              ok: metaResponse.ok,
+              status: metaResponse.status,
+              data,
+            });
           }
 
           return result;
@@ -167,6 +169,9 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         ok: failed.length === 0,
+        ...(failed.length > 0
+          ? { message: "Falló el envío de WhatsApp" }
+          : {}),
         results,
       },
       {

@@ -10,6 +10,7 @@ export async function GET() {
       devoluciones,
       canceladas,
       elementosActivos,
+      elementosInactivos,
       elementosBajaDisponibilidad,
     ] = await Promise.all([
       prisma.solicitudDeportiva.count({
@@ -26,6 +27,9 @@ export async function GET() {
       }),
       prisma.elementoDeportivo.count({
         where: { activo: true },
+      }),
+      prisma.elementoDeportivo.count({
+        where: { activo: false },
       }),
       prisma.elementoDeportivo.count({
         where: {
@@ -47,6 +51,8 @@ export async function GET() {
           CANCELADA: canceladas,
         },
         elementosActivos,
+        totalElementosActivos: elementosActivos,
+        totalElementosInactivos: elementosInactivos,
         elementosBajaDisponibilidad,
       },
     });

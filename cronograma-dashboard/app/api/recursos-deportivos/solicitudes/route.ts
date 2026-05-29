@@ -30,26 +30,22 @@ const includeSolicitud = {
   },
 };
 
-function getSpanishDay(date: Date) {
-  const days = [
-    "DOMINGO",
-    "LUNES",
-    "MARTES",
-    "MI?RCOLES",
-    "JUEVES",
-    "VIERNES",
-    "S?BADO",
-  ];
-
-  return days[date.getDay()];
+function getColombiaDay(date = new Date()) {
+  return new Intl.DateTimeFormat("es-CO", {
+    timeZone: "America/Bogota",
+    weekday: "long",
+  })
+    .format(date)
+    .toUpperCase();
 }
 
-function getCurrentTimeHHMM(date = new Date()) {
-  return date.toLocaleTimeString("es-CO", {
+function getColombiaTimeHHMM(date = new Date()) {
+  return new Intl.DateTimeFormat("es-CO", {
+    timeZone: "America/Bogota",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-  });
+  }).format(date);
 }
 
 function normalizeSelectedItems(value: unknown) {
@@ -143,6 +139,39 @@ export async function POST(request: Request) {
       );
     }
 
+    const existingActiveRequest = await prisma.solicitudDeportiva.findFirst({
+      where: {
+        OR: [
+          ...(estudianteId ? [{ estudianteId }] : []),
+          { documentoSolicitante },
+        ],
+        estado: {
+          in: ["RECEPCIONADA", "PENDIENTE"],
+        },
+      },
+      include: {
+        detalles: true,
+      },
+    });
+
+    if (existingActiveRequest) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "El estudiante ya tiene una solicitud activa. Debe devolver o cerrar los elementos antes de hacer una nueva solicitud.",
+          activeRequest: {
+            id: existingActiveRequest.id,
+            estado: existingActiveRequest.estado,
+            fechaSolicitud: existingActiveRequest.fechaSolicitud,
+            horaSolicitud: existingActiveRequest.horaSolicitud,
+            detalles: existingActiveRequest.detalles,
+          },
+        },
+        { status: 409 }
+      );
+    }
+
     const solicitud = await prisma.$transaction(async (tx) => {
       const elementos = await tx.elementoDeportivo.findMany({
         where: {
@@ -202,8 +231,8 @@ export async function POST(request: Request) {
           profesorId,
           profesorNombre,
           fechaSolicitud,
-          diaSolicitud: getSpanishDay(fechaSolicitud),
-          horaSolicitud: getCurrentTimeHHMM(fechaSolicitud),
+          diaSolicitud: getColombiaDay(fechaSolicitud),
+          horaSolicitud: getColombiaTimeHHMM(fechaSolicitud),
           estado: "RECEPCIONADA",
           detalles: {
             create: selectedItems.map((item) => {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import prisma from "@/lib/db";
 
@@ -20,10 +20,28 @@ function validateQuantities(cantidadTotal: number, cantidadDisponible: number) {
   return null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeInactive = searchParams.get("includeInactive") === "true";
+    const search = String(searchParams.get("search") || "").trim();
+
     const elementos = await prisma.elementoDeportivo.findMany({
-      where: { activo: true },
+      where: {
+        ...(includeInactive ? {} : { activo: true }),
+        ...(search
+          ? {
+              OR: [
+                { nombre: { contains: search, mode: "insensitive" } },
+                { codigo: { contains: search, mode: "insensitive" } },
+                { descripcion: { contains: search, mode: "insensitive" } },
+                { marca: { contains: search, mode: "insensitive" } },
+                { color: { contains: search, mode: "insensitive" } },
+                { categoria: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
       orderBy: { nombre: "asc" },
       select: {
         id: true,
@@ -55,6 +73,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const nombre = String(body.nombre || "").trim();
+    const codigo = body.codigo ? String(body.codigo).trim() : null;
     const cantidadTotal = parseQuantity(body.cantidadTotal);
     const cantidadDisponible = parseQuantity(body.cantidadDisponible);
 
@@ -74,10 +93,23 @@ export async function POST(request: Request) {
       );
     }
 
+    if (codigo) {
+      const existing = await prisma.elementoDeportivo.findUnique({
+        where: { codigo },
+      });
+
+      if (existing) {
+        return NextResponse.json(
+          { ok: false, message: "Ya existe un elemento con ese código." },
+          { status: 409 }
+        );
+      }
+    }
+
     const elemento = await prisma.elementoDeportivo.create({
       data: {
         nombre,
-        codigo: body.codigo ? String(body.codigo).trim() : null,
+        codigo,
         descripcion: body.descripcion ? String(body.descripcion).trim() : null,
         marca: body.marca ? String(body.marca).trim() : null,
         color: body.color ? String(body.color).trim() : null,
@@ -96,7 +128,7 @@ export async function POST(request: Request) {
     if (error?.code === "P2002") {
       return NextResponse.json(
         { ok: false, message: "Ya existe un elemento con ese código." },
-        { status: 400 }
+        { status: 409 }
       );
     }
 
@@ -106,3 +138,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

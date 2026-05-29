@@ -74,6 +74,12 @@ export async function PUT(
       body.cantidadDisponible === undefined
         ? currentElement.cantidadDisponible
         : parseQuantity(body.cantidadDisponible);
+    const codigo =
+      body.codigo === undefined
+        ? currentElement.codigo
+        : body.codigo
+          ? String(body.codigo).trim()
+          : null;
     const quantityError = validateQuantities(cantidadTotal, cantidadDisponible);
 
     if (quantityError) {
@@ -83,16 +89,24 @@ export async function PUT(
       );
     }
 
+    if (codigo && codigo !== currentElement.codigo) {
+      const existing = await prisma.elementoDeportivo.findUnique({
+        where: { codigo },
+      });
+
+      if (existing && existing.id !== id) {
+        return NextResponse.json(
+          { ok: false, message: "Ya existe otro elemento con ese código." },
+          { status: 409 }
+        );
+      }
+    }
+
     const elemento = await prisma.elementoDeportivo.update({
       where: { id },
       data: {
         nombre: body.nombre === undefined ? undefined : String(body.nombre).trim(),
-        codigo:
-          body.codigo === undefined
-            ? undefined
-            : body.codigo
-              ? String(body.codigo).trim()
-              : null,
+        codigo: body.codigo === undefined ? undefined : codigo,
         descripcion:
           body.descripcion === undefined
             ? undefined
@@ -136,7 +150,7 @@ export async function PUT(
     if (error?.code === "P2002") {
       return NextResponse.json(
         { ok: false, message: "Ya existe un elemento con ese código." },
-        { status: 400 }
+        { status: 409 }
       );
     }
 

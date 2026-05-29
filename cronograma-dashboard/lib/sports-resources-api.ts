@@ -15,14 +15,32 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return data;
 }
 
-export async function getSportsElements() {
-  return requestJson("/api/recursos-deportivos/elementos");
+export async function getSportsElements(params?: {
+  search?: string;
+  includeInactive?: boolean;
+}) {
+  return requestJson(
+    `/api/recursos-deportivos/elementos${buildQuery(params)}`
+  );
 }
 
 export async function createSportsElement(payload: unknown) {
   return requestJson("/api/recursos-deportivos/elementos", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export async function updateSportsElement(id: string, payload: unknown) {
+  return requestJson(`/api/recursos-deportivos/elementos/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deactivateSportsElement(id: string) {
+  return requestJson(`/api/recursos-deportivos/elementos/${id}`, {
+    method: "DELETE",
   });
 }
 
@@ -134,6 +152,14 @@ export async function deactivateTeacher(id: string) {
 export async function getSportsPersonByDocument(cc: string) {
   return requestJson(
     `/api/recursos-deportivos/personas/${encodeURIComponent(cc)}`
+  );
+}
+
+export async function getActiveSportsRequestByDocument(documento: string) {
+  return requestJson(
+    `/api/recursos-deportivos/solicitudes/activas/${encodeURIComponent(
+      documento
+    )}`
   );
 }
 

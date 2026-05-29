@@ -82,6 +82,10 @@ function buildElementDetail(elemento: {
   return [elemento.marca, elemento.color].filter(Boolean).join(" - ") || null;
 }
 
+function shouldCloseInventory(status?: SportsRequestStatus | null) {
+  return status === "DEVOLUCION" || status === "CANCELADA";
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -275,6 +279,24 @@ export async function PUT(
         throw new Error("Nombre y documento del solicitante son obligatorios.");
       }
 
+      const shouldReturnInventory =
+        nextStatus &&
+        shouldCloseInventory(nextStatus) &&
+        !currentRequest.inventarioDevuelto;
+
+      if (shouldReturnInventory) {
+        for (const detail of currentRequest.detalles) {
+          await tx.elementoDeportivo.update({
+            where: { id: detail.elementoId },
+            data: {
+              cantidadDisponible: {
+                increment: detail.cantidad,
+              },
+            },
+          });
+        }
+      }
+
       const updatedRequest = await tx.solicitudDeportiva.update({
         where: { id: currentRequest.id },
         data: {
@@ -289,6 +311,9 @@ export async function PUT(
                 ? String(body.profesorNombre).trim()
                 : null,
           estado: nextStatus || currentRequest.estado,
+          inventarioDevuelto: shouldReturnInventory
+            ? true
+            : currentRequest.inventarioDevuelto,
           observaciones:
             body.observaciones === undefined
               ? currentRequest.observaciones
@@ -375,20 +400,24 @@ export async function DELETE(
       }
 
       if (currentRequest.estado !== "CANCELADA") {
-        for (const detail of currentRequest.detalles) {
-          await tx.elementoDeportivo.update({
-            where: { id: detail.elementoId },
-            data: {
-              cantidadDisponible: {
-                increment: detail.cantidad,
+        const shouldReturnInventory = !currentRequest.inventarioDevuelto;
+
+        if (shouldReturnInventory) {
+          for (const detail of currentRequest.detalles) {
+            await tx.elementoDeportivo.update({
+              where: { id: detail.elementoId },
+              data: {
+                cantidadDisponible: {
+                  increment: detail.cantidad,
+                },
               },
-            },
-          });
+            });
+          }
         }
 
         await tx.solicitudDeportiva.update({
           where: { id: currentRequest.id },
-          data: { estado: "CANCELADA" },
+          data: { estado: "CANCELADA", inventarioDevuelto: true },
         });
 
         await tx.movimientoSolicitudDeportiva.create({

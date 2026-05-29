@@ -227,6 +227,7 @@ model SolicitudDeportiva {
   observaciones        String?
   whatsappNotificado   Boolean                        @default(false)
   whatsappError        String?
+  inventarioDevuelto   Boolean                        @default(false)
   creadoEn             DateTime                       @default(now())
   actualizadoEn        DateTime                       @updatedAt
   estudiante           Estudiante?                    @relation(fields: [estudianteId], references: [id])
