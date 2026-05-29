@@ -62,19 +62,41 @@ model Aula {
 }
 
 model Profesor {
-  id            String       @id @default(cuid())
-  nombre        String
-  correo        String       @unique
-  telefono      String?
-  activo        Boolean      @default(true)
-  creadoEn      DateTime     @default(now())
-  actualizadoEn DateTime
-  asistencias   Asistencia[]
-  horarios      Horario[]
+  id                    String               @id @default(cuid())
+  nombre                String
+  correo                String               @unique
+  cc                    String?              @unique
+  carrera               String?
+  telefono              String?
+  activo                Boolean              @default(true)
+  creadoEn              DateTime             @default(now())
+  actualizadoEn         DateTime
+  asistencias           Asistencia[]
+  horarios              Horario[]
+  solicitudesDeportivas SolicitudDeportiva[]
 
   @@index([correo])
+  @@index([cc])
   @@index([activo])
+  @@index([carrera])
   @@map("profesores")
+}
+
+model Estudiante {
+  id            String   @id @default(cuid())
+  nombre        String
+  cc            String   @unique
+  carrera       String?
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  solicitudesDeportivas SolicitudDeportiva[]
+
+  @@index([cc])
+  @@index([activo])
+  @@index([carrera])
+  @@map("estudiantes")
 }
 
 model Horario {
@@ -84,7 +106,6 @@ model Horario {
   horaFin       String
   semestre      String
   grupo         String?
-  cadi          String?
   activo        Boolean      @default(true)
   asignaturaId  String
   aulaId        String
@@ -92,6 +113,7 @@ model Horario {
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime
   cantidadSt    Int?
+  cadi          String?
   asistencias   Asistencia[]
   asignatura    Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
   aula          Aula         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
@@ -169,10 +191,111 @@ model RegistroSistema {
   @@map("registros_sistema")
 }
 
+model ElementoDeportivo {
+  id                 String                      @id @default(cuid())
+  nombre             String
+  codigo             String?                     @unique
+  descripcion        String?
+  marca              String?
+  color              String?
+  categoria          String?
+  cantidadTotal      Int                         @default(0)
+  cantidadDisponible Int                         @default(0)
+  activo             Boolean                     @default(true)
+  icono              String?
+  creadoEn           DateTime                    @default(now())
+  actualizadoEn      DateTime                    @updatedAt
+  detallesSolicitud  DetalleSolicitudDeportiva[]
+
+  @@index([nombre])
+  @@index([categoria])
+  @@index([activo])
+  @@map("elementos_deportivos")
+}
+
+model SolicitudDeportiva {
+  id                   String                         @id @default(cuid())
+  nombreSolicitante    String
+  documentoSolicitante String
+  estudianteId         String?
+  profesorId           String?
+  profesorNombre       String?
+  fechaSolicitud       DateTime                       @default(now())
+  diaSolicitud         String
+  estado               EstadoSolicitudDeportiva       @default(RECEPCIONADA)
+  observaciones        String?
+  whatsappNotificado   Boolean                        @default(false)
+  whatsappError        String?
+  creadoEn             DateTime                       @default(now())
+  actualizadoEn        DateTime                       @updatedAt
+  estudiante           Estudiante?                    @relation(fields: [estudianteId], references: [id])
+  profesor             Profesor?                      @relation(fields: [profesorId], references: [id])
+  detalles             DetalleSolicitudDeportiva[]
+  movimientos          MovimientoSolicitudDeportiva[]
+
+  @@index([documentoSolicitante])
+  @@index([fechaSolicitud])
+  @@index([estado])
+  @@index([estudianteId])
+  @@index([profesorId])
+  @@map("solicitudes_deportivas")
+}
+
+model DetalleSolicitudDeportiva {
+  id              String             @id @default(cuid())
+  solicitudId     String
+  elementoId      String
+  cantidad        Int
+  nombreElemento  String
+  detalleElemento String?
+  creadoEn        DateTime           @default(now())
+  actualizadoEn   DateTime           @updatedAt
+  solicitud       SolicitudDeportiva @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  elemento        ElementoDeportivo  @relation(fields: [elementoId], references: [id])
+
+  @@unique([solicitudId, elementoId])
+  @@index([solicitudId])
+  @@index([elementoId])
+  @@map("detalles_solicitud_deportiva")
+}
+
+model MovimientoSolicitudDeportiva {
+  id             String                    @id @default(cuid())
+  solicitudId    String
+  tipo           TipoMovimientoDeportivo
+  estadoAnterior EstadoSolicitudDeportiva?
+  estadoNuevo    EstadoSolicitudDeportiva?
+  descripcion    String?
+  usuario        String?
+  detalles       Json?
+  creadoEn       DateTime                  @default(now())
+  solicitud      SolicitudDeportiva        @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+
+  @@index([solicitudId])
+  @@index([tipo])
+  @@index([creadoEn])
+  @@map("movimientos_solicitud_deportiva")
+}
+
 enum EstadoAsistencia {
   ASISTIO
   NO_ASISTIO
   TARDANZA
   JUSTIFICADA
   CANCELADA
+}
+
+enum EstadoSolicitudDeportiva {
+  RECEPCIONADA
+  PENDIENTE
+  DEVOLUCION
+  CANCELADA
+}
+
+enum TipoMovimientoDeportivo {
+  CREACION
+  ACTUALIZACION
+  CAMBIO_ESTADO
+  OBSERVACION
+  ELIMINACION
 }

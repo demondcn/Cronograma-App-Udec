@@ -45,6 +45,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  cancelSportsRequest,
+  createSportsRequest,
+  getSportsElements,
+  getSportsPersonByDocument,
+  getSportsRequests,
+  getSportsTeachers,
+  updateSportsRequest,
+} from "@/lib/sports-resources-api";
 
 type SportsRequestStatus =
   | "RECEPCIONADA"
@@ -52,12 +61,20 @@ type SportsRequestStatus =
   | "DEVOLUCION"
   | "CANCELADA";
 
-type SportsUserRole = "ESTUDIANTE" | "DOCENTE" | "ADMINISTRATIVO" | "OTRO";
+type SportsUserRole =
+  | "ESTUDIANTE"
+  | "PROFESOR"
+  | "DOCENTE"
+  | "ADMINISTRATIVO"
+  | "OTRO";
+
+type SportsPersonType = "ESTUDIANTE" | "PROFESOR";
 
 type PublicStep = 1 | 2 | 3;
 
 interface SportsItemSelection {
   id: string;
+  elementoId?: string;
   name: string;
   detail: string;
   quantity: number;
@@ -67,6 +84,10 @@ interface SportsRequest {
   id: string;
   applicantName: string;
   documentNumber: string;
+  estudianteId?: string | null;
+  applicantType?: SportsPersonType | null;
+  applicantCareer?: string | null;
+  profesorId?: string | null;
   responsibleTeacher: string;
   role: SportsUserRole;
   selectedItems: SportsItemSelection[];
@@ -80,6 +101,10 @@ interface SportsRequest {
 interface SportsRequestForm {
   applicantName: string;
   documentNumber: string;
+  estudianteId?: string | null;
+  applicantType?: SportsPersonType | null;
+  applicantCareer?: string | null;
+  profesorId?: string | null;
   responsibleTeacher: string;
   role: SportsUserRole;
   selectedItems: SportsItemSelection[];
@@ -92,20 +117,93 @@ interface SportsInventoryItem {
   name: string;
   detail: string;
   available: number;
+  total: number;
   icon: string;
   tags: string[];
 }
 
-const SPORTS_REQUESTS_STORAGE_KEY = "sports_requests";
+interface SportsElement {
+  id: string;
+  nombre: string;
+  codigo?: string | null;
+  descripcion?: string | null;
+  marca?: string | null;
+  color?: string | null;
+  categoria?: string | null;
+  cantidadTotal: number;
+  cantidadDisponible: number;
+  icono?: string | null;
+}
+
+interface SportsTeacher {
+  id: string;
+  nombre: string;
+  correo?: string | null;
+  cc?: string | null;
+  carrera?: string | null;
+}
+
+interface SportsPerson {
+  tipo: SportsPersonType;
+  id: string;
+  nombre: string;
+  cc: string;
+  carrera?: string | null;
+}
+
+interface SportsRequestDetail {
+  id: string;
+  solicitudId: string;
+  elementoId: string;
+  cantidad: number;
+  nombreElemento: string;
+  detalleElemento?: string | null;
+}
+
+interface SportsRequestFromDb {
+  id: string;
+  nombreSolicitante: string;
+  documentoSolicitante: string;
+  estudianteId?: string | null;
+  estudiante?: {
+    id: string;
+    nombre: string;
+    cc: string;
+    carrera?: string | null;
+  } | null;
+  profesorId?: string | null;
+  profesorNombre?: string | null;
+  carreraSolicitante?: string | null;
+  profesor?: {
+    id: string;
+    nombre: string;
+    correo?: string | null;
+    cc?: string | null;
+    carrera?: string | null;
+  } | null;
+  fechaSolicitud: string;
+  diaSolicitud: string;
+  estado: SportsRequestStatus;
+  observaciones?: string | null;
+  detalles: SportsRequestDetail[];
+}
+
+interface ApiResponse<T> {
+  ok: boolean;
+  data: T;
+  message?: string;
+}
+
 const SPORTS_ADMIN_SESSION_KEY = "sports_admin_authenticated";
 const SPORTS_ADMIN_PASSWORD = "70407";
+const FALLBACK_TEACHER_ID = "__sin-profesor";
 
-const TEACHERS = [
-  "Carlos Andrés Ramírez",
-  "María Fernanda López",
-  "Jhonatan Pérez García",
-  "Diana Carolina Torres",
-  "Luis Fernando Gómez",
+const FALLBACK_TEACHERS: SportsTeacher[] = [
+  {
+    id: FALLBACK_TEACHER_ID,
+    nombre: "Sin profesor registrado",
+    correo: null,
+  },
 ];
 
 const statusOptions: SportsRequestStatus[] = [
@@ -131,6 +229,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Balón de Fútbol",
     detail: "Golty - Amarillo",
     available: 3,
+    total: 3,
     icon: "⚽",
     tags: ["Golty", "Amarillo"],
   },
@@ -139,6 +238,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Balón de Voleibol",
     detail: "Mikasa - Azul/Amarillo",
     available: 4,
+    total: 4,
     icon: "🏐",
     tags: ["Mikasa", "Azul/Amarillo"],
   },
@@ -147,6 +247,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Raqueta de Tenis",
     detail: "Genérica",
     available: 6,
+    total: 6,
     icon: "🎾",
     tags: ["Tenis"],
   },
@@ -155,6 +256,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Conos",
     detail: "Naranja",
     available: 20,
+    total: 20,
     icon: "🔶",
     tags: ["Naranja"],
   },
@@ -163,6 +265,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Petos",
     detail: "Colores surtidos",
     available: 15,
+    total: 15,
     icon: "🎽",
     tags: ["Surtidos"],
   },
@@ -171,6 +274,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Platillos",
     detail: "Naranja/Amarillo",
     available: 30,
+    total: 30,
     icon: "🟠",
     tags: ["Naranja", "Amarillo"],
   },
@@ -179,6 +283,7 @@ const sportsInventory: SportsInventoryItem[] = [
     name: "Aros",
     detail: "Plástico",
     available: 10,
+    total: 10,
     icon: "⭕",
     tags: ["Plástico"],
   },
@@ -187,6 +292,9 @@ const sportsInventory: SportsInventoryItem[] = [
 const emptyAdminForm: SportsRequestForm = {
   applicantName: "",
   documentNumber: "",
+  estudianteId: null,
+  applicantType: null,
+  applicantCareer: null,
   responsibleTeacher: "",
   role: "ESTUDIANTE",
   selectedItems: [],
@@ -224,141 +332,6 @@ function getTodayRequestDate() {
   };
 }
 
-function createRequestId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function isSportsRole(value: unknown): value is SportsUserRole {
-  return typeof value === "string" && roleOptions.includes(value as SportsUserRole);
-}
-
-function isSportsStatus(value: unknown): value is SportsRequestStatus {
-  return (
-    typeof value === "string" &&
-    statusOptions.includes(value as SportsRequestStatus)
-  );
-}
-
-function normalizeStatus(value: unknown): SportsRequestStatus {
-  if (isSportsStatus(value)) {
-    return value;
-  }
-
-  return "RECEPCIONADA";
-}
-
-function normalizeItems(
-  value: unknown,
-  legacyText: unknown,
-  requestId: string
-): SportsItemSelection[] {
-  if (Array.isArray(value)) {
-    return value
-      .map((item, index) => {
-        if (!item || typeof item !== "object") {
-          return null;
-        }
-
-        const rawItem = item as Partial<SportsItemSelection>;
-        const quantity = Number(rawItem.quantity);
-
-        return {
-          id: String(rawItem.id || `${requestId}-item-${index + 1}`),
-          name: String(rawItem.name || "Elemento deportivo"),
-          detail: String(rawItem.detail || ""),
-          quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
-        };
-      })
-      .filter((item): item is SportsItemSelection => item !== null);
-  }
-
-  if (typeof legacyText === "string" && legacyText.trim()) {
-    return [
-      {
-        id: `${requestId}-legacy-item`,
-        name: legacyText.trim(),
-        detail: "Registro anterior",
-        quantity: 1,
-      },
-    ];
-  }
-
-  return [];
-}
-
-function normalizeRequest(value: unknown, index: number): SportsRequest | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-
-  const rawRequest = value as Partial<SportsRequest>;
-  const id = String(rawRequest.id || `sports-request-${index + 1}`);
-  const applicantName = String(rawRequest.applicantName || "").trim();
-  const documentNumber = String(rawRequest.documentNumber || "").trim();
-  const responsibleTeacher = String(
-    rawRequest.responsibleTeacher || ""
-  ).trim();
-
-  if (!documentNumber) {
-    return null;
-  }
-
-  return {
-    id,
-    applicantName: applicantName || "Sin nombre registrado",
-    documentNumber,
-    responsibleTeacher:
-      responsibleTeacher || "Sin profesor responsable registrado",
-    role: isSportsRole(rawRequest.role) ? rawRequest.role : "OTRO",
-    selectedItems: normalizeItems(
-      rawRequest.selectedItems,
-      rawRequest.elements,
-      id
-    ),
-    requestDate: String(rawRequest.requestDate || ""),
-    requestDay: String(rawRequest.requestDay || ""),
-    status: normalizeStatus(rawRequest.status),
-    observations: String(rawRequest.observations || ""),
-  };
-}
-
-function readStoredRequests() {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const rawValue = window.localStorage.getItem(SPORTS_REQUESTS_STORAGE_KEY);
-    const parsedValue = rawValue ? JSON.parse(rawValue) : [];
-
-    if (!Array.isArray(parsedValue)) {
-      return [];
-    }
-
-    return parsedValue
-      .map((item, index) => normalizeRequest(item, index))
-      .filter((item): item is SportsRequest => item !== null);
-  } catch {
-    return [];
-  }
-}
-
-function saveStoredRequests(requests: SportsRequest[]) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(
-    SPORTS_REQUESTS_STORAGE_KEY,
-    JSON.stringify(requests)
-  );
-  window.dispatchEvent(new Event("sports_requests_updated"));
-}
-
 function formatSelectedItems(request: SportsRequest) {
   if (request.selectedItems.length === 0) {
     return "Sin elementos";
@@ -387,55 +360,200 @@ function formatSelectedItemsList(items: SportsItemSelection[]) {
     .join(", ");
 }
 
+function getElementDetail(element: SportsElement) {
+  return [element.marca, element.color].filter(Boolean).join(" - ");
+}
+
+function mapElementFromDb(element: SportsElement): SportsInventoryItem {
+  const detail = getElementDetail(element);
+
+  return {
+    id: element.id,
+    name: element.nombre,
+    detail,
+    available: element.cantidadDisponible,
+    total: element.cantidadTotal,
+    icon: element.icono || "🏅",
+    tags: [element.marca, element.color, element.categoria].filter(
+      (tag): tag is string => Boolean(tag)
+    ),
+  };
+}
+
+function formatDbDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function mapRequestFromDb(request: SportsRequestFromDb): SportsRequest {
+  const applicantCareer =
+    request.estudiante?.carrera || request.carreraSolicitante || null;
+
+  return {
+    id: request.id,
+    applicantName: request.nombreSolicitante,
+    documentNumber: request.documentoSolicitante,
+    estudianteId: request.estudianteId || null,
+    applicantType: request.estudianteId ? "ESTUDIANTE" : null,
+    applicantCareer,
+    profesorId: request.profesorId || null,
+    responsibleTeacher: cleanTeacherName(
+      request.profesor?.nombre || request.profesorNombre
+    ),
+    role: "ESTUDIANTE",
+    selectedItems: request.detalles.map((detail) => ({
+      id: detail.elementoId,
+      elementoId: detail.elementoId,
+      name: detail.nombreElemento,
+      detail: detail.detalleElemento || "",
+      quantity: detail.cantidad,
+    })),
+    requestDate: formatDbDate(request.fechaSolicitud),
+    requestDay: request.diaSolicitud,
+    status: request.estado,
+    observations: request.observaciones || "",
+  };
+}
+
+function findTeacherById(teachers: SportsTeacher[], teacherId: string) {
+  return teachers.find((teacher) => teacher.id === teacherId);
+}
+
+function cleanTeacherName(value?: string | null) {
+  if (!value) return "Sin profesor";
+
+  const clean = value.trim();
+  const parts = clean.split(" - ").map((part) => part.trim());
+
+  if (parts.length === 2 && parts[0] === parts[1]) {
+    return parts[0];
+  }
+
+  return clean;
+}
+
+function normalizeDocumentNumber(value: string) {
+  return value.trim().replace(/[\s.-]+/g, "");
+}
+
 export function SportsResourcesView() {
   const [currentStep, setCurrentStep] = useState<PublicStep>(1);
   const [applicantName, setApplicantName] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
+  const [resolvedPerson, setResolvedPerson] = useState<SportsPerson | null>(
+    null
+  );
+  const [personLookupStatus, setPersonLookupStatus] = useState<
+    "idle" | "loading" | "found" | "not-found"
+  >("idle");
+  const [personLookupError, setPersonLookupError] = useState("");
   const [responsibleTeacher, setResponsibleTeacher] = useState("");
+  const [responsibleTeacherName, setResponsibleTeacherName] = useState("");
   const [teacherSearch, setTeacherSearch] = useState("");
   const [itemSearch, setItemSearch] = useState("");
+  const [sportsElements, setSportsElements] =
+    useState<SportsInventoryItem[]>(sportsInventory);
+  const [teachers, setTeachers] = useState<SportsTeacher[]>(FALLBACK_TEACHERS);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [loadingElements, setLoadingElements] = useState(false);
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
+  const [savingRequest, setSavingRequest] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const loadElements = async () => {
+    setLoadingElements(true);
+    try {
+      const response =
+        (await getSportsElements()) as ApiResponse<SportsElement[]>;
+      setSportsElements(response.data.map(mapElementFromDb));
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error cargando elementos deportivos:", error);
+      setSportsElements(sportsInventory);
+      setErrorMessage(
+        "No se pudieron cargar los elementos deportivos. Se muestra inventario temporal."
+      );
+    } finally {
+      setLoadingElements(false);
+    }
+  };
+
+  const loadTeachers = async () => {
+    setLoadingTeachers(true);
+    try {
+      const response =
+        (await getSportsTeachers()) as ApiResponse<SportsTeacher[]>;
+      setTeachers(response.data.length > 0 ? response.data : FALLBACK_TEACHERS);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error cargando profesores:", error);
+      setTeachers(FALLBACK_TEACHERS);
+      setErrorMessage(
+        "No se pudieron cargar los profesores activos. Puedes continuar sin profesor registrado."
+      );
+    } finally {
+      setLoadingTeachers(false);
+    }
+  };
+
+  useEffect(() => {
+    loadElements();
+    loadTeachers();
+  }, []);
 
   const filteredInventory = useMemo(() => {
     const normalizedSearch = itemSearch.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return sportsInventory;
+      return sportsElements;
     }
 
-    return sportsInventory.filter((item) =>
+    return sportsElements.filter((item) =>
       [item.name, item.detail, ...item.tags]
         .join(" ")
         .toLowerCase()
         .includes(normalizedSearch)
     );
-  }, [itemSearch]);
+  }, [itemSearch, sportsElements]);
 
   const filteredTeachers = useMemo(() => {
     const normalizedSearch = teacherSearch.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return TEACHERS;
+      return teachers;
     }
 
-    return TEACHERS.filter((teacher) =>
-      teacher.toLowerCase().includes(normalizedSearch)
+    return teachers.filter((teacher) =>
+      [teacher.nombre, teacher.correo || "", teacher.cc || "", teacher.carrera || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
     );
-  }, [teacherSearch]);
+  }, [teacherSearch, teachers]);
 
   const selectedItems = useMemo(
     () =>
-      sportsInventory
+      sportsElements
         .map((item) => ({
           id: item.id,
+          elementoId: item.id,
           name: item.name,
           detail: item.detail,
           quantity: quantities[item.id] || 0,
         }))
         .filter((item) => item.quantity > 0),
-    [quantities]
+    [quantities, sportsElements]
   );
 
   const selectedTotal = useMemo(
@@ -444,6 +562,51 @@ export function SportsResourcesView() {
   );
 
   const summaryDate = getTodayRequestDate();
+
+  const resetResolvedPerson = () => {
+    setResolvedPerson(null);
+    setApplicantName("");
+    setPersonLookupStatus("idle");
+    setPersonLookupError("");
+  };
+
+  const lookupPersonByDocument = async () => {
+    const cleanDocument = normalizeDocumentNumber(documentNumber);
+
+    setFormError("");
+    setSuccessMessage("");
+    setPersonLookupError("");
+
+    if (!cleanDocument) {
+      resetResolvedPerson();
+      setPersonLookupError("Ingresa un número de documento válido.");
+      return;
+    }
+
+    setDocumentNumber(cleanDocument);
+    setPersonLookupStatus("loading");
+    setResolvedPerson(null);
+    setApplicantName("");
+
+    try {
+      const response = (await getSportsPersonByDocument(
+        cleanDocument
+      )) as ApiResponse<SportsPerson>;
+      setResolvedPerson(response.data);
+      setApplicantName(response.data.nombre);
+      setPersonLookupStatus("found");
+      setPersonLookupError("");
+    } catch (error) {
+      setResolvedPerson(null);
+      setApplicantName("");
+      setPersonLookupStatus("not-found");
+      setPersonLookupError(
+        error instanceof Error
+          ? error.message
+          : "No se encontró una persona con ese documento. Verifica el número o comunícate con administración."
+      );
+    }
+  };
 
   const updateQuantity = (item: SportsInventoryItem, change: number) => {
     setSuccessMessage("");
@@ -468,13 +631,13 @@ export function SportsResourcesView() {
   };
 
   const goToItemsStep = () => {
-    const cleanName = applicantName.trim();
-    const cleanDocument = documentNumber.trim();
-    const cleanTeacher = responsibleTeacher.trim();
+    const cleanName = resolvedPerson?.nombre.trim() || "";
+    const cleanDocument = normalizeDocumentNumber(documentNumber);
+    const cleanTeacher = responsibleTeacherName.trim();
 
-    if (!cleanName || !cleanDocument || !cleanTeacher) {
+    if (!cleanDocument || !resolvedPerson || !cleanName || !cleanTeacher) {
       setFormError(
-        "Completa el nombre completo, el numero de documento y el profesor responsable."
+        "Busca un documento válido en la base de datos y selecciona el profesor responsable."
       );
       return;
     }
@@ -495,44 +658,67 @@ export function SportsResourcesView() {
   };
 
   const submitRequest = async () => {
-    const cleanName = applicantName.trim();
-    const cleanDocument = documentNumber.trim();
-    const cleanTeacher = responsibleTeacher.trim();
+    const cleanName = resolvedPerson?.nombre.trim() || applicantName.trim();
+    const cleanDocument = normalizeDocumentNumber(documentNumber);
+    const rawTeacher = responsibleTeacherName.trim();
+    const cleanTeacher = cleanTeacherName(rawTeacher);
 
     if (
       !cleanName ||
       !cleanDocument ||
-      !cleanTeacher ||
+      !resolvedPerson ||
+      !rawTeacher ||
       selectedItems.length === 0
     ) {
       setFormError("Completa todos los pasos antes de enviar la solicitud.");
       return;
     }
 
-    const requestDate = getTodayRequestDate();
-    const currentRequests = readStoredRequests();
-    const newRequest: SportsRequest = {
-      id: createRequestId(),
-      applicantName: cleanName,
-      documentNumber: cleanDocument,
-      responsibleTeacher: cleanTeacher,
-      role: "ESTUDIANTE",
-      selectedItems,
-      requestDate: requestDate.requestDate,
-      requestDay: requestDate.requestDay,
-      status: "RECEPCIONADA",
-      observations: "",
-    };
-
-    saveStoredRequests([newRequest, ...currentRequests]);
-    setApplicantName("");
-    setDocumentNumber("");
-    setResponsibleTeacher("");
-    setTeacherSearch("");
-    setItemSearch("");
-    setQuantities({});
+    setSavingRequest(true);
     setFormError("");
-    setCurrentStep(1);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    let createdRequest: SportsRequestFromDb;
+
+    try {
+      const response = (await createSportsRequest({
+        estudianteId:
+          resolvedPerson.tipo === "ESTUDIANTE" ? resolvedPerson.id : undefined,
+        nombreSolicitante: cleanName,
+        documentoSolicitante: cleanDocument,
+        profesorId:
+          responsibleTeacher && responsibleTeacher !== FALLBACK_TEACHER_ID
+            ? responsibleTeacher
+            : undefined,
+        profesorNombre: cleanTeacher,
+        selectedItems: selectedItems.map((item) => ({
+          elementoId: item.elementoId || item.id,
+          cantidad: item.quantity,
+        })),
+      })) as ApiResponse<SportsRequestFromDb>;
+
+      createdRequest = response.data;
+      setApplicantName("");
+      setDocumentNumber("");
+      resetResolvedPerson();
+      setResponsibleTeacher("");
+      setResponsibleTeacherName("");
+      setTeacherSearch("");
+      setItemSearch("");
+      setQuantities({});
+      setCurrentStep(1);
+      await loadElements();
+    } catch (error) {
+      console.error("Error guardando solicitud deportiva:", error);
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar la solicitud."
+      );
+      setSavingRequest(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/whatsapp/send", {
@@ -540,7 +726,17 @@ export function SportsResourcesView() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newRequest),
+        body: JSON.stringify({
+          applicantName: createdRequest.nombreSolicitante,
+          documentNumber: createdRequest.documentoSolicitante,
+          teacherName: createdRequest.profesorNombre,
+          selectedItems: createdRequest.detalles.map((detail) => ({
+            name: detail.nombreElemento,
+            detail: detail.detalleElemento || "",
+            quantity: detail.cantidad,
+          })),
+          status: createdRequest.estado,
+        }),
       });
 
       const result = await response.json();
@@ -548,22 +744,23 @@ export function SportsResourcesView() {
       if (!response.ok || !result.ok) {
         console.error("Error enviando notificaciones de WhatsApp:", result);
         setSuccessMessage(
-          "Solicitud registrada, pero falló el envío de WhatsApp."
+          "Solicitud registrada, pero falló la notificación de WhatsApp."
         );
         return;
       }
 
       setSuccessMessage(
-        "Solicitud registrada y notificaciones enviadas correctamente."
+        "Solicitud registrada correctamente en la base de datos."
       );
     } catch (error) {
       console.error("Error enviando notificaciones de WhatsApp:", error);
       setSuccessMessage(
-        "Solicitud registrada, pero falló el envío de WhatsApp."
+        "Solicitud registrada, pero falló la notificación de WhatsApp."
       );
+    } finally {
+      setSavingRequest(false);
     }
   };
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#020617] text-white">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#020617] via-[#021f17] to-[#00110c]" />
@@ -583,6 +780,12 @@ export function SportsResourcesView() {
             </div>
           )}
 
+          {errorMessage && (
+            <div className="mx-auto w-full max-w-3xl rounded-xl border border-red-300/45 bg-red-500/15 px-4 py-3 text-sm font-semibold text-red-100 shadow-lg shadow-red-500/10">
+              {errorMessage}
+            </div>
+          )}
+
           <Card className="mx-auto w-full max-w-3xl border-amber-300/35 bg-[#031b18]/90 text-white shadow-2xl shadow-orange-500/20 backdrop-blur-sm">
             <CardContent className="px-5 py-8 sm:px-9 sm:py-10">
             {currentStep === 1 && (
@@ -590,44 +793,72 @@ export function SportsResourcesView() {
                 <StepTitle
                   icon={<ClipboardList className="h-6 w-6" />}
                   title="Ingresa tus Datos"
-                  description="Completa la información para realizar el préstamo"
+                  description="Busca tu documento para cargar tus datos desde la base"
                 />
 
                 <div className="grid gap-5">
                   <div className="grid gap-2">
                     <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
-                      <User className="h-4 w-4 text-orange-400" />
-                      Nombre completo
-                    </label>
-                    <Input
-                      value={applicantName}
-                      onChange={(event) => {
-                        setApplicantName(event.target.value);
-                        setFormError("");
-                      }}
-                      placeholder="Ingresa tu nombre completo"
-                      className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <label className="flex items-center gap-2 text-sm font-bold text-amber-100">
                       <ClipboardList className="h-4 w-4 text-orange-400" />
-                      Número de Documento
+                      Número de documento
                     </label>
-                    <Input
-                      value={documentNumber}
-                      onChange={(event) => {
-                        setDocumentNumber(event.target.value);
-                        setFormError("");
-                      }}
-                      inputMode="numeric"
-                      placeholder="Ingresa tu número de documento"
-                      className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
-                    />
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Input
+                        value={documentNumber}
+                        onBlur={() => {
+                          if (
+                            documentNumber.trim() &&
+                            personLookupStatus !== "loading" &&
+                            normalizeDocumentNumber(documentNumber) !==
+                              resolvedPerson?.cc
+                          ) {
+                            lookupPersonByDocument();
+                          }
+                        }}
+                        onChange={(event) => {
+                          setDocumentNumber(event.target.value);
+                          resetResolvedPerson();
+                          setFormError("");
+                        }}
+                        inputMode="numeric"
+                        placeholder="Ingresa tu número de documento"
+                        className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
+                      />
+                      <Button
+                        type="button"
+                        onClick={lookupPersonByDocument}
+                        disabled={personLookupStatus === "loading"}
+                        className="h-11 bg-orange-500 px-4 font-bold text-white hover:bg-orange-600"
+                      >
+                        {personLookupStatus === "loading" ? (
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                        Buscar
+                      </Button>
+                    </div>
                     <span className="text-xs text-slate-400">
-                      Ingresa tu cédula o carné estudiantil
+                      Ingresa tu cédula o carné estudiantil. El nombre se carga desde la base de datos.
                     </span>
+                    {resolvedPerson && (
+                      <div className="rounded-xl border border-emerald-300/35 bg-emerald-500/10 p-4 text-sm text-emerald-50">
+                        <p className="font-black">{resolvedPerson.nombre}</p>
+                        <div className="mt-2 grid gap-1 text-xs uppercase tracking-wide text-emerald-200">
+                          <p>Tipo: {resolvedPerson.tipo}</p>
+                          <p>Documento: {resolvedPerson.cc}</p>
+                          <p>
+                            Carrera:{" "}
+                            {resolvedPerson.carrera || "Sin carrera registrada"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {personLookupError && (
+                      <div className="rounded-xl border border-red-300/40 bg-red-500/15 px-3 py-2 text-sm text-red-100">
+                        {personLookupError}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid gap-2">
@@ -644,7 +875,14 @@ export function SportsResourcesView() {
                     <Select
                       value={responsibleTeacher}
                       onValueChange={(value) => {
+                        const selectedTeacher = findTeacherById(
+                          teachers,
+                          value
+                        );
                         setResponsibleTeacher(value);
+                        setResponsibleTeacherName(
+                          selectedTeacher?.nombre || ""
+                        );
                         setTeacherSearch("");
                         setFormError("");
                       }}
@@ -654,19 +892,21 @@ export function SportsResourcesView() {
                       </SelectTrigger>
                       <SelectContent className="border-amber-300/30 bg-gray-950 text-amber-50">
                         {filteredTeachers.map((teacher) => (
-                          <SelectItem key={teacher} value={teacher}>
-                            {teacher}
+                          <SelectItem key={teacher.id} value={teacher.id}>
+                            {teacher.nombre}
                           </SelectItem>
                         ))}
                         {filteredTeachers.length === 0 && (
                           <div className="px-3 py-2 text-sm text-slate-400">
-                            No se encontraron profesores.
+                            No hay profesores activos registrados.
                           </div>
                         )}
                       </SelectContent>
                     </Select>
                     <span className="text-xs text-slate-400">
-                      Selecciona el docente que autoriza o acompaña la solicitud
+                      {loadingTeachers
+                        ? "Cargando profesores activos..."
+                        : "Selecciona el docente que autoriza o acompaña la solicitud"}
                     </span>
                   </div>
                 </div>
@@ -706,6 +946,12 @@ export function SportsResourcesView() {
                     className="h-11 border-amber-300/35 bg-black/35 text-gray-100 placeholder:text-slate-400 focus-visible:border-orange-400 focus-visible:ring-orange-500/30"
                   />
                 </div>
+
+                {loadingElements && (
+                  <div className="rounded-xl border border-amber-300/20 bg-black/25 px-4 py-3 text-sm font-semibold text-amber-100">
+                    Cargando elementos deportivos...
+                  </div>
+                )}
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredInventory.map((item) => {
@@ -840,12 +1086,18 @@ export function SportsResourcesView() {
                         value={applicantName.trim()}
                       />
                       <SummaryItem
-                        label="Número de Documento"
+                        label="Número de documento"
                         value={documentNumber.trim()}
                       />
                       <SummaryItem
+                        label="Carrera"
+                        value={
+                          resolvedPerson?.carrera || "Sin carrera registrada"
+                        }
+                      />
+                      <SummaryItem
                         label="Profesor responsable"
-                        value={responsibleTeacher.trim()}
+                        value={cleanTeacherName(responsibleTeacherName)}
                       />
                       <SummaryItem
                         label="Fecha"
@@ -901,10 +1153,11 @@ export function SportsResourcesView() {
                   <Button
                     type="button"
                     onClick={submitRequest}
+                    disabled={savingRequest}
                     className="bg-orange-500 px-5 font-bold text-white shadow-lg shadow-orange-500/30 hover:bg-orange-600"
                   >
                     <Send className="h-4 w-4" />
-                    Enviar solicitud
+                    {savingRequest ? "Enviando..." : "Enviar solicitud"}
                   </Button>
                 </div>
               </section>
@@ -919,6 +1172,9 @@ export function SportsResourcesView() {
 
 export function SportsResourcesAdminView() {
   const [requests, setRequests] = useState<SportsRequest[]>([]);
+  const [sportsElements, setSportsElements] =
+    useState<SportsInventoryItem[]>(sportsInventory);
+  const [teachers, setTeachers] = useState<SportsTeacher[]>(FALLBACK_TEACHERS);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
@@ -931,24 +1187,68 @@ export function SportsResourcesAdminView() {
   );
   const [formData, setFormData] = useState<SportsRequestForm>(emptyAdminForm);
   const [adminTeacherSearch, setAdminTeacherSearch] = useState("");
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [loadingElements, setLoadingElements] = useState(false);
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const loadAdminElements = async () => {
+    setLoadingElements(true);
+    try {
+      const response =
+        (await getSportsElements()) as ApiResponse<SportsElement[]>;
+      setSportsElements(response.data.map(mapElementFromDb));
+    } catch (error) {
+      console.error("Error cargando elementos deportivos:", error);
+      setSportsElements(sportsInventory);
+      setErrorMessage("No se pudieron cargar los elementos deportivos.");
+    } finally {
+      setLoadingElements(false);
+    }
+  };
+
+  const loadAdminTeachers = async () => {
+    setLoadingTeachers(true);
+    try {
+      const response =
+        (await getSportsTeachers()) as ApiResponse<SportsTeacher[]>;
+      setTeachers(response.data.length > 0 ? response.data : FALLBACK_TEACHERS);
+    } catch (error) {
+      console.error("Error cargando profesores:", error);
+      setTeachers(FALLBACK_TEACHERS);
+      setErrorMessage("No se pudieron cargar los profesores activos.");
+    } finally {
+      setLoadingTeachers(false);
+    }
+  };
+
+  const loadRequests = async () => {
+    setLoadingRequests(true);
+    try {
+      const response =
+        (await getSportsRequests()) as ApiResponse<SportsRequestFromDb[]>;
+      setRequests(response.data.map(mapRequestFromDb));
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error cargando solicitudes deportivas:", error);
+      setRequests([]);
+      setErrorMessage("No se pudieron cargar las solicitudes.");
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  const refreshAdminData = async () => {
+    await Promise.all([loadRequests(), loadAdminElements(), loadAdminTeachers()]);
+  };
+
   useEffect(() => {
-    setRequests(readStoredRequests());
     setIsAuthenticated(
       window.sessionStorage.getItem(SPORTS_ADMIN_SESSION_KEY) === "true"
     );
-
-    const syncRequests = () => setRequests(readStoredRequests());
-
-    window.addEventListener("storage", syncRequests);
-    window.addEventListener("sports_requests_updated", syncRequests);
-
-    return () => {
-      window.removeEventListener("storage", syncRequests);
-      window.removeEventListener("sports_requests_updated", syncRequests);
-    };
+    refreshAdminData();
   }, []);
 
   const stats = useMemo(
@@ -971,24 +1271,16 @@ export function SportsResourcesAdminView() {
     const normalizedSearch = adminTeacherSearch.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return TEACHERS;
+      return teachers;
     }
 
-    return TEACHERS.filter((teacher) =>
-      teacher.toLowerCase().includes(normalizedSearch)
+    return teachers.filter((teacher) =>
+      [teacher.nombre, teacher.correo || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
     );
-  }, [adminTeacherSearch]);
-
-  const persistRequests = (
-    updater: SportsRequest[] | ((currentRequests: SportsRequest[]) => SportsRequest[])
-  ) => {
-    setRequests((currentRequests) => {
-      const nextRequests =
-        typeof updater === "function" ? updater(currentRequests) : updater;
-      saveStoredRequests(nextRequests);
-      return nextRequests;
-    });
-  };
+  }, [adminTeacherSearch, teachers]);
 
   const handleLogin = () => {
     if (passwordInput === SPORTS_ADMIN_PASSWORD) {
@@ -1027,6 +1319,7 @@ export function SportsResourcesAdminView() {
     setFormData({
       applicantName: request.applicantName,
       documentNumber: request.documentNumber,
+      profesorId: request.profesorId || FALLBACK_TEACHER_ID,
       responsibleTeacher: request.responsibleTeacher,
       role: request.role,
       selectedItems: request.selectedItems,
@@ -1037,14 +1330,14 @@ export function SportsResourcesAdminView() {
     setIsDialogOpen(true);
   };
 
-  const handleAdminSubmit = () => {
+  const handleAdminSubmit = async () => {
     if (!editingRequest) {
       return;
     }
 
     const applicantName = formData.applicantName.trim();
     const documentNumber = formData.documentNumber.trim();
-    const responsibleTeacher = formData.responsibleTeacher.trim();
+    const responsibleTeacher = cleanTeacherName(formData.responsibleTeacher);
     const observations = formData.observations.trim();
 
     if (
@@ -1059,35 +1352,55 @@ export function SportsResourcesAdminView() {
       return;
     }
 
-    persistRequests((currentRequests) =>
-      currentRequests.map((request) =>
-        request.id === editingRequest.id
-          ? {
-              ...request,
-              applicantName,
-              documentNumber,
-              responsibleTeacher,
-              role: formData.role,
-              selectedItems: formData.selectedItems,
-              status: formData.status,
-              observations,
-            }
-          : request
-      )
-    );
-    setSuccessMessage("Solicitud modificada correctamente.");
-    closeDialog();
+    try {
+      await updateSportsRequest(editingRequest.id, {
+        nombreSolicitante: applicantName,
+        documentoSolicitante: documentNumber,
+        profesorId:
+          formData.profesorId && formData.profesorId !== FALLBACK_TEACHER_ID
+            ? formData.profesorId
+            : undefined,
+        profesorNombre: responsibleTeacher,
+        estado: formData.status,
+        observaciones: observations,
+        selectedItems: formData.selectedItems.map((item) => ({
+          elementoId: item.elementoId || item.id,
+          cantidad: item.quantity,
+        })),
+      });
+      await refreshAdminData();
+      setSuccessMessage("Solicitud modificada correctamente.");
+      closeDialog();
+    } catch (error) {
+      console.error("Error actualizando solicitud deportiva:", error);
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar la solicitud."
+      );
+    }
   };
 
-  const updateRequestStatus = (
+  const updateRequestStatus = async (
     requestId: string,
     status: SportsRequestStatus
   ) => {
-    persistRequests((currentRequests) =>
+    setRequests((currentRequests) =>
       currentRequests.map((request) =>
         request.id === requestId ? { ...request, status } : request
       )
     );
+    try {
+      await updateSportsRequest(requestId, { estado: status });
+      await loadRequests();
+      setSuccessMessage("Estado actualizado correctamente.");
+    } catch (error) {
+      console.error("Error actualizando estado:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "No se pudo cambiar el estado."
+      );
+      await loadRequests();
+    }
   };
 
   const updateAdminItemQuantity = (item: SportsInventoryItem, change: number) => {
@@ -1123,14 +1436,23 @@ export function SportsResourcesAdminView() {
     });
   };
 
-  const deleteRequest = (requestId: string) => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta solicitud?")) {
+  const deleteRequest = async (requestId: string) => {
+    if (!window.confirm("¿Seguro que deseas cancelar esta solicitud?")) {
       return;
     }
 
-    persistRequests((currentRequests) =>
-      currentRequests.filter((request) => request.id !== requestId)
-    );
+    try {
+      await cancelSportsRequest(requestId);
+      await refreshAdminData();
+      setSuccessMessage("Solicitud cancelada correctamente.");
+    } catch (error) {
+      console.error("Error cancelando solicitud:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "No se pudo cancelar la solicitud."
+      );
+    }
   };
 
   if (!isAuthenticated) {
@@ -1252,14 +1574,20 @@ export function SportsResourcesAdminView() {
                 {successMessage}
               </div>
             )}
+            {errorMessage && (
+              <div className="mb-4 rounded-lg border border-red-300/40 bg-red-500/15 px-4 py-3 text-sm font-medium text-red-100">
+                {errorMessage}
+              </div>
+            )}
 
             <div className="overflow-x-auto rounded-xl border border-amber-300/25 bg-gray-950/55 shadow-inner shadow-amber-500/10">
-              <div className="min-w-[1500px]">
-                <div className="grid grid-cols-[108px_104px_160px_120px_180px_210px_170px_200px_248px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase tracking-normal text-black">
+              <div className="min-w-[1640px]">
+                <div className="grid grid-cols-[108px_104px_160px_120px_150px_180px_210px_170px_200px_248px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase tracking-normal text-black">
                   <TableHead>Fecha</TableHead>
                   <TableHead>Día</TableHead>
                   <TableHead>Solicitante</TableHead>
                   <TableHead>Documento</TableHead>
+                  <TableHead>Carrera</TableHead>
                   <TableHead>Profesor</TableHead>
                   <TableHead>Elementos</TableHead>
                   <TableHead>Estado</TableHead>
@@ -1267,16 +1595,19 @@ export function SportsResourcesAdminView() {
                   <TableHead>Acciones</TableHead>
                 </div>
 
-                {requests.length === 0 ? (
+                {loadingRequests ? (
+                  <div className="flex min-h-[180px] items-center justify-center bg-gray-950/70 px-6 py-10 text-center text-sm text-amber-100">
+                    Cargando solicitudes...
+                  </div>
+                ) : requests.length === 0 ? (
                   <div className="flex min-h-[180px] items-center justify-center bg-gray-950/70 px-6 py-10 text-center text-sm text-gray-300">
-                    No hay solicitudes registradas. Las solicitudes enviadas
-                    desde el formulario público aparecerán aquí.
+                    No hay solicitudes registradas.
                   </div>
                 ) : (
                   requests.map((request) => (
                     <div
                       key={request.id}
-                      className="grid grid-cols-[108px_104px_160px_120px_180px_210px_170px_200px_248px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 transition-colors hover:bg-amber-500/10"
+                      className="grid grid-cols-[108px_104px_160px_120px_150px_180px_210px_170px_200px_248px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 transition-colors hover:bg-amber-500/10"
                     >
                       <TableCell className="justify-center whitespace-nowrap text-center font-bold text-amber-100">
                         {request.requestDate}
@@ -1292,9 +1623,14 @@ export function SportsResourcesAdminView() {
                       <TableCell className="justify-center whitespace-nowrap text-center font-mono text-xs text-gray-100">
                         {request.documentNumber}
                       </TableCell>
+                      <TableCell className="font-semibold text-emerald-100/90">
+                        <span className="line-clamp-2 break-words">
+                          {request.applicantCareer || "Sin carrera"}
+                        </span>
+                      </TableCell>
                       <TableCell className="font-semibold text-amber-50/90">
                         <span className="line-clamp-2 break-words">
-                          {request.responsibleTeacher}
+                          {cleanTeacherName(request.responsibleTeacher)}
                         </span>
                       </TableCell>
                       <TableCell className="whitespace-normal leading-relaxed text-amber-50/90">
@@ -1444,29 +1780,29 @@ export function SportsResourcesAdminView() {
                 className="border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
               />
               <Select
-                value={formData.responsibleTeacher}
-                onValueChange={(value) =>
-                  {
+                value={formData.profesorId || FALLBACK_TEACHER_ID}
+                onValueChange={(value) => {
+                    const selectedTeacher = findTeacherById(teachers, value);
                     setFormData((currentForm) => ({
                       ...currentForm,
-                      responsibleTeacher: value,
+                      profesorId: value,
+                      responsibleTeacher: selectedTeacher?.nombre || "",
                     }));
                     setAdminTeacherSearch("");
-                  }
-                }
+                  }}
               >
                 <SelectTrigger className="border-amber-300/30 bg-black/30 text-white">
                   <SelectValue placeholder="Selecciona el profesor responsable" />
                 </SelectTrigger>
                 <SelectContent className="border-amber-300/30 bg-gray-950 text-amber-50">
                   {filteredAdminTeachers.map((teacher) => (
-                    <SelectItem key={teacher} value={teacher}>
-                      {teacher}
+                    <SelectItem key={teacher.id} value={teacher.id}>
+                      {teacher.nombre}
                     </SelectItem>
                   ))}
                   {filteredAdminTeachers.length === 0 && (
                     <div className="px-3 py-2 text-sm text-slate-400">
-                      No se encontraron profesores.
+                      No hay profesores activos registrados.
                     </div>
                   )}
                 </SelectContent>
@@ -1478,7 +1814,7 @@ export function SportsResourcesAdminView() {
                 Elementos solicitados
               </label>
               <div className="grid max-h-72 gap-3 overflow-y-auto rounded-xl border border-amber-300/20 bg-black/20 p-3">
-                {sportsInventory.map((item) => {
+                {sportsElements.map((item) => {
                   const quantity =
                     formData.selectedItems.find(
                       (selectedItem) => selectedItem.id === item.id
@@ -1492,7 +1828,7 @@ export function SportsResourcesAdminView() {
                       <div>
                         <p className="font-bold text-amber-50">{item.name}</p>
                         <p className="text-xs text-gray-400">
-                          {item.detail} · {item.available} disponibles
+                          {item.detail} - {item.available} disponibles
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -1633,8 +1969,12 @@ export function SportsResourcesAdminView() {
                 value={viewingRequest.documentNumber}
               />
               <DetailRow
+                label="Carrera"
+                value={viewingRequest.applicantCareer || "Sin carrera"}
+              />
+              <DetailRow
                 label="Profesor responsable"
-                value={viewingRequest.responsibleTeacher}
+                value={cleanTeacherName(viewingRequest.responsibleTeacher)}
               />
               <DetailRow
                 label="Elementos"
@@ -1937,3 +2277,4 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

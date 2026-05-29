@@ -6,8 +6,15 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "sports:apply-previos-schema": "node prisma/apply-previos-schema.js",
+    "sports:import-previos": "node prisma/import-previos.js ./prisma/data/previos.xlsx",
+    "sports:import-reporte-deportes": "node prisma/import-reporte-deportes.js ./prisma/data/Reporte_Ubicacion_Semestral.xlsx",
+    "sports:import-real": "node prisma/import-real-sports-elements.js",
     "start": "next start",
     "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
