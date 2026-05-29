@@ -222,6 +222,7 @@ model SolicitudDeportiva {
   profesorNombre       String?
   fechaSolicitud       DateTime                       @default(now())
   diaSolicitud         String
+  horaSolicitud        String?
   estado               EstadoSolicitudDeportiva       @default(RECEPCIONADA)
   observaciones        String?
   whatsappNotificado   Boolean                        @default(false)

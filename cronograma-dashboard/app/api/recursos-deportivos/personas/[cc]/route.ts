@@ -24,19 +24,17 @@ export async function GET(
     }
 
     const estudiante = await prisma.estudiante.findFirst({
-      where: {
-        cc: normalizedCc,
-        activo: true,
-      },
+      where: { cc: normalizedCc },
       select: {
         id: true,
         nombre: true,
         cc: true,
         carrera: true,
+        activo: true,
       },
     });
 
-    if (estudiante) {
+    if (estudiante?.activo) {
       return NextResponse.json({
         ok: true,
         data: {
@@ -49,20 +47,29 @@ export async function GET(
       });
     }
 
+    if (estudiante && !estudiante.activo) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "La persona existe pero está inactiva. Comunícate con administración.",
+        },
+        { status: 404 }
+      );
+    }
+
     const profesor = await prisma.profesor.findFirst({
-      where: {
-        cc: normalizedCc,
-        activo: true,
-      },
+      where: { cc: normalizedCc },
       select: {
         id: true,
         nombre: true,
         cc: true,
         carrera: true,
+        activo: true,
       },
     });
 
-    if (profesor?.cc) {
+    if (profesor?.cc && profesor.activo) {
       return NextResponse.json({
         ok: true,
         data: {
@@ -73,6 +80,17 @@ export async function GET(
           carrera: profesor.carrera,
         },
       });
+    }
+
+    if (profesor?.cc && !profesor.activo) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "La persona existe pero está inactiva. Comunícate con administración.",
+        },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(

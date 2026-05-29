@@ -35,13 +35,21 @@ function getSpanishDay(date: Date) {
     "DOMINGO",
     "LUNES",
     "MARTES",
-    "MIÉRCOLES",
+    "MI?RCOLES",
     "JUEVES",
     "VIERNES",
-    "SÁBADO",
+    "S?BADO",
   ];
 
   return days[date.getDay()];
+}
+
+function getCurrentTimeHHMM(date = new Date()) {
+  return date.toLocaleTimeString("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 function normalizeSelectedItems(value: unknown) {
@@ -195,6 +203,7 @@ export async function POST(request: Request) {
           profesorNombre,
           fechaSolicitud,
           diaSolicitud: getSpanishDay(fechaSolicitud),
+          horaSolicitud: getCurrentTimeHHMM(fechaSolicitud),
           estado: "RECEPCIONADA",
           detalles: {
             create: selectedItems.map((item) => {

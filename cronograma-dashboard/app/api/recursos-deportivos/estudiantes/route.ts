@@ -12,17 +12,13 @@ function normalizeText(value: unknown) {
   return String(value || "").trim().replace(/\s+/g, " ");
 }
 
-function placeholderEmail(cc: string) {
-  return `${cc}@sin-correo.local`;
-}
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const includeInactive = searchParams.get("includeInactive") === "true";
-    const search = normalizeText(searchParams.get("search"));
+    const search = normalizeText(searchParams.get("search")).toLowerCase();
 
-    const profesores = await prisma.profesor.findMany({
+    const estudiantes = await prisma.estudiante.findMany({
       where: {
         ...(includeInactive ? {} : { activo: true }),
         ...(search
@@ -31,29 +27,19 @@ export async function GET(request: Request) {
                 { nombre: { contains: search, mode: "insensitive" } },
                 { cc: { contains: search, mode: "insensitive" } },
                 { carrera: { contains: search, mode: "insensitive" } },
-                { correo: { contains: search, mode: "insensitive" } },
               ],
             }
           : {}),
       },
       orderBy: { nombre: "asc" },
-      select: {
-        id: true,
-        nombre: true,
-        correo: true,
-        cc: true,
-        carrera: true,
-        telefono: true,
-        activo: true,
-      },
     });
 
-    return NextResponse.json({ ok: true, data: profesores });
+    return NextResponse.json({ ok: true, data: estudiantes });
   } catch (error) {
-    console.error("Error listing sports teachers:", error);
+    console.error("Error listing sports students:", error);
 
     return NextResponse.json(
-      { ok: false, message: "Error al listar profesores." },
+      { ok: false, message: "Error al listar estudiantes." },
       { status: 500 }
     );
   }
@@ -65,8 +51,6 @@ export async function POST(request: Request) {
     const nombre = normalizeText(body.nombre);
     const cc = normalizeDocument(body.cc);
     const carrera = normalizeText(body.carrera) || null;
-    const telefono = normalizeText(body.telefono) || null;
-    const correo = normalizeText(body.correo) || placeholderEmail(cc);
     const activo = body.activo === undefined ? true : Boolean(body.activo);
 
     if (!nombre || !cc) {
@@ -76,43 +60,30 @@ export async function POST(request: Request) {
       );
     }
 
-    const [existingByCc, existingByEmail] = await Promise.all([
-      prisma.profesor.findFirst({ where: { cc } }),
-      prisma.profesor.findUnique({ where: { correo } }),
-    ]);
+    const existing = await prisma.estudiante.findUnique({ where: { cc } });
 
-    if (existingByCc) {
+    if (existing) {
       return NextResponse.json(
-        { ok: false, message: "Ya existe un profesor con ese documento." },
+        { ok: false, message: "Ya existe un estudiante con ese documento." },
         { status: 409 }
       );
     }
 
-    if (existingByEmail) {
-      return NextResponse.json(
-        { ok: false, message: "Ya existe un profesor con ese correo." },
-        { status: 409 }
-      );
-    }
-
-    const profesor = await prisma.profesor.create({
+    const estudiante = await prisma.estudiante.create({
       data: {
         nombre,
         cc,
         carrera,
-        correo,
-        telefono,
         activo,
-        actualizadoEn: new Date(),
       },
     });
 
-    return NextResponse.json({ ok: true, data: profesor }, { status: 201 });
+    return NextResponse.json({ ok: true, data: estudiante }, { status: 201 });
   } catch (error) {
-    console.error("Error creating sports teacher:", error);
+    console.error("Error creating sports student:", error);
 
     return NextResponse.json(
-      { ok: false, message: "Error al crear profesor." },
+      { ok: false, message: "Error al crear estudiante." },
       { status: 500 }
     );
   }

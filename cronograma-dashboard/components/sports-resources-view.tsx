@@ -47,12 +47,20 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   cancelSportsRequest,
+  createStudent,
+  createTeacher,
   createSportsRequest,
+  deactivateStudent,
+  deactivateTeacher,
   getSportsElements,
   getSportsPersonByDocument,
   getSportsRequests,
   getSportsTeachers,
+  getStudents,
+  getTeachers,
+  updateStudent,
   updateSportsRequest,
+  updateTeacher,
 } from "@/lib/sports-resources-api";
 
 type SportsRequestStatus =
@@ -71,6 +79,7 @@ type SportsUserRole =
 type SportsPersonType = "ESTUDIANTE" | "PROFESOR";
 
 type PublicStep = 1 | 2 | 3;
+type AdminSection = "solicitudes" | "estudiantes" | "profesores";
 
 interface SportsItemSelection {
   id: string;
@@ -93,6 +102,7 @@ interface SportsRequest {
   selectedItems: SportsItemSelection[];
   requestDate: string;
   requestDay: string;
+  requestTime: string;
   status: SportsRequestStatus;
   observations: string;
   elements?: string;
@@ -141,6 +151,16 @@ interface SportsTeacher {
   correo?: string | null;
   cc?: string | null;
   carrera?: string | null;
+  telefono?: string | null;
+  activo?: boolean;
+}
+
+interface Student {
+  id: string;
+  nombre: string;
+  cc: string;
+  carrera?: string | null;
+  activo: boolean;
 }
 
 interface SportsPerson {
@@ -183,6 +203,7 @@ interface SportsRequestFromDb {
   } | null;
   fechaSolicitud: string;
   diaSolicitud: string;
+  horaSolicitud?: string | null;
   estado: SportsRequestStatus;
   observaciones?: string | null;
   detalles: SportsRequestDetail[];
@@ -192,6 +213,24 @@ interface ApiResponse<T> {
   ok: boolean;
   data: T;
   message?: string;
+}
+
+interface StudentForm {
+  id?: string;
+  nombre: string;
+  cc: string;
+  carrera: string;
+  activo: boolean;
+}
+
+interface TeacherForm {
+  id?: string;
+  nombre: string;
+  cc: string;
+  carrera: string;
+  correo: string;
+  telefono: string;
+  activo: boolean;
 }
 
 const SPORTS_ADMIN_SESSION_KEY = "sports_admin_authenticated";
@@ -302,6 +341,22 @@ const emptyAdminForm: SportsRequestForm = {
   observations: "",
 };
 
+const emptyStudentForm: StudentForm = {
+  nombre: "",
+  cc: "",
+  carrera: "",
+  activo: true,
+};
+
+const emptyTeacherForm: TeacherForm = {
+  nombre: "",
+  cc: "",
+  carrera: "",
+  correo: "",
+  telefono: "",
+  activo: true,
+};
+
 const statusStyles: Record<SportsRequestStatus, string> = {
   RECEPCIONADA: "border-yellow-300/50 bg-yellow-400/20 text-yellow-100",
   PENDIENTE: "border-red-300/50 bg-red-500/20 text-red-100",
@@ -394,6 +449,22 @@ function formatDbDate(value: string) {
   });
 }
 
+function formatHourFromDate(value?: string | Date | null) {
+  if (!value) return "--:--";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "--:--";
+  }
+
+  return date.toLocaleTimeString("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 function mapRequestFromDb(request: SportsRequestFromDb): SportsRequest {
   const applicantCareer =
     request.estudiante?.carrera || request.carreraSolicitante || null;
@@ -419,6 +490,7 @@ function mapRequestFromDb(request: SportsRequestFromDb): SportsRequest {
     })),
     requestDate: formatDbDate(request.fechaSolicitud),
     requestDay: request.diaSolicitud,
+    requestTime: request.horaSolicitud || formatHourFromDate(request.fechaSolicitud),
     status: request.estado,
     observations: request.observaciones || "",
   };
@@ -1171,10 +1243,14 @@ export function SportsResourcesView() {
 }
 
 export function SportsResourcesAdminView() {
+  const [activeSection, setActiveSection] =
+    useState<AdminSection>("solicitudes");
   const [requests, setRequests] = useState<SportsRequest[]>([]);
   const [sportsElements, setSportsElements] =
     useState<SportsInventoryItem[]>(sportsInventory);
   const [teachers, setTeachers] = useState<SportsTeacher[]>(FALLBACK_TEACHERS);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [managedTeachers, setManagedTeachers] = useState<SportsTeacher[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
@@ -1187,11 +1263,24 @@ export function SportsResourcesAdminView() {
   );
   const [formData, setFormData] = useState<SportsRequestForm>(emptyAdminForm);
   const [adminTeacherSearch, setAdminTeacherSearch] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [teacherCrudSearch, setTeacherCrudSearch] = useState("");
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
+  const [isTeacherDialogOpen, setIsTeacherDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editingTeacher, setEditingTeacher] = useState<SportsTeacher | null>(
+    null
+  );
+  const [studentForm, setStudentForm] = useState<StudentForm>(emptyStudentForm);
+  const [teacherForm, setTeacherForm] = useState<TeacherForm>(emptyTeacherForm);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [loadingElements, setLoadingElements] = useState(false);
   const [loadingTeachers, setLoadingTeachers] = useState(false);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [loadingManagedTeachers, setLoadingManagedTeachers] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [formError, setFormError] = useState("");
+  const [crudFormError, setCrudFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const loadAdminElements = async () => {
@@ -1224,6 +1313,36 @@ export function SportsResourcesAdminView() {
     }
   };
 
+  const loadStudents = async () => {
+    setLoadingStudents(true);
+    try {
+      const response = (await getStudents({
+        includeInactive: true,
+      })) as ApiResponse<Student[]>;
+      setStudents(response.data);
+    } catch (error) {
+      console.error("Error cargando estudiantes:", error);
+      setErrorMessage("No se pudieron cargar los estudiantes.");
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  const loadManagedTeachers = async () => {
+    setLoadingManagedTeachers(true);
+    try {
+      const response = (await getTeachers({
+        includeInactive: true,
+      })) as ApiResponse<SportsTeacher[]>;
+      setManagedTeachers(response.data);
+    } catch (error) {
+      console.error("Error cargando profesores:", error);
+      setErrorMessage("No se pudieron cargar los profesores.");
+    } finally {
+      setLoadingManagedTeachers(false);
+    }
+  };
+
   const loadRequests = async () => {
     setLoadingRequests(true);
     try {
@@ -1241,7 +1360,13 @@ export function SportsResourcesAdminView() {
   };
 
   const refreshAdminData = async () => {
-    await Promise.all([loadRequests(), loadAdminElements(), loadAdminTeachers()]);
+    await Promise.all([
+      loadRequests(),
+      loadAdminElements(),
+      loadAdminTeachers(),
+      loadStudents(),
+      loadManagedTeachers(),
+    ]);
   };
 
   useEffect(() => {
@@ -1281,6 +1406,41 @@ export function SportsResourcesAdminView() {
         .includes(normalizedSearch)
     );
   }, [adminTeacherSearch, teachers]);
+
+  const filteredStudents = useMemo(() => {
+    const normalizedSearch = studentSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      [student.nombre, student.cc, student.carrera || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
+    );
+  }, [studentSearch, students]);
+
+  const filteredManagedTeachers = useMemo(() => {
+    const normalizedSearch = teacherCrudSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return managedTeachers;
+    }
+
+    return managedTeachers.filter((teacher) =>
+      [
+        teacher.nombre,
+        teacher.cc || "",
+        teacher.carrera || "",
+        teacher.correo || "",
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
+    );
+  }, [teacherCrudSearch, managedTeachers]);
 
   const handleLogin = () => {
     if (passwordInput === SPORTS_ADMIN_PASSWORD) {
@@ -1455,6 +1615,160 @@ export function SportsResourcesAdminView() {
     }
   };
 
+  const openNewStudentDialog = () => {
+    setEditingStudent(null);
+    setStudentForm(emptyStudentForm);
+    setCrudFormError("");
+    setIsStudentDialogOpen(true);
+  };
+
+  const openEditStudentDialog = (student: Student) => {
+    setEditingStudent(student);
+    setStudentForm({
+      id: student.id,
+      nombre: student.nombre,
+      cc: student.cc,
+      carrera: student.carrera || "",
+      activo: student.activo,
+    });
+    setCrudFormError("");
+    setIsStudentDialogOpen(true);
+  };
+
+  const closeStudentDialog = () => {
+    setIsStudentDialogOpen(false);
+    setEditingStudent(null);
+    setStudentForm(emptyStudentForm);
+    setCrudFormError("");
+  };
+
+  const submitStudentForm = async () => {
+    const payload = {
+      nombre: studentForm.nombre.trim(),
+      cc: studentForm.cc.trim(),
+      carrera: studentForm.carrera.trim() || null,
+      activo: studentForm.activo,
+    };
+
+    if (!payload.nombre || !payload.cc) {
+      setCrudFormError("Nombre y documento son obligatorios.");
+      return;
+    }
+
+    try {
+      if (editingStudent) {
+        await updateStudent(editingStudent.id, payload);
+        setSuccessMessage("Estudiante actualizado correctamente.");
+      } else {
+        await createStudent(payload);
+        setSuccessMessage("Estudiante creado correctamente.");
+      }
+      await loadStudents();
+      closeStudentDialog();
+    } catch (error) {
+      setCrudFormError(
+        error instanceof Error ? error.message : "No se pudo guardar el estudiante."
+      );
+    }
+  };
+
+  const deactivateStudentRecord = async (student: Student) => {
+    if (!window.confirm("¿Seguro que deseas desactivar este estudiante?")) {
+      return;
+    }
+
+    try {
+      await deactivateStudent(student.id);
+      await loadStudents();
+      setSuccessMessage("Estudiante desactivado correctamente.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "No se pudo desactivar el estudiante."
+      );
+    }
+  };
+
+  const openNewTeacherDialog = () => {
+    setEditingTeacher(null);
+    setTeacherForm(emptyTeacherForm);
+    setCrudFormError("");
+    setIsTeacherDialogOpen(true);
+  };
+
+  const openEditTeacherDialog = (teacher: SportsTeacher) => {
+    setEditingTeacher(teacher);
+    setTeacherForm({
+      id: teacher.id,
+      nombre: teacher.nombre,
+      cc: teacher.cc || "",
+      carrera: teacher.carrera || "",
+      correo: teacher.correo || "",
+      telefono: teacher.telefono || "",
+      activo: teacher.activo ?? true,
+    });
+    setCrudFormError("");
+    setIsTeacherDialogOpen(true);
+  };
+
+  const closeTeacherDialog = () => {
+    setIsTeacherDialogOpen(false);
+    setEditingTeacher(null);
+    setTeacherForm(emptyTeacherForm);
+    setCrudFormError("");
+  };
+
+  const submitTeacherForm = async () => {
+    const payload = {
+      nombre: teacherForm.nombre.trim(),
+      cc: teacherForm.cc.trim(),
+      carrera: teacherForm.carrera.trim() || null,
+      correo: teacherForm.correo.trim() || null,
+      telefono: teacherForm.telefono.trim() || null,
+      activo: teacherForm.activo,
+    };
+
+    if (!payload.nombre || !payload.cc) {
+      setCrudFormError("Nombre y documento son obligatorios.");
+      return;
+    }
+
+    try {
+      if (editingTeacher) {
+        await updateTeacher(editingTeacher.id, payload);
+        setSuccessMessage("Profesor actualizado correctamente.");
+      } else {
+        await createTeacher(payload);
+        setSuccessMessage("Profesor creado correctamente.");
+      }
+      await Promise.all([loadManagedTeachers(), loadAdminTeachers()]);
+      closeTeacherDialog();
+    } catch (error) {
+      setCrudFormError(
+        error instanceof Error ? error.message : "No se pudo guardar el profesor."
+      );
+    }
+  };
+
+  const deactivateTeacherRecord = async (teacher: SportsTeacher) => {
+    if (!window.confirm("¿Seguro que deseas desactivar este profesor?")) {
+      return;
+    }
+
+    try {
+      await deactivateTeacher(teacher.id);
+      await Promise.all([loadManagedTeachers(), loadAdminTeachers()]);
+      setSuccessMessage("Profesor desactivado correctamente.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "No se pudo desactivar el profesor."
+      );
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <AdminLogin
@@ -1545,6 +1859,29 @@ export function SportsResourcesAdminView() {
           />
         </section>
 
+        <div className="flex flex-wrap gap-3 rounded-xl border border-amber-300/25 bg-black/30 p-2">
+          {[
+            ["solicitudes", "Solicitudes"],
+            ["estudiantes", "Estudiantes"],
+            ["profesores", "Profesores"],
+          ].map(([section, label]) => (
+            <Button
+              key={section}
+              type="button"
+              variant="outline"
+              onClick={() => setActiveSection(section as AdminSection)}
+              className={`border-amber-300/35 px-5 font-bold ${
+                activeSection === section
+                  ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:from-amber-300 hover:to-orange-400"
+                  : "bg-black/25 text-amber-100 hover:bg-orange-500/15 hover:text-orange-100"
+              }`}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+
+        {activeSection === "solicitudes" && (
         <Card className="border-amber-300/35 bg-black/35 text-white shadow-xl shadow-amber-500/10 backdrop-blur-sm">
           <CardHeader className="gap-4 md:grid-cols-[1fr_auto] md:items-center">
             <div>
@@ -1584,7 +1921,7 @@ export function SportsResourcesAdminView() {
               <div className="min-w-[1640px]">
                 <div className="grid grid-cols-[108px_104px_160px_120px_150px_180px_210px_170px_200px_248px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase tracking-normal text-black">
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Día</TableHead>
+                  <TableHead>Hora</TableHead>
                   <TableHead>Solicitante</TableHead>
                   <TableHead>Documento</TableHead>
                   <TableHead>Carrera</TableHead>
@@ -1613,7 +1950,7 @@ export function SportsResourcesAdminView() {
                         {request.requestDate}
                       </TableCell>
                       <TableCell className="justify-center whitespace-nowrap text-center font-mono text-xs text-yellow-100">
-                        {request.requestDay}
+                        {request.requestTime}
                       </TableCell>
                       <TableCell className="font-bold text-amber-50">
                         <span className="line-clamp-2 break-words">
@@ -1711,7 +2048,419 @@ export function SportsResourcesAdminView() {
             </div>
           </CardContent>
         </Card>
+        )}
+
+        {activeSection === "estudiantes" && (
+          <Card className="border-amber-300/35 bg-black/35 text-white shadow-xl shadow-amber-500/10 backdrop-blur-sm">
+            <CardHeader className="gap-4 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg font-mono text-amber-200">
+                  <User className="h-5 w-5" />
+                  ESTUDIANTES
+                </CardTitle>
+                <p className="mt-2 text-sm text-gray-300">
+                  Administración de estudiantes habilitados para solicitudes.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={openNewStudentDialog}
+                className="h-12 bg-gradient-to-r from-amber-400 to-orange-500 px-5 font-bold text-black shadow-lg shadow-orange-500/25 hover:from-amber-300 hover:to-orange-400"
+              >
+                <Plus className="h-5 w-5" />
+                Nuevo estudiante
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                value={studentSearch}
+                onChange={(event) => setStudentSearch(event.target.value)}
+                placeholder="Buscar estudiante por nombre, documento o carrera..."
+                className="max-w-xl border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
+              />
+              <div className="overflow-x-auto rounded-xl border border-amber-300/25 bg-gray-950/55">
+                <div className="min-w-[900px]">
+                  <div className="grid grid-cols-[1.5fr_150px_180px_120px_220px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase text-black">
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Documento</TableHead>
+                    <TableHead>Carrera</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </div>
+                  {loadingStudents ? (
+                    <div className="px-6 py-10 text-center text-sm text-amber-100">
+                      Cargando estudiantes...
+                    </div>
+                  ) : filteredStudents.length === 0 ? (
+                    <div className="px-6 py-10 text-center text-sm text-gray-300">
+                      No hay estudiantes registrados.
+                    </div>
+                  ) : (
+                    filteredStudents.map((student) => (
+                      <div
+                        key={student.id}
+                        className="grid grid-cols-[1.5fr_150px_180px_120px_220px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 hover:bg-amber-500/10"
+                      >
+                        <TableCell className="font-bold text-amber-50">
+                          {student.nombre}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {student.cc}
+                        </TableCell>
+                        <TableCell>{student.carrera || "Sin carrera"}</TableCell>
+                        <TableCell>
+                          {student.activo ? "Activo" : "Inactivo"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => openEditStudentDialog(student)}
+                              className="h-8 border-amber-300/50 bg-amber-500/15 text-xs text-amber-100 hover:bg-amber-500/30"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Editar
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => deactivateStudentRecord(student)}
+                              disabled={!student.activo}
+                              className="h-8 border-red-300/40 bg-red-500/10 text-xs text-red-100 hover:bg-red-500/25 disabled:opacity-40"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Desactivar
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeSection === "profesores" && (
+          <Card className="border-amber-300/35 bg-black/35 text-white shadow-xl shadow-amber-500/10 backdrop-blur-sm">
+            <CardHeader className="gap-4 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg font-mono text-amber-200">
+                  <Shield className="h-5 w-5" />
+                  PROFESORES
+                </CardTitle>
+                <p className="mt-2 text-sm text-gray-300">
+                  Administración de profesores responsables.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={openNewTeacherDialog}
+                className="h-12 bg-gradient-to-r from-amber-400 to-orange-500 px-5 font-bold text-black shadow-lg shadow-orange-500/25 hover:from-amber-300 hover:to-orange-400"
+              >
+                <Plus className="h-5 w-5" />
+                Nuevo profesor
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                value={teacherCrudSearch}
+                onChange={(event) => setTeacherCrudSearch(event.target.value)}
+                placeholder="Buscar profesor por nombre, documento, carrera o correo..."
+                className="max-w-xl border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
+              />
+              <div className="overflow-x-auto rounded-xl border border-amber-300/25 bg-gray-950/55">
+                <div className="min-w-[1100px]">
+                  <div className="grid grid-cols-[1.5fr_150px_180px_230px_140px_120px_220px] bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-black uppercase text-black">
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Documento</TableHead>
+                    <TableHead>Carrera</TableHead>
+                    <TableHead>Correo</TableHead>
+                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </div>
+                  {loadingManagedTeachers ? (
+                    <div className="px-6 py-10 text-center text-sm text-amber-100">
+                      Cargando profesores...
+                    </div>
+                  ) : filteredManagedTeachers.length === 0 ? (
+                    <div className="px-6 py-10 text-center text-sm text-gray-300">
+                      No hay profesores registrados.
+                    </div>
+                  ) : (
+                    filteredManagedTeachers.map((teacher) => (
+                      <div
+                        key={teacher.id}
+                        className="grid grid-cols-[1.5fr_150px_180px_230px_140px_120px_220px] border-t border-amber-300/15 bg-gray-950/65 text-sm text-gray-100 hover:bg-amber-500/10"
+                      >
+                        <TableCell className="font-bold text-amber-50">
+                          {teacher.nombre}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {teacher.cc || "Sin documento"}
+                        </TableCell>
+                        <TableCell>{teacher.carrera || "Sin carrera"}</TableCell>
+                        <TableCell>
+                          <span className="line-clamp-2 break-all">
+                            {teacher.correo || "Sin correo"}
+                          </span>
+                        </TableCell>
+                        <TableCell>{teacher.telefono || "Sin teléfono"}</TableCell>
+                        <TableCell>
+                          {teacher.activo ? "Activo" : "Inactivo"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => openEditTeacherDialog(teacher)}
+                              className="h-8 border-amber-300/50 bg-amber-500/15 text-xs text-amber-100 hover:bg-amber-500/30"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Editar
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => deactivateTeacherRecord(teacher)}
+                              disabled={!teacher.activo}
+                              className="h-8 border-red-300/40 bg-red-500/10 text-xs text-red-100 hover:bg-red-500/25 disabled:opacity-40"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Desactivar
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
+        <DialogContent className="border-amber-300/40 bg-gray-950 text-white shadow-2xl shadow-orange-500/20">
+          <DialogHeader>
+            <DialogTitle className="text-amber-100">
+              {editingStudent ? "Editar estudiante" : "Nuevo estudiante"}
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Gestiona los datos del estudiante para el módulo deportivo.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Nombre</label>
+              <Input
+                value={studentForm.nombre}
+                onChange={(event) =>
+                  setStudentForm((currentForm) => ({
+                    ...currentForm,
+                    nombre: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">
+                Número de documento
+              </label>
+              <Input
+                value={studentForm.cc}
+                onChange={(event) =>
+                  setStudentForm((currentForm) => ({
+                    ...currentForm,
+                    cc: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Carrera</label>
+              <Input
+                value={studentForm.carrera}
+                onChange={(event) =>
+                  setStudentForm((currentForm) => ({
+                    ...currentForm,
+                    carrera: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <label className="flex items-center gap-3 text-sm text-amber-100">
+              <input
+                type="checkbox"
+                checked={studentForm.activo}
+                onChange={(event) =>
+                  setStudentForm((currentForm) => ({
+                    ...currentForm,
+                    activo: event.target.checked,
+                  }))
+                }
+                className="h-4 w-4 accent-orange-500"
+              />
+              Activo
+            </label>
+            {crudFormError && (
+              <div className="rounded-lg border border-red-300/40 bg-red-500/15 px-3 py-2 text-sm text-red-100">
+                {crudFormError}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeStudentDialog}
+              className="border-gray-500/50 bg-black/30 text-gray-100 hover:bg-gray-800"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={submitStudentForm}
+              className="bg-gradient-to-r from-amber-400 to-orange-500 font-bold text-black hover:from-amber-300 hover:to-orange-400"
+            >
+              <Save className="h-4 w-4" />
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTeacherDialogOpen} onOpenChange={setIsTeacherDialogOpen}>
+        <DialogContent className="border-amber-300/40 bg-gray-950 text-white shadow-2xl shadow-orange-500/20">
+          <DialogHeader>
+            <DialogTitle className="text-amber-100">
+              {editingTeacher ? "Editar profesor" : "Nuevo profesor"}
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Gestiona los profesores responsables del módulo deportivo.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Nombre</label>
+              <Input
+                value={teacherForm.nombre}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    nombre: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">
+                Número de documento
+              </label>
+              <Input
+                value={teacherForm.cc}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    cc: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Carrera</label>
+              <Input
+                value={teacherForm.carrera}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    carrera: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Correo</label>
+              <Input
+                value={teacherForm.correo}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    correo: event.target.value,
+                  }))
+                }
+                placeholder="Opcional, se genera si queda vacío"
+                className="border-amber-300/30 bg-black/30 text-white placeholder:text-gray-500"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-amber-100">Teléfono</label>
+              <Input
+                value={teacherForm.telefono}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    telefono: event.target.value,
+                  }))
+                }
+                className="border-amber-300/30 bg-black/30 text-white"
+              />
+            </div>
+            <label className="flex items-center gap-3 text-sm text-amber-100">
+              <input
+                type="checkbox"
+                checked={teacherForm.activo}
+                onChange={(event) =>
+                  setTeacherForm((currentForm) => ({
+                    ...currentForm,
+                    activo: event.target.checked,
+                  }))
+                }
+                className="h-4 w-4 accent-orange-500"
+              />
+              Activo
+            </label>
+            {crudFormError && (
+              <div className="rounded-lg border border-red-300/40 bg-red-500/15 px-3 py-2 text-sm text-red-100">
+                {crudFormError}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeTeacherDialog}
+              className="border-gray-500/50 bg-black/30 text-gray-100 hover:bg-gray-800"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={submitTeacherForm}
+              className="bg-gradient-to-r from-amber-400 to-orange-500 font-bold text-black hover:from-amber-300 hover:to-orange-400"
+            >
+              <Save className="h-4 w-4" />
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={isDialogOpen}
@@ -1959,6 +2708,7 @@ export function SportsResourcesAdminView() {
           {viewingRequest && (
             <div className="grid gap-3 text-sm">
               <DetailRow label="Fecha" value={viewingRequest.requestDate} />
+              <DetailRow label="Hora" value={viewingRequest.requestTime} />
               <DetailRow label="Día" value={viewingRequest.requestDay} />
               <DetailRow
                 label="Solicitante"

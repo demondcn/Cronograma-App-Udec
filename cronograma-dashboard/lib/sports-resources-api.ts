@@ -58,6 +58,79 @@ export async function getSportsTeachers() {
   return requestJson("/api/recursos-deportivos/profesores");
 }
 
+function buildQuery(params?: { search?: string; includeInactive?: boolean }) {
+  const searchParams = new URLSearchParams();
+
+  if (params?.search) {
+    searchParams.set("search", params.search);
+  }
+
+  if (params?.includeInactive) {
+    searchParams.set("includeInactive", "true");
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
+}
+
+export async function getStudents(params?: {
+  search?: string;
+  includeInactive?: boolean;
+}) {
+  return requestJson(
+    `/api/recursos-deportivos/estudiantes${buildQuery(params)}`
+  );
+}
+
+export async function createStudent(payload: unknown) {
+  return requestJson("/api/recursos-deportivos/estudiantes", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateStudent(id: string, payload: unknown) {
+  return requestJson(`/api/recursos-deportivos/estudiantes/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deactivateStudent(id: string) {
+  return requestJson(`/api/recursos-deportivos/estudiantes/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function getTeachers(params?: {
+  search?: string;
+  includeInactive?: boolean;
+}) {
+  return requestJson(
+    `/api/recursos-deportivos/profesores${buildQuery(params)}`
+  );
+}
+
+export async function createTeacher(payload: unknown) {
+  return requestJson("/api/recursos-deportivos/profesores", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateTeacher(id: string, payload: unknown) {
+  return requestJson(`/api/recursos-deportivos/profesores/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deactivateTeacher(id: string) {
+  return requestJson(`/api/recursos-deportivos/profesores/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export async function getSportsPersonByDocument(cc: string) {
   return requestJson(
     `/api/recursos-deportivos/personas/${encodeURIComponent(cc)}`
